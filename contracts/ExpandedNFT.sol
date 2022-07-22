@@ -229,7 +229,7 @@ contract ExpandedNFT is
       @param to address to send the newly minted edition to
       @dev This mints one edition to the given address by an allowed minter on the edition instance.
      */
-    function mintEdition(address to) external override returns (uint256) {
+    function mintEdition(address to) external payable override returns (uint256) {
         require(_isAllowedToMint(), "Needs to be an allowed minter");
         address[] memory toMint = new address[](1);
         toMint[0] = to;
@@ -241,9 +241,7 @@ contract ExpandedNFT is
       @dev This mints multiple editions to the given list of addresses.
      */
     function mintEditions(address[] memory recipients)
-        external
-        override
-        returns (uint256)
+        external payable override returns (uint256)
     {
         require(_isAllowedToMint(), "Needs to be an allowed minter");
         return _mintEditions(recipients);
