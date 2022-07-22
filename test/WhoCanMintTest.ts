@@ -9,7 +9,7 @@ import {
   ExpandedNFT,
 } from "../typechain";
 
-describe("ArtistWallet", () => {
+describe("Who Can Mint", () => {
   let signer: SignerWithAddress;
   let signerAddress: string;
   let dynamicSketch: DropCreator;
@@ -33,10 +33,7 @@ describe("ArtistWallet", () => {
 
   it("makes a new drop", async () => {
     const artist = (await ethers.getSigners())[1];
-    const artistAddress = await artist.getAddress();
-
-    const newArtist = (await ethers.getSigners())[2];
-    const newArtistAddress = await newArtist.getAddress();
+    const artistAddress = await signer.getAddress();
 
     await dynamicSketch.createDrop(
       artistAddress,
@@ -69,11 +66,11 @@ describe("ArtistWallet", () => {
 
     minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
 
-    expect(await minterContract.getArtistWallet()).to.be.equal(artistAddress);
+    expect(await minterContract.getAllowedMinter()).to.be.equal(0);
 
-    minterContract.setArtistWallet(newArtistAddress);
-    
-    expect(await minterContract.getArtistWallet()).to.be.equal(newArtistAddress);
+    minterContract.setAllowedMinter(2);
+
+    expect(await minterContract.getAllowedMinter()).to.be.equal(2);
 
     expect(await minterContract.name()).to.be.equal("Testing Token");
     expect(await minterContract.symbol()).to.be.equal("TEST");

@@ -128,6 +128,9 @@ contract ExpandedNFT is
     // Who can currently mint
     WhoCanMint private _whoCanMint;
 
+    // Mint counts for each address
+    mapping(address => uint256) private _mintCounts;
+
     Pricing private _pricing;
 
     // Price for general sales
@@ -207,7 +210,10 @@ contract ExpandedNFT is
       @dev This allows the user to purchase an edition
            at the given price in the contract.
      */
+
     function purchase() external payable returns (uint256) {
+        require(_isAllowedToMint(), "Needs to be an allowed minter");
+
         uint256 currentPrice = _currentSalesPrice();
 
         require(currentPrice > 0, "Not for sale");
@@ -218,6 +224,58 @@ contract ExpandedNFT is
         emit EditionSold(currentPrice, msg.sender);
         return _mintEditions(toMint);
     }
+
+     /**
+      @param to address to send the newly minted edition to
+      @dev This mints one edition to the given address by an allowed minter on the edition instance.
+     */
+    function mintEdition(address to) external override returns (uint256) {
+        require(_isAllowedToMint(), "Needs to be an allowed minter");
+        address[] memory toMint = new address[](1);
+        toMint[0] = to;
+        return _mintEditions(toMint);
+    }
+
+    /**
+      @param recipients list of addresses to send the newly minted editions to
+      @dev This mints multiple editions to the given list of addresses.
+     */
+    function mintEditions(address[] memory recipients)
+        external
+        override
+        returns (uint256)
+    {
+        require(_isAllowedToMint(), "Needs to be an allowed minter");
+        return _mintEditions(recipients);
+    }   
+
+    /**
+      @dev Private function to mint without any access checks.
+           Called by the public edition minting functions.
+     */
+    function _mintEditions(address[] memory recipients)
+        internal
+        returns (uint256)
+    {
+        uint256 startAt = _atEditionId.current();
+        uint256 endAt = startAt + recipients.length - 1;
+        require(dropSize == 0 || endAt <= dropSize, "Sold out");
+        while (_atEditionId.current() <= endAt) {
+            _mint(
+                recipients[_atEditionId.current() - startAt],
+                _atEditionId.current()
+            );
+
+            _perTokenMetadata[_atEditionId.current()].editionState = ExpandedNFTStates.MINTED;
+
+            address currentMinter = msg.sender;
+            _mintCounts[currentMinter] = _mintCounts[currentMinter] + 1;
+
+            _atEditionId.increment();
+        }
+
+        return _atEditionId.current();
+    }    
 
     /**
       @param _royaltyBPS BPS of the royalty set on the contract. Can be 0 for no royalty.
@@ -383,30 +441,6 @@ contract ExpandedNFT is
     }
 
     /**
-      @param to address to send the newly minted edition to
-      @dev This mints one edition to the given address by an allowed minter on the edition instance.
-     */
-    function mintEdition(address to) external override returns (uint256) {
-        require(_isAllowedToMint(), "Needs to be an allowed minter");
-        address[] memory toMint = new address[](1);
-        toMint[0] = to;
-        return _mintEditions(toMint);
-    }
-
-    /**
-      @param recipients list of addresses to send the newly minted editions to
-      @dev This mints multiple editions to the given list of addresses.
-     */
-    function mintEditions(address[] memory recipients)
-        external
-        override
-        returns (uint256)
-    {
-        require(_isAllowedToMint(), "Needs to be an allowed minter");
-        return _mintEditions(recipients);
-    }
-
-    /**
         Simple override for owner interface.
      */
     function owner()
@@ -421,7 +455,7 @@ contract ExpandedNFT is
     /**
         return the artists wallet address
      */
-    function artistWallet()
+    function getArtistWallet()
         public
         view
         returns (address)
@@ -438,6 +472,13 @@ contract ExpandedNFT is
     {
         _artistWallet = wallet;
     }   
+
+    /**
+      @dev Sets the types of users who is allowed to mint.
+     */
+    function getAllowedMinter() public view returns (WhoCanMint){
+        return _whoCanMint;
+    }
 
     /**
       @param minters WhoCanMint enum of minter types
@@ -586,31 +627,6 @@ contract ExpandedNFT is
         _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.REDEEMED;
 
         emit OfferRejected(tokenId);
-    }
-
-    /**
-      @dev Private function to mint without any access checks.
-           Called by the public edition minting functions.
-     */
-    function _mintEditions(address[] memory recipients)
-        internal
-        returns (uint256)
-    {
-        uint256 startAt = _atEditionId.current();
-        uint256 endAt = startAt + recipients.length - 1;
-        require(dropSize == 0 || endAt <= dropSize, "Sold out");
-        while (_atEditionId.current() <= endAt) {
-            _mint(
-                recipients[_atEditionId.current() - startAt],
-                _atEditionId.current()
-            );
-
-            _perTokenMetadata[_atEditionId.current()].editionState = ExpandedNFTStates.MINTED;
-
-            _atEditionId.increment();
-        }
-        
-        return _atEditionId.current();
     }
 
     /**
