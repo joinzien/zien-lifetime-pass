@@ -472,12 +472,8 @@ contract ExpandedNFT is
         _perTokenMetadata[tokenId].animationUrl = animationUrl;
     }
 
-    /// Returns the number of editions allowed to mint (max_uint256 when open edition)
+    /// Returns the number of editions allowed to mint
     function numberCanMint() public view override returns (uint256) {
-        // Return max int if open edition
-        if (dropSize == 0) {
-            return type(uint256).max;
-        }
         // _atEditionId is one-indexed hence the need to remove one here
         return dropSize + 1 - _atEditionId.current();
     }
