@@ -204,6 +204,37 @@ describe("MinterManagement", () => {
           userAddress,
           2
         );        
-    });     
+    });  
+    
+    it("General user access control", async () => {
+      let user = (await ethers.getSigners())[2];
+      let userAddress = await user.getAddress();
+
+      minterContract.setAllowedMinter(0);
+
+      // Mint as a contract owner
+      await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");      
+
+      minterContract.setAllowedMinter(1);
+
+      // Mint as a VIP
+      await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");   
+
+      minterContract.setAllowedMinter(2);
+
+      // Mint as a Member
+      await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");
+
+      minterContract.setAllowedMinter(3);
+
+      // Mint as the general public
+      await expect(minterContract.connect(user).mintEdition(userAddress))
+        .to.emit(minterContract, "Transfer")
+        .withArgs(
+          "0x0000000000000000000000000000000000000000",
+          userAddress,
+          1
+        );        
+    });      
   });
 });
