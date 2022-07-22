@@ -128,6 +128,9 @@ contract ExpandedNFT is
     // Who can currently mint
     WhoCanMint private _whoCanMint;
 
+    // Mint counts for each address
+    mapping(address => uint256) private _mintCounts;
+
     Pricing private _pricing;
 
     // Price for general sales
@@ -600,16 +603,20 @@ contract ExpandedNFT is
         uint256 endAt = startAt + recipients.length - 1;
         require(dropSize == 0 || endAt <= dropSize, "Sold out");
         while (_atEditionId.current() <= endAt) {
+            address currentMinter = recipients[_atEditionId.current() - startAt];
+
             _mint(
-                recipients[_atEditionId.current() - startAt],
+                currentMinter,
                 _atEditionId.current()
             );
 
             _perTokenMetadata[_atEditionId.current()].editionState = ExpandedNFTStates.MINTED;
 
+            _mintCounts[currentMinter] = _mintCounts[currentMinter] + 1;
+
             _atEditionId.increment();
         }
-        
+
         return _atEditionId.current();
     }
 
