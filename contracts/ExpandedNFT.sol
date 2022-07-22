@@ -222,10 +222,10 @@ contract ExpandedNFT is
     /**
       @param _royaltyBPS BPS of the royalty set on the contract. Can be 0 for no royalty.
       @param _splitBPS BPS of the royalty set on the contract. Can be 0 for no royalty. 
-      @param _vipSalePrice Sale price foe VIPs
+      @param _vipSalePrice Sale price for VIPs
       @param _membersSalePrice SalePrice for Members  
       @param _generalSalePrice SalePrice for the general public     
-      @param _vipMintLimit Mint limit foe VIPs
+      @param _vipMintLimit Mint limit for VIPs
       @param _membersMintLimit Mint limit for Members  
       @param _generalMintLimit Mint limit for the general public                                                                                 
       @dev Set various pricing related values
