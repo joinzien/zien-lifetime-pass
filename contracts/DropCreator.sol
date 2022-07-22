@@ -43,7 +43,7 @@ contract DropCreator {
         string memory _name,
         string memory _symbol,
         uint256 _dropSize,
-        string memory _description,
+        string[] memory _description,
         string[] memory _animationUrl,
         bytes32[] memory _animationHash,
         string[] memory _imageUrl,
