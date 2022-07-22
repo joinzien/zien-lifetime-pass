@@ -73,14 +73,22 @@ describe("MinterManagement", () => {
         dropResult
       )) as ExpandedNFT;
 
-      minterContract.setPricing(10, 500, 0, 0, 0, 20, 20, 20);       
+      const mintCost = ethers.utils.parseEther("0.1");
+      await minterContract.setPricing(10, 500, mintCost, mintCost, mintCost, 20, 20, 20);       
     });
 
     it("Contract owner user access control", async () => {
       await minterContract.setAllowedMinter(0);
 
       // Mint as a contract owner
-      await expect(minterContract.mintEdition(signerAddress))
+      await expect(minterContract.mintEdition(signerAddress)).to.be.revertedWith("Not for sale");      
+
+      minterContract.setAllowedMinter(1);
+
+      // Mint as a VIP
+      await expect(minterContract.mintEdition(signerAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
         .to.emit(minterContract, "Transfer")
         .withArgs(
           "0x0000000000000000000000000000000000000000",
@@ -88,10 +96,12 @@ describe("MinterManagement", () => {
           1
         );
 
-      minterContract.setAllowedMinter(1);
+      await minterContract.setAllowedMinter(2);
 
-      // Mint as a VIP
-      await expect(minterContract.mintEdition(signerAddress))
+      // Mint as a Member
+      await expect(minterContract.mintEdition(signerAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
         .to.emit(minterContract, "Transfer")
         .withArgs(
           "0x0000000000000000000000000000000000000000",
@@ -99,26 +109,17 @@ describe("MinterManagement", () => {
           2
         );
 
-      await minterContract.setAllowedMinter(2);
+      await minterContract.setAllowedMinter(3);
 
-      // Mint as a Member
-      await expect(minterContract.mintEdition(signerAddress))
+      // Mint as the general public
+      await expect(minterContract.mintEdition(signerAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
         .to.emit(minterContract, "Transfer")
         .withArgs(
           "0x0000000000000000000000000000000000000000",
           signerAddress,
           3
-        );
-
-      await minterContract.setAllowedMinter(3);
-
-      // Mint as the general public
-      await expect(minterContract.mintEdition(signerAddress))
-        .to.emit(minterContract, "Transfer")
-        .withArgs(
-          "0x0000000000000000000000000000000000000000",
-          signerAddress,
-          4
         );        
     }); 
     
@@ -136,7 +137,9 @@ describe("MinterManagement", () => {
       await minterContract.setAllowedMinter(1);
 
       // Mint as a VIP
-      await expect(minterContract.connect(user).mintEdition(userAddress))
+      await expect(minterContract.connect(user).mintEdition(userAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
         .to.emit(minterContract, "Transfer")
         .withArgs(
           "0x0000000000000000000000000000000000000000",
@@ -147,7 +150,9 @@ describe("MinterManagement", () => {
       await minterContract.setAllowedMinter(2);
 
       // Mint as a Member
-      await expect(minterContract.connect(user).mintEdition(userAddress))
+      await expect(minterContract.connect(user).mintEdition(userAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
         .to.emit(minterContract, "Transfer")
         .withArgs(
           "0x0000000000000000000000000000000000000000",
@@ -158,7 +163,9 @@ describe("MinterManagement", () => {
       await minterContract.setAllowedMinter(3);
 
       // Mint as the general public
-      await expect(minterContract.connect(user).mintEdition(userAddress))
+      await expect(minterContract.connect(user).mintEdition(userAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
         .to.emit(minterContract, "Transfer")
         .withArgs(
           "0x0000000000000000000000000000000000000000",
@@ -186,7 +193,9 @@ describe("MinterManagement", () => {
       await minterContract.setAllowedMinter(2);
 
       // Mint as a Member
-      await expect(minterContract.connect(user).mintEdition(userAddress))
+      await expect(minterContract.connect(user).mintEdition(userAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
         .to.emit(minterContract, "Transfer")
         .withArgs(
           "0x0000000000000000000000000000000000000000",
@@ -197,7 +206,9 @@ describe("MinterManagement", () => {
       await minterContract.setAllowedMinter(3);
 
       // Mint as the general public
-      await expect(minterContract.connect(user).mintEdition(userAddress))
+      await expect(minterContract.connect(user).mintEdition(userAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
         .to.emit(minterContract, "Transfer")
         .withArgs(
           "0x0000000000000000000000000000000000000000",
@@ -228,7 +239,9 @@ describe("MinterManagement", () => {
       await minterContract.setAllowedMinter(3);
 
       // Mint as the general public
-      await expect(minterContract.connect(user).mintEdition(userAddress))
+      await expect(minterContract.connect(user).mintEdition(userAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
         .to.emit(minterContract, "Transfer")
         .withArgs(
           "0x0000000000000000000000000000000000000000",

@@ -231,6 +231,10 @@ contract ExpandedNFT is
     function mintEdition(address to) external payable override returns (uint256) {
         require(_isAllowedToMint(), "Needs to be an allowed minter");
 
+        uint256 currentPrice = _currentSalesPrice();
+        require(currentPrice > 0, "Not for sale");
+        require(msg.value == currentPrice, "Wrong price");
+
         address[] memory toMint = new address[](1);
         toMint[0] = to;
         return _mintEditions(toMint);
