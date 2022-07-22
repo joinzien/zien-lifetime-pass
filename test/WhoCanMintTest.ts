@@ -64,11 +64,11 @@ describe("Who Can Mint", () => {
       dropResult
     )) as ExpandedNFT;
 
-    minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
+    await minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
 
     expect(await minterContract.getAllowedMinter()).to.be.equal(0);
 
-    minterContract.setAllowedMinter(2);
+    await minterContract.setAllowedMinter(2);
 
     expect(await minterContract.getAllowedMinter()).to.be.equal(2);
 
