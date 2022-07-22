@@ -419,6 +419,17 @@ contract ExpandedNFT is
     }
 
     /**
+        return the artists wallet address
+     */
+    function artistWallet()
+        public
+        view
+        returns (address)
+    {
+        return _artistWallet;
+    }
+
+    /**
       @param minters WhoCanMint enum of minter types
       @dev Sets the types of users who is allowed to mint.
      */
