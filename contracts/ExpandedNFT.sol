@@ -96,7 +96,16 @@ contract ExpandedNFT is
         uint256 vipSalePrice;
 
         // Price for member sales
-        uint256 membersSalePrice;        
+        uint256 membersSalePrice;   
+
+        // Price for VIP sales
+        uint256 vipMintLimit;
+
+        // Price for VIP sales
+        uint256 membersMintLimit;
+
+        // Price for VIP sales
+        uint256 generalMintLimit;                          
     }
 
     // Artists wallet address
@@ -213,9 +222,12 @@ contract ExpandedNFT is
     /**
       @param _royaltyBPS BPS of the royalty set on the contract. Can be 0 for no royalty.
       @param _splitBPS BPS of the royalty set on the contract. Can be 0 for no royalty. 
-      @param _vipSalePrice Sale price foe VIPs
+      @param _vipSalePrice Sale price for VIPs
       @param _membersSalePrice SalePrice for Members  
-      @param _generalSalePrice SalePrice for the general public                                                                           
+      @param _generalSalePrice SalePrice for the general public     
+      @param _vipMintLimit Mint limit for VIPs
+      @param _membersMintLimit Mint limit for Members  
+      @param _generalMintLimit Mint limit for the general public                                                                                 
       @dev Set various pricing related values
      */
     function setPricing (
@@ -223,7 +235,10 @@ contract ExpandedNFT is
         uint256 _splitBPS,
         uint256 _vipSalePrice,
         uint256 _membersSalePrice,      
-        uint256 _generalSalePrice    
+        uint256 _generalSalePrice,
+        uint256 _vipMintLimit,
+        uint256 _membersMintLimit,
+        uint256 _generalMintLimit             
     ) external onlyOwner {  
         _pricing.royaltyBPS = _royaltyBPS;
         _pricing.splitBPS = _splitBPS;
@@ -231,6 +246,10 @@ contract ExpandedNFT is
         _pricing.vipSalePrice = _vipSalePrice;
         _pricing.membersSalePrice = _membersSalePrice;
         salePrice = _generalSalePrice;
+
+        _pricing.vipMintLimit = _vipMintLimit;
+        _pricing.membersMintLimit = _membersMintLimit;
+        _pricing.generalMintLimit = _generalMintLimit;
 
         emit PriceChanged(salePrice);
     }
@@ -400,6 +419,27 @@ contract ExpandedNFT is
     }
 
     /**
+        return the artists wallet address
+     */
+    function artistWallet()
+        public
+        view
+        returns (address)
+    {
+        return _artistWallet;
+    }
+
+     /**
+        set the artists wallet address
+     */
+    function setArtistWallet(address wallet)
+        public
+        onlyOwner
+    {
+        _artistWallet = wallet;
+    }   
+
+    /**
       @param minters WhoCanMint enum of minter types
       @dev Sets the types of users who is allowed to mint.
      */
@@ -453,12 +493,8 @@ contract ExpandedNFT is
         _perTokenMetadata[tokenId].animationUrl = animationUrl;
     }
 
-    /// Returns the number of editions allowed to mint (max_uint256 when open edition)
+    /// Returns the number of editions allowed to mint
     function numberCanMint() public view override returns (uint256) {
-        // Return max int if open edition
-        if (dropSize == 0) {
-            return type(uint256).max;
-        }
         // _atEditionId is one-indexed hence the need to remove one here
         return dropSize + 1 - _atEditionId.current();
     }
