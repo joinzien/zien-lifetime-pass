@@ -455,7 +455,7 @@ contract ExpandedNFT is
     /**
         return the artists wallet address
      */
-    function artistWallet()
+    function getArtistWallet()
         public
         view
         returns (address)
@@ -476,7 +476,7 @@ contract ExpandedNFT is
     /**
       @dev Sets the types of users who is allowed to mint.
      */
-    function allowedMinter(WhoCanMint minters) public {
+    function getAllowedMinter() public view returns (WhoCanMint){
         return _whoCanMint;
     }
 
