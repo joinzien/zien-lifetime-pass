@@ -429,6 +429,16 @@ contract ExpandedNFT is
         return _artistWallet;
     }
 
+     /**
+        set the artists wallet address
+     */
+    function setArtistWallet(address wallet)
+        public
+        onlyOwner
+    {
+        _artistWallet = wallet;
+    }   
+
     /**
       @param minters WhoCanMint enum of minter types
       @dev Sets the types of users who is allowed to mint.

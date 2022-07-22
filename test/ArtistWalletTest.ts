@@ -35,6 +35,9 @@ describe("ArtistWallet", () => {
     const artist = (await ethers.getSigners())[1];
     const artistAddress = await artist.getAddress();
 
+    const newArtist = (await ethers.getSigners())[2];
+    const newArtistAddress = await newArtist.getAddress();
+
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -67,6 +70,11 @@ describe("ArtistWallet", () => {
     minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
 
     expect(await minterContract.artistWallet()).to.be.equal(artistAddress);
+
+    minterContract.setArtistWallet(newArtistAddress);
+    
+    expect(await minterContract.artistWallet()).to.be.equal(newArtistAddress);
+
     expect(await minterContract.name()).to.be.equal("Testing Token");
     expect(await minterContract.symbol()).to.be.equal("TEST");
     const dropUris = await minterContract.getURIs(1);
