@@ -418,23 +418,25 @@ contract ExpandedNFT is
         if (_whoCanMint == WhoCanMint.ANYONE) {
             return true;
         }
-            
+
         if (_whoCanMint == WhoCanMint.MEMBERS) {
+            if (_vipAllowedMinters[msg.sender]) {
+                return true;
+            }   
+
             if (_allowedMinters[msg.sender]) {
                 return true;
             }          
         }
 
-        if ((_whoCanMint == WhoCanMint.VIPS) || (_whoCanMint == WhoCanMint.MEMBERS)) {
+        if (_whoCanMint == WhoCanMint.VIPS) {
             if (_vipAllowedMinters[msg.sender]) {
                 return true;
             }            
         }
 
-        if (_whoCanMint == WhoCanMint.ONLY_OWNER) {
-            if (owner() == msg.sender) {
-                return true;
-            }
+        if (owner() == msg.sender) {
+            return true;
         }
 
         return false;
