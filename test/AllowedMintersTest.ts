@@ -64,7 +64,7 @@ describe("AllowedMinters", () => {
       dropResult
     )) as ExpandedNFT;
 
-    minterContract.setPricing(10, 500, 10, 10, 10);
+    minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
 
     expect(await minterContract.name()).to.be.equal("Testing Token");
     expect(await minterContract.symbol()).to.be.equal("TEST");

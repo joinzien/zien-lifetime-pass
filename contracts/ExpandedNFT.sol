@@ -96,7 +96,16 @@ contract ExpandedNFT is
         uint256 vipSalePrice;
 
         // Price for member sales
-        uint256 membersSalePrice;        
+        uint256 membersSalePrice;   
+
+        // Price for VIP sales
+        uint256 vipMintLimit;
+
+        // Price for VIP sales
+        uint256 membersMintLimit;
+
+        // Price for VIP sales
+        uint256 generalMintLimit;                          
     }
 
     // Artists wallet address
@@ -215,7 +224,10 @@ contract ExpandedNFT is
       @param _splitBPS BPS of the royalty set on the contract. Can be 0 for no royalty. 
       @param _vipSalePrice Sale price foe VIPs
       @param _membersSalePrice SalePrice for Members  
-      @param _generalSalePrice SalePrice for the general public                                                                           
+      @param _generalSalePrice SalePrice for the general public     
+      @param _vipMintLimit Mint limit foe VIPs
+      @param _membersMintLimit Mint limit for Members  
+      @param _generalMintLimit Mint limit for the general public                                                                                 
       @dev Set various pricing related values
      */
     function setPricing (
@@ -223,7 +235,10 @@ contract ExpandedNFT is
         uint256 _splitBPS,
         uint256 _vipSalePrice,
         uint256 _membersSalePrice,      
-        uint256 _generalSalePrice    
+        uint256 _generalSalePrice,
+        uint256 _vipMintLimit,
+        uint256 _membersMintLimit,
+        uint256 _generalMintLimit             
     ) external onlyOwner {  
         _pricing.royaltyBPS = _royaltyBPS;
         _pricing.splitBPS = _splitBPS;
@@ -231,6 +246,10 @@ contract ExpandedNFT is
         _pricing.vipSalePrice = _vipSalePrice;
         _pricing.membersSalePrice = _membersSalePrice;
         salePrice = _generalSalePrice;
+
+        _pricing.vipMintLimit = _vipMintLimit;
+        _pricing.membersMintLimit = _membersMintLimit;
+        _pricing.generalMintLimit = _generalMintLimit;
 
         emit PriceChanged(salePrice);
     }
