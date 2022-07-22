@@ -42,13 +42,15 @@ contract DropCreator {
         address _artistWallet,
         string memory _name,
         string memory _symbol,
+        uint256 _dropSize,
         string memory _description,
-        string memory _animationUrl,
-        bytes32 _animationHash,
-        string memory _imageUrl,
-        bytes32 _imageHash,
-        uint256 _dropSize
+        string[] memory _animationUrl,
+        bytes32[] memory _animationHash,
+        string[] memory _imageUrl,
+        bytes32[] memory _imageHash
     ) external returns (uint256) {
+        require(_dropSize > 0, "Drop size must be > 0");
+
         address newContract = ClonesUpgradeable.cloneDeterministic(
             implementation,
             bytes32(abi.encodePacked(_atContract.current()))
@@ -59,12 +61,12 @@ contract DropCreator {
             _artistWallet,
             _name,
             _symbol,
+            _dropSize,
             _description,
             _animationUrl,
             _animationHash,
             _imageUrl,
-            _imageHash,
-            _dropSize
+            _imageHash
         );
 
         uint256 newId = _atContract.current();        
