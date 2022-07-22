@@ -77,7 +77,7 @@ describe("MinterManagement", () => {
     });
 
     it("Contract owner user access control", async () => {
-      minterContract.setAllowedMinter(0);
+      await minterContract.setAllowedMinter(0);
 
       // Mint as a contract owner
       await expect(minterContract.mintEdition(signerAddress))
@@ -99,7 +99,7 @@ describe("MinterManagement", () => {
           2
         );
 
-      minterContract.setAllowedMinter(2);
+      await minterContract.setAllowedMinter(2);
 
       // Mint as a Member
       await expect(minterContract.mintEdition(signerAddress))
@@ -110,7 +110,7 @@ describe("MinterManagement", () => {
           3
         );
 
-        minterContract.setAllowedMinter(3);
+      await minterContract.setAllowedMinter(3);
 
       // Mint as the general public
       await expect(minterContract.mintEdition(signerAddress))
@@ -126,14 +126,14 @@ describe("MinterManagement", () => {
       let user = (await ethers.getSigners())[2];
       let userAddress = await user.getAddress();
 
-      minterContract.setApprovedVIPMinters(1, [userAddress], [true]);
+      await minterContract.setApprovedVIPMinters(1, [userAddress], [true]);
 
-      minterContract.setAllowedMinter(0);
+      await minterContract.setAllowedMinter(0);
 
       // Mint as a contract owner
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");      
 
-      minterContract.setAllowedMinter(1);
+      await minterContract.setAllowedMinter(1);
 
       // Mint as a VIP
       await expect(minterContract.connect(user).mintEdition(userAddress))
@@ -144,7 +144,7 @@ describe("MinterManagement", () => {
           1
         );
 
-      minterContract.setAllowedMinter(2);
+      await minterContract.setAllowedMinter(2);
 
       // Mint as a Member
       await expect(minterContract.connect(user).mintEdition(userAddress))
@@ -155,7 +155,7 @@ describe("MinterManagement", () => {
           2
         );
 
-        minterContract.setAllowedMinter(3);
+      await minterContract.setAllowedMinter(3);
 
       // Mint as the general public
       await expect(minterContract.connect(user).mintEdition(userAddress))
@@ -171,19 +171,19 @@ describe("MinterManagement", () => {
       let user = (await ethers.getSigners())[2];
       let userAddress = await user.getAddress();
 
-      minterContract.setApprovedMinters(1, [userAddress], [true]);
+      await minterContract.setApprovedMinters(1, [userAddress], [true]);
 
-      minterContract.setAllowedMinter(0);
+      await minterContract.setAllowedMinter(0);
 
       // Mint as a contract owner
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");      
 
-      minterContract.setAllowedMinter(1);
+      await minterContract.setAllowedMinter(1);
 
       // Mint as a VIP
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");   
 
-      minterContract.setAllowedMinter(2);
+      await minterContract.setAllowedMinter(2);
 
       // Mint as a Member
       await expect(minterContract.connect(user).mintEdition(userAddress))
@@ -194,7 +194,7 @@ describe("MinterManagement", () => {
           1
         );
 
-        minterContract.setAllowedMinter(3);
+      await minterContract.setAllowedMinter(3);
 
       // Mint as the general public
       await expect(minterContract.connect(user).mintEdition(userAddress))
@@ -210,22 +210,22 @@ describe("MinterManagement", () => {
       let user = (await ethers.getSigners())[2];
       let userAddress = await user.getAddress();
 
-      minterContract.setAllowedMinter(0);
+      await minterContract.setAllowedMinter(0);
 
       // Mint as a contract owner
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");      
 
-      minterContract.setAllowedMinter(1);
+      await minterContract.setAllowedMinter(1);
 
       // Mint as a VIP
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");   
 
-      minterContract.setAllowedMinter(2);
+      await minterContract.setAllowedMinter(2);
 
       // Mint as a Member
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");
 
-      minterContract.setAllowedMinter(3);
+      await minterContract.setAllowedMinter(3);
 
       // Mint as the general public
       await expect(minterContract.connect(user).mintEdition(userAddress))
@@ -235,6 +235,6 @@ describe("MinterManagement", () => {
           userAddress,
           1
         );        
-    });      
+    });     
   });
 });

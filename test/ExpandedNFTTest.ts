@@ -122,7 +122,7 @@ describe("ExpandedNFT", () => {
         dropResult
       )) as ExpandedNFT;
 
-      minterContract.setPricing(10, 500, 0, 0, 0, 1, 1, 1);       
+      await minterContract.setPricing(10, 500, 0, 0, 0, 1, 1, 1);       
     });
     it("creates a new drop", async () => {
       expect(await signer1.getBalance()).to.eq(
