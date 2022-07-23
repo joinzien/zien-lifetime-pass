@@ -5,7 +5,7 @@
    - ArtistWallet: `address` The address of the create of the drop. Used for paying royalties.
    - Name: `string` Token Name Symbol (shows in etherscan).
    - Symbol: `string` Symbol of the Token (shows in etherscan).
-   - Drop Size: `uint256` The number of editions in this drop, if set to 0, the drop is not capped/limited.   
+   - Drop Size: `uint256` The number of editions in this drop, if set to 0, the drop is not capped/limited.
    - Description: `string` Description of the Token (shows in the NFT description).
    - Animation URL: `string` IPFS/Arweave URL of the animation (video, webpage, audio, etc).
    - Animation Hash: `SHA256` Hash of the animation, 0x0 if no animation url provided.
@@ -16,10 +16,10 @@
    - BPS Split: `uint256` In [Basis points][bps] (BPS). 500 = 5%, 1000 = 10%, so on and so forth, set to 0 for no on-chain royalty (not supported by all marketplaces).
    - VIP Sale Price: `uint256` In [wei][wei]. Sale price for VIPs.
    - Members Sale Price: `uint256` In [wei][wei]. Sale price for Members.
-   - General Sale Price: `uint256` In [wei][wei]. Sale price for general public.   
+   - General Sale Price: `uint256` In [wei][wei]. Sale price for general public.
    - VIP Mint Limit: `uint256` In [wei][wei]. Mint limit for VIPs.
    - Members Mint Limit: `uint256` In [wei][wei]. Mint limit for Members.
-   - General Mint Limit: `uint256` In [wei][wei]. Mint limit for general public.     
+   - General Mint Limit: `uint256` In [wei][wei]. Mint limit for general public.
 
 ## How do I sell/distribute editions?
 

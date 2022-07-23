@@ -24,6 +24,7 @@
     "build": "yarn run prepack",
     "prepack": "hardhat compile",
     "lint": "npx solhint 'contracts/**/*.sol' --fix && npx prettier '**/*.{json,md}' --write",
+    "size": "yarn hardhat size-contracts",
     "verify": "hardhat sourcify --network rinkeby && hardhat etherscan-verify --network rinkeby"
   },
   "devDependencies": {
@@ -50,6 +51,7 @@
     "eslint-plugin-promise": "^5.2.0",
     "ethereum-waffle": "^3.4.0",
     "hardhat": "^2.8.0",
+    "hardhat-contract-sizer": "^2.6.1",
     "hardhat-deploy": "^0.8.11",
     "hardhat-gas-reporter": "^1.0.4",
     "prettier": "^2.5.1",

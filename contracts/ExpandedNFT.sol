@@ -215,7 +215,6 @@ contract ExpandedNFT is
         require(_isAllowedToMint(), "Needs to be an allowed minter");
 
         uint256 currentPrice = _currentSalesPrice();
-
         require(currentPrice > 0, "Not for sale");
         require(msg.value == currentPrice, "Wrong price");
 
@@ -229,8 +228,13 @@ contract ExpandedNFT is
       @param to address to send the newly minted edition to
       @dev This mints one edition to the given address by an allowed minter on the edition instance.
      */
-    function mintEdition(address to) external override returns (uint256) {
+    function mintEdition(address to) external payable override returns (uint256) {
         require(_isAllowedToMint(), "Needs to be an allowed minter");
+
+        uint256 currentPrice = _currentSalesPrice();
+        require(currentPrice > 0, "Not for sale");
+        require(msg.value == currentPrice, "Wrong price");
+
         address[] memory toMint = new address[](1);
         toMint[0] = to;
         return _mintEditions(toMint);
@@ -241,11 +245,14 @@ contract ExpandedNFT is
       @dev This mints multiple editions to the given list of addresses.
      */
     function mintEditions(address[] memory recipients)
-        external
-        override
-        returns (uint256)
+        external payable override returns (uint256)
     {
         require(_isAllowedToMint(), "Needs to be an allowed minter");
+
+        uint256 currentPrice = _currentSalesPrice();
+        require(currentPrice > 0, "Not for sale");
+        require(msg.value == (currentPrice * recipients.length), "Wrong price");
+
         return _mintEditions(recipients);
     }   
 
@@ -418,23 +425,25 @@ contract ExpandedNFT is
         if (_whoCanMint == WhoCanMint.ANYONE) {
             return true;
         }
-            
+
         if (_whoCanMint == WhoCanMint.MEMBERS) {
+            if (_vipAllowedMinters[msg.sender]) {
+                return true;
+            }   
+
             if (_allowedMinters[msg.sender]) {
                 return true;
             }          
         }
 
-        if ((_whoCanMint == WhoCanMint.VIPS) || (_whoCanMint == WhoCanMint.MEMBERS)) {
+        if (_whoCanMint == WhoCanMint.VIPS) {
             if (_vipAllowedMinters[msg.sender]) {
                 return true;
             }            
         }
 
-        if (_whoCanMint == WhoCanMint.ONLY_OWNER) {
-            if (owner() == msg.sender) {
-                return true;
-            }
+        if (owner() == msg.sender) {
+            return true;
         }
 
         return false;

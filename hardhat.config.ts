@@ -6,6 +6,7 @@ import "@nomiclabs/hardhat-etherscan";
 import { HardhatUserConfig } from "hardhat/config";
 import dotenv from 'dotenv';
 import "solidity-coverage";
+import "hardhat-contract-sizer";
 
 dotenv.config();
 
