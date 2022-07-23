@@ -575,12 +575,12 @@ contract ExpandedNFT is
      /**
         set a new payment token address
      */
-    function SetPaymentToken(address paymentToken)
+    function setPaymentToken(address paymentToken)
         public
         onlyOwner
     {
         if (address(_paymentTokenERC20) != address(0x0)) {
-            require(_paymentTokenERC20.balanceOf(address(this)) == 0, "The payment token balancemust be zero before before updating");
+            require(_paymentTokenERC20.balanceOf(address(this)) == 0, "token must have 0 balance");
         }
 
         _paymentTokenERC20 = IERC20Upgradeable(paymentToken);
