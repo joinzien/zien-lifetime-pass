@@ -11,7 +11,6 @@ pragma solidity ^0.8.15;
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import {IERC2981Upgradeable, IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 
 import {SharedNFTLogic} from "./SharedNFTLogic.sol";
@@ -33,8 +32,6 @@ contract ExpandedNFT is
     enum WhoCanMint{ ONLY_OWNER, VIPS, MEMBERS, ANYONE }
 
     enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, PRODUCTION_COMPLETE, REDEEMED }
-
-    using CountersUpgradeable for CountersUpgradeable.Counter;
     
     event PriceChanged(uint256 amount);
     event EditionSold(uint256 price, address owner);
@@ -122,12 +119,9 @@ contract ExpandedNFT is
     mapping(uint256 => address) private _reserveAddress;
     mapping(uint256 => uint256) private _reserveTokenId;
 
-    mapping(uint256 => bool) private _TokenClaimed; 
+    mapping(uint256 => bool) private _tokenClaimed; 
     uint256 private _firstUnclaimed; 
     uint256 private _claimCount; 
-
-    // Current token id minted
-    CountersUpgradeable.Counter private _atEditionId;
 
     // Addresses allowed to mint edition
     mapping(address => bool) private _allowedMinters;
@@ -192,7 +186,8 @@ contract ExpandedNFT is
         dropSize = _dropSize;
 
         // Set edition id start to be 1 not 0
-        _atEditionId.increment();
+        _firstUnclaimed = 1; 
+        _claimCount = 1; 
 
         for (uint i = 0; i < dropSize; i++) {
             uint index = i + 1;
@@ -208,7 +203,7 @@ contract ExpandedNFT is
 
     /// @dev returns the number of minted tokens within the drop
     function totalSupply() public view returns (uint256) {
-        return _claimCount;
+        return _claimCount - 1;
     }
     /**
         Simple eth-based sales function
@@ -279,26 +274,28 @@ contract ExpandedNFT is
         internal
         returns (uint256)
     {
-        uint256 startAt = _atEditionId.current();
-        uint256 endAt = startAt + recipients.length - 1;
-        require(dropSize == 0 || endAt <= dropSize, "Sold out");
-        while (_atEditionId.current() <= endAt) {
+        address currentMinter = msg.sender;
+
+        uint256 currentIndex = 1;
+        for (uint256 i = 0; i < recipients.length; i++) {
+            while ((_tokenClaimed[currentIndex] == true) && (currentIndex < (dropSize + 1))) {
+                currentIndex++;
+            }
+
+            require(currentIndex < (dropSize + 1), "Sold out");
+
             _mint(
-                recipients[_atEditionId.current() - startAt],
-                _atEditionId.current()
+                recipients[i],
+                currentIndex
             );
 
-            _perTokenMetadata[_atEditionId.current()].editionState = ExpandedNFTStates.MINTED;
+            _tokenClaimed[currentIndex] = true;
+            _mintCounts[currentMinter]++;
+            _claimCount++;
 
-            address currentMinter = msg.sender;
-            _mintCounts[currentMinter] = _mintCounts[currentMinter] + 1;
-
-            _claimCount++; 
-
-            _atEditionId.increment();
         }
 
-        return _atEditionId.current();
+        return currentIndex;            
     }    
 
     /**
@@ -592,8 +589,8 @@ contract ExpandedNFT is
 
     /// Returns the number of editions allowed to mint
     function numberCanMint() public view override returns (uint256) {
-        // _atEditionId is one-indexed hence the need to remove one here
-        return dropSize + 1 - _atEditionId.current();
+         // _claimCount is one-indexed hence the need to remove one here
+        return dropSize + 1 - _claimCount;
     }
 
     /**
