@@ -39,6 +39,7 @@ contract ExpandedNFT is
 
     // State change events
     event RedeemStarted(uint256 tokenId, address owner);
+    event RedeemAborted(uint256 tokenId, address owner);    
     event OfferTermsSet(uint256 tokenId);
     event OfferAccepted(uint256 tokenId);
     event OfferRejected(uint256 tokenId);
@@ -289,6 +290,7 @@ contract ExpandedNFT is
                                 mainIndex
                             );
 
+                            _perTokenMetadata[mainIndex].editionState = ExpandedNFTStates.MINTED;
                             _tokenClaimed[mainIndex] = true;
                             _mintCounts[currentMinter]++;
                             _claimCount++;
@@ -317,6 +319,7 @@ contract ExpandedNFT is
                     currentIndex
                 );
 
+                _perTokenMetadata[currentIndex].editionState = ExpandedNFTStates.MINTED;
                 _tokenClaimed[currentIndex] = true;
                 _mintCounts[currentMinter]++;
                 _claimCount++;
@@ -639,6 +642,16 @@ contract ExpandedNFT is
 
         _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.REDEEM_STARTED;
         emit RedeemStarted(tokenId, _msgSender());
+    }
+
+    function abortRedemption(uint256 tokenId) public {
+        require(_exists(tokenId), "No token");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
+
+        require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEM_STARTED), "You currently can not redeem");
+
+        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.MINTED;
+        emit RedeemAborted(tokenId, _msgSender());
     }
 
     function setOfferTerms(uint256 tokenId, uint256 fee) public onlyOwner {
