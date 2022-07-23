@@ -14,7 +14,10 @@ describe("Redeem", () => {
   let signerAddress: string;
 
   let artist: SignerWithAddress;
-  let artistAddress: string;    
+  let artistAddress: string;   
+  
+  let user: SignerWithAddress;
+  let userAddress: string;   
 
   let dynamicSketch: DropCreator;
 
@@ -41,7 +44,10 @@ describe("Redeem", () => {
     signerAddress = await signer.getAddress();
 
     artist = (await ethers.getSigners())[1];
-    artistAddress = await artist.getAddress();    
+    artistAddress = await artist.getAddress();
+    
+    user = (await ethers.getSigners())[2];
+    userAddress = await user.getAddress();     
   });
 
   it("purchases a edition", async () => {
@@ -74,10 +80,12 @@ describe("Redeem", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
+    const paymentTokenContract = (await ethers.getContractAt(
+        "TestCash",
+        dropResult
+      )) as TestCash;
 
-    let user = (await ethers.getSigners())[1];
-    let userAddress = await user.getAddress();   
+    await minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
 
     expect(
       await minterContract.setSalePrice(ethers.utils.parseEther("0.2"))

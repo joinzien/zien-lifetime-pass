@@ -141,7 +141,7 @@ contract ExpandedNFT is
     uint256 public salePrice;
 
     // ERC20 interface for the payment token
-    IExpandedNFT private _paymentTokenERC20;
+    IERC20Upgradeable private _paymentTokenERC20;
 
     // NFT rendering logic contract
     SharedNFTLogic private immutable _sharedNFTLogic;
@@ -559,6 +559,31 @@ contract ExpandedNFT is
         onlyOwner
     {
         _artistWallet = wallet;
+    }   
+
+    /**
+        return the payment tokens address
+     */
+    function getPaymentToken()
+        public
+        view
+        returns (address)
+    {
+        return address(_paymentTokenERC20);
+    }
+
+     /**
+        set a new payment token address
+     */
+    function SetPaymentToken(address paymentToken)
+        public
+        onlyOwner
+    {
+        if (address(_paymentTokenERC20) != address(0x0)) {
+            require(_paymentTokenERC20.balanceOf(address(this)) == 0, "The payment token balancemust be zero before before updating");
+        }
+
+        _paymentTokenERC20 = IERC20Upgradeable(paymentToken);
     }   
 
     /**
