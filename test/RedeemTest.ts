@@ -24,6 +24,7 @@ describe("Redeem", () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
       "ExpandedNFT",
+      "TestCash",
     ]);
     const dynamicMintableAddress = (
       await deployments.get("ExpandedNFT")
