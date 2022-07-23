@@ -69,7 +69,7 @@ describe("ExpandedNFT", () => {
       dropResult
     )) as ExpandedNFT;
 
-    minterContract.setPricing(10, 500, 0, 0, 0, 1, 1, 1);
+    await minterContract.setPricing(10, 500, 0, 0, 0, 10, 10, 10);
 
     expect(await minterContract.name()).to.be.equal("Testing Token");
     expect(await minterContract.symbol()).to.be.equal("TEST");
@@ -123,7 +123,7 @@ describe("ExpandedNFT", () => {
       )) as ExpandedNFT;
 
       const mintCost = ethers.utils.parseEther("0.1");      
-      await minterContract.setPricing(10, 500, mintCost, mintCost, mintCost, 1, 1, 1);
+      await minterContract.setPricing(10, 500, mintCost, mintCost, mintCost, 15, 15, 15);
       await minterContract.setAllowedMinter(3);
     });
     it("creates a new drop", async () => {
@@ -233,7 +233,9 @@ describe("ExpandedNFT", () => {
         await signer1.getAddress()
       );
     });
+
     it("creates a set of editions", async () => {
+      await minterContract.setPricing(10, 500, 0, 0, 0, 10, 10, 10);      
       await minterContract.setSalePrice(ethers.utils.parseEther("0.1"));
       await minterContract.setAllowedMinter(3);
       const [s1, s2, s3] = await ethers.getSigners();
@@ -314,7 +316,7 @@ describe("ExpandedNFT", () => {
         )) as ExpandedNFT;
 
         const mintCost = ethers.utils.parseEther("0.1");      
-        await minterContractNew.setPricing(200, 500, mintCost, mintCost, mintCost, 1, 1, 1);
+        await minterContractNew.setPricing(200, 500, mintCost, mintCost, mintCost, 12, 12, 12);
         await minterContractNew.setAllowedMinter(3);
 
         await minterContractNew.mintEdition(signerAddress, {

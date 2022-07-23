@@ -81,7 +81,7 @@ describe("Mint Pricing", () => {
       const mintCost1 = ethers.utils.parseEther("0.1");  
       const mintCost2 = ethers.utils.parseEther("0.2");  
       const mintCost3 = ethers.utils.parseEther("0.4");                  
-      await minterContract.setPricing(200, 500, mintCost1, mintCost2, mintCost3, 1, 1, 1);  
+      await minterContract.setPricing(200, 500, mintCost1, mintCost2, mintCost3, 10, 10, 10);  
 
       await minterContract.setApprovedVIPMinters(1, [userAddress], [true]);
 
