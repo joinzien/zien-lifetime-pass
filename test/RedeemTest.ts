@@ -80,10 +80,14 @@ describe("Redeem", () => {
       dropResult
     )) as ExpandedNFT;
 
-    const paymentTokenContract = (await ethers.getContractAt(
+    const { TestCash } = await deployments.fixture([
+        "TestCash"
+      ]);
+  
+      const paymentToken = (await ethers.getContractAt(
         "TestCash",
-        dropResult
-      )) as TestCash;
+        TestCash.address
+      )) as TestCash;    
 
     await minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
 
@@ -120,6 +124,13 @@ describe("Redeem", () => {
     await expect(minterContract.connect(user).acceptOfferTerms(1)).to.be.revertedWith("You currently can not redeem"); 
     
     const USDC1000 = 1000000000;
-    await minterContract.setOfferTerms(1, USDC1000);    
+    await minterContract.setOfferTerms(1, USDC1000);
+
+    await expect(await paymentToken.balanceOf(user.address)).to.be.equal("0x0000000000000000000000000000000000000000");
+
+    paymentToken.mint(user.address, USDC1000);
+    
+    await expect(await paymentToken.balanceOf(user.address)).to.be.equal(USDC1000);    
+
   });
 });
