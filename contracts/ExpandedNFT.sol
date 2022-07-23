@@ -11,7 +11,6 @@ pragma solidity ^0.8.15;
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import {IERC2981Upgradeable, IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 
 import {SharedNFTLogic} from "./SharedNFTLogic.sol";
@@ -33,8 +32,6 @@ contract ExpandedNFT is
     enum WhoCanMint{ ONLY_OWNER, VIPS, MEMBERS, ANYONE }
 
     enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, PRODUCTION_COMPLETE, REDEEMED }
-
-    using CountersUpgradeable for CountersUpgradeable.Counter;
     
     event PriceChanged(uint256 amount);
     event EditionSold(uint256 price, address owner);
@@ -117,8 +114,14 @@ contract ExpandedNFT is
     // Total size of the drop that can be minted
     uint256 public dropSize;
 
-    // Current token id minted
-    CountersUpgradeable.Counter private _atEditionId;
+    // reservation list
+    uint256 private _reserveCount;
+    mapping(uint256 => address) private _reserveAddress;
+    mapping(uint256 => uint256) private _reserveTokenId;
+
+    mapping(uint256 => bool) private _tokenClaimed; 
+    uint256 private _firstUnclaimed; 
+    uint256 private _claimCount; 
 
     // Addresses allowed to mint edition
     mapping(address => bool) private _allowedMinters;
@@ -183,7 +186,8 @@ contract ExpandedNFT is
         dropSize = _dropSize;
 
         // Set edition id start to be 1 not 0
-        _atEditionId.increment();
+        _firstUnclaimed = 1; 
+        _claimCount = 1; 
 
         for (uint i = 0; i < dropSize; i++) {
             uint index = i + 1;
@@ -199,7 +203,7 @@ contract ExpandedNFT is
 
     /// @dev returns the number of minted tokens within the drop
     function totalSupply() public view returns (uint256) {
-        return _atEditionId.current() - 1;
+        return _claimCount - 1;
     }
     /**
         Simple eth-based sales function
@@ -270,24 +274,57 @@ contract ExpandedNFT is
         internal
         returns (uint256)
     {
-        uint256 startAt = _atEditionId.current();
-        uint256 endAt = startAt + recipients.length - 1;
-        require(dropSize == 0 || endAt <= dropSize, "Sold out");
-        while (_atEditionId.current() <= endAt) {
-            _mint(
-                recipients[_atEditionId.current() - startAt],
-                _atEditionId.current()
-            );
+        address currentMinter = msg.sender;
+        uint256 lastindex = 1;
 
-            _perTokenMetadata[_atEditionId.current()].editionState = ExpandedNFTStates.MINTED;
+        if (_whoCanMint == WhoCanMint.VIPS) {
+            uint256 foundCount = 0;
+            for (uint256 reservationCounter = 0; reservationCounter < _reserveCount; reservationCounter++) {
+                for (uint256 i = 0; i < recipients.length; i++) {
+                    if (_reserveAddress[reservationCounter] == currentMinter) {
+                        uint256 mainIndex = _reserveTokenId[reservationCounter];
+                        if ( _tokenClaimed[mainIndex] == false) {
+                            _mint(
+                                recipients[i],
+                                mainIndex
+                            );
 
-            address currentMinter = msg.sender;
-            _mintCounts[currentMinter] = _mintCounts[currentMinter] + 1;
+                            _tokenClaimed[mainIndex] = true;
+                            _mintCounts[currentMinter]++;
+                            _claimCount++;
+                            foundCount++;
+                            lastindex = mainIndex; 
+                        }
+                    }
+                }
+            }
 
-            _atEditionId.increment();
-        }
+            require(foundCount == recipients.length, "Not enough reservations");
 
-        return _atEditionId.current();
+            return lastindex; 
+        
+        } else {
+            uint256 currentIndex = 1;
+            for (uint256 i = 0; i < recipients.length; i++) {
+                while ((_tokenClaimed[currentIndex] == true) && (currentIndex < (dropSize + 1))) {
+                    currentIndex++;
+                }
+
+                require(currentIndex < (dropSize + 1), "Sold out");
+
+                _mint(
+                    recipients[i],
+                    currentIndex
+                );
+
+                _tokenClaimed[currentIndex] = true;
+                _mintCounts[currentMinter]++;
+                _claimCount++;
+
+            }
+
+            return currentIndex;
+        }            
     }    
 
     /**
@@ -339,6 +376,20 @@ contract ExpandedNFT is
         } 
             
         return 0;       
+    }
+
+    /**
+      @param wallets A list of wallets
+      @param tokenIDs A list of tokenId to reserve                                                                           
+      @dev Set various pricing related values
+     */
+    function reserve (address[] calldata wallets, uint256[] calldata tokenIDs) 
+        external onlyOwner {  
+        for (uint256 i = 0; i < wallets.length; i++) {
+            _reserveAddress[_reserveCount] = wallets[i]; 
+            _reserveTokenId[_reserveCount] = tokenIDs[i];                
+            _reserveCount++;
+        }
     }
 
     /**
@@ -567,8 +618,8 @@ contract ExpandedNFT is
 
     /// Returns the number of editions allowed to mint
     function numberCanMint() public view override returns (uint256) {
-        // _atEditionId is one-indexed hence the need to remove one here
-        return dropSize + 1 - _atEditionId.current();
+         // _claimCount is one-indexed hence the need to remove one here
+        return dropSize + 1 - _claimCount;
     }
 
     /**

@@ -167,6 +167,8 @@ describe("ExpandedNFT", () => {
           properties: { number: 1, name: "Testing Token" },
         })
       );
+
+      expect(await minterContract.totalSupply()).to.be.equal(1);
     });
     it("creates an unbounded drop", async () => {
       // no limit for drop size
@@ -181,6 +183,7 @@ describe("ExpandedNFT", () => {
         [""],
         ["0x0000000000000000000000000000000000000000000000000000000000000000"]
       )).to.be.reverted;
+      expect(await minterContract.totalSupply()).to.be.equal(0);
     });
     it("creates an authenticated edition", async () => {
       await minterContract.mintEdition(await signer1.getAddress(), {
@@ -189,6 +192,7 @@ describe("ExpandedNFT", () => {
       expect(await minterContract.ownerOf(1)).to.equal(
         await signer1.getAddress()
       );
+      expect(await minterContract.totalSupply()).to.be.equal(1);
     });
     it("allows user burn", async () => {
       await minterContract.mintEdition(await signer1.getAddress(), {
@@ -199,6 +203,7 @@ describe("ExpandedNFT", () => {
       );
       await minterContract.connect(signer1).burn(1);
       await expect(minterContract.ownerOf(1)).to.be.reverted;
+      expect(await minterContract.totalSupply()).to.be.equal(1);
     });
     it("does not allow re-initialization", async () => {
       await expect(
@@ -232,6 +237,7 @@ describe("ExpandedNFT", () => {
       expect(await minterContract.ownerOf(1)).to.equal(
         await signer1.getAddress()
       );
+      expect(await minterContract.totalSupply()).to.be.equal(1);
     });
 
     it("creates a set of editions", async () => {
@@ -262,6 +268,7 @@ describe("ExpandedNFT", () => {
       });
       await expect(minterContract.mintEditions([signerAddress])).to.be.reverted;
       await expect(minterContract.mintEdition(signerAddress)).to.be.reverted;
+      expect(await minterContract.totalSupply()).to.be.equal(10);
     });
     it("returns interfaces correctly", async () => {
       // ERC2891 interface
@@ -284,6 +291,7 @@ describe("ExpandedNFT", () => {
         expect((await minterContract.royaltyInfo(1, 100))[0]).to.be.equal(
           await signer1.getAddress()
         );
+        expect(await minterContract.totalSupply()).to.be.equal(1);
       });
       it("sets the correct royalty amount", async () => {
         await dynamicSketch.createDrop(
@@ -330,6 +338,7 @@ describe("ExpandedNFT", () => {
             )
           )[1]
         ).to.be.equal(ethers.utils.parseEther("0.02"));
+        expect(await minterContract.totalSupply()).to.be.equal(0);
       });
     });
     it("stops after editions are sold out", async () => {
@@ -380,6 +389,7 @@ describe("ExpandedNFT", () => {
           properties: { number: 10, name: "Testing Token" },
         })
       );
+      expect(await minterContract.totalSupply()).to.be.equal(10);
     });
   });
 });

@@ -80,7 +80,7 @@ describe("AllowedMinters", () => {
       "0x0000000000000000000000000000000000000000000000000000000000000000"
     );
     expect(await minterContract.dropSize()).to.be.equal(10);
-    // TODO(iain): check bps
+    expect(await minterContract.totalSupply()).to.be.equal(0);
     expect(await minterContract.owner()).to.be.equal(signerAddress);
   });
 });

@@ -78,6 +78,8 @@ describe("Mint Pricing", () => {
       let user = (await ethers.getSigners())[2];
       let userAddress = await user.getAddress();
 
+      await minterContract.reserve ([userAddress], [1]) 
+
       const mintCost1 = ethers.utils.parseEther("0.1");  
       const mintCost2 = ethers.utils.parseEther("0.2");  
       const mintCost3 = ethers.utils.parseEther("0.4");                  
@@ -122,7 +124,9 @@ describe("Mint Pricing", () => {
           "0x0000000000000000000000000000000000000000",
           userAddress,
           3
-        );     
+        );  
+        
+        expect(await minterContract.totalSupply()).to.be.equal(3);
     }); 
   });
 });

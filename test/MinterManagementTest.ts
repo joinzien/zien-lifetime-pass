@@ -78,11 +78,13 @@ describe("MinterManagement", () => {
     });
 
     it("Contract owner user access control", async () => {
-      await minterContract.setAllowedMinter(0);
+      await minterContract.reserve ([signerAddress], [1]) 
 
+      await minterContract.setAllowedMinter(0);
+      
       // Mint as a contract owner
       await expect(minterContract.mintEdition(signerAddress)).to.be.revertedWith("Not for sale");      
-
+     
       minterContract.setAllowedMinter(1);
 
       // Mint as a VIP
@@ -120,12 +122,15 @@ describe("MinterManagement", () => {
           "0x0000000000000000000000000000000000000000",
           signerAddress,
           3
-        );        
+        );
+        
+      expect(await minterContract.totalSupply()).to.be.equal(3);
     }); 
     
     it("VIP user access control", async () => {
       let user = (await ethers.getSigners())[2];
       let userAddress = await user.getAddress();
+      await minterContract.reserve ([userAddress], [1])       
 
       await minterContract.setApprovedVIPMinters(1, [userAddress], [true]);
 
@@ -171,7 +176,9 @@ describe("MinterManagement", () => {
           "0x0000000000000000000000000000000000000000",
           userAddress,
           3
-        );        
+        );
+        
+      expect(await minterContract.totalSupply()).to.be.equal(3);
     }); 
     
     it("Members user access control", async () => {
@@ -214,13 +221,15 @@ describe("MinterManagement", () => {
           "0x0000000000000000000000000000000000000000",
           userAddress,
           2
-        );        
+        ); 
+        
+        expect(await minterContract.totalSupply()).to.be.equal(2);
     });  
     
     it("General user access control", async () => {
       let user = (await ethers.getSigners())[2];
       let userAddress = await user.getAddress();
-
+ 
       await minterContract.setAllowedMinter(0);
 
       // Mint as a contract owner
@@ -247,7 +256,9 @@ describe("MinterManagement", () => {
           "0x0000000000000000000000000000000000000000",
           userAddress,
           1
-        );        
+        );
+        
+      expect(await minterContract.totalSupply()).to.be.equal(1);
     });     
   });
 });

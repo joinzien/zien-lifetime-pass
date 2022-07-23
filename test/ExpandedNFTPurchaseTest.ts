@@ -94,5 +94,7 @@ describe("ExpandedNFT", () => {
         .sub(signerBalance)
         .gte(ethers.utils.parseEther("0.19"))
     ).to.be.true;
+
+    expect(await minterContract.totalSupply()).to.be.equal(1);
   });
 });
