@@ -122,7 +122,9 @@ describe("ExpandedNFT", () => {
         dropResult
       )) as ExpandedNFT;
 
-      await minterContract.setPricing(10, 500, 1, 1, 1, 1, 1, 1);
+      const mintCost = ethers.utils.parseEther("0.1");      
+      await minterContract.setPricing(10, 500, mintCost, mintCost, mintCost, 1, 1, 1);
+      await minterContract.setAllowedMinter(3);
     });
     it("creates a new drop", async () => {
       expect(await signer1.getBalance()).to.eq(
@@ -130,7 +132,9 @@ describe("ExpandedNFT", () => {
       );
 
       // Mint first edition
-      await expect(minterContract.mintEdition(signerAddress))
+      await expect(minterContract.mintEdition(signerAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
         .to.emit(minterContract, "Transfer")
         .withArgs(
           "0x0000000000000000000000000000000000000000",
@@ -179,13 +183,17 @@ describe("ExpandedNFT", () => {
       )).to.be.reverted;
     });
     it("creates an authenticated edition", async () => {
-      await minterContract.mintEdition(await signer1.getAddress());
+      await minterContract.mintEdition(await signer1.getAddress(), {
+        value: ethers.utils.parseEther("0.1")
+      });
       expect(await minterContract.ownerOf(1)).to.equal(
         await signer1.getAddress()
       );
     });
     it("allows user burn", async () => {
-      await minterContract.mintEdition(await signer1.getAddress());
+      await minterContract.mintEdition(await signer1.getAddress(), {
+        value: ethers.utils.parseEther("0.1")
+      });
       expect(await minterContract.ownerOf(1)).to.equal(
         await signer1.getAddress()
       );
@@ -218,7 +226,9 @@ describe("ExpandedNFT", () => {
             "0x0000000000000000000000000000000000000000000000000000000000000000"]
         )
       ).to.be.revertedWith("Initializable: contract is already initialized");
-      await minterContract.mintEdition(await signer1.getAddress());
+      await minterContract.mintEdition(await signer1.getAddress(), {
+        value: ethers.utils.parseEther("0.1")
+      });
       expect(await minterContract.ownerOf(1)).to.equal(
         await signer1.getAddress()
       );
@@ -261,7 +271,9 @@ describe("ExpandedNFT", () => {
     });
     describe("royalty 2981", () => {
       it("follows royalty payout for owner", async () => {
-        await minterContract.mintEdition(signerAddress);
+        await minterContract.mintEdition(signerAddress, {
+          value: ethers.utils.parseEther("0.1")
+        });
         // allows royalty payout info to be updated
         expect((await minterContract.royaltyInfo(1, 100))[0]).to.be.equal(
           signerAddress
@@ -301,9 +313,13 @@ describe("ExpandedNFT", () => {
           dropResult
         )) as ExpandedNFT;
 
-        minterContractNew.setPricing(200, 500, 0, 0, 0, 1, 1, 1);
+        const mintCost = ethers.utils.parseEther("0.1");      
+        await minterContractNew.setPricing(200, 500, mintCost, mintCost, mintCost, 1, 1, 1);
+        await minterContractNew.setAllowedMinter(3);
 
-        await minterContractNew.mintEdition(signerAddress);
+        await minterContractNew.mintEdition(signerAddress, {
+          value: ethers.utils.parseEther("0.1")
+        });
         expect(
           (
             await minterContractNew.royaltyInfo(
@@ -321,7 +337,9 @@ describe("ExpandedNFT", () => {
 
       // Mint first edition
       for (let i = 1; i <= 10; i++) {
-        await expect(minterContract.mintEdition(await signer1.getAddress()))
+        await expect(minterContract.mintEdition(await signer1.getAddress(), {
+          value: ethers.utils.parseEther("0.1")
+        }))
           .to.emit(minterContract, "Transfer")
           .withArgs(
             "0x0000000000000000000000000000000000000000",
@@ -333,7 +351,9 @@ describe("ExpandedNFT", () => {
       expect(await minterContract.numberCanMint()).to.be.equal(0);
 
       await expect(
-        minterContract.mintEdition(signerAddress)
+        minterContract.mintEdition(signerAddress, {
+          value: ethers.utils.parseEther("0.1")
+        })
       ).to.be.revertedWith("Sold out");
 
       const tokenURI = await minterContract.tokenURI(10);
