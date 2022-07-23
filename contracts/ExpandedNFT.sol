@@ -12,10 +12,10 @@ import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC72
 import {IERC2981Upgradeable, IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 import {SharedNFTLogic} from "./SharedNFTLogic.sol";
 import {IExpandedNFT} from "./IExpandedNFT.sol";
-
 /**
     This is a smart contract for handling dynamic contract minting.
 
@@ -31,7 +31,7 @@ contract ExpandedNFT is
 {
     enum WhoCanMint{ ONLY_OWNER, VIPS, MEMBERS, ANYONE }
 
-    enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, PRODUCTION_COMPLETE, REDEEMED }
+    enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, MAKE_PAYMENT, PRODUCTION_COMPLETE, REDEEMED }
     
     event PriceChanged(uint256 amount);
     event EditionSold(uint256 price, address owner);
@@ -39,6 +39,7 @@ contract ExpandedNFT is
 
     // State change events
     event RedeemStarted(uint256 tokenId, address owner);
+    event RedeemAborted(uint256 tokenId, address owner);    
     event OfferTermsSet(uint256 tokenId);
     event OfferAccepted(uint256 tokenId);
     event OfferRejected(uint256 tokenId);
@@ -102,7 +103,18 @@ contract ExpandedNFT is
         uint256 membersMintLimit;
 
         // Price for VIP sales
-        uint256 generalMintLimit;                          
+        uint256 generalMintLimit;   
+
+        // Addresses allowed to mint edition
+        mapping(address => bool) allowedMinters;
+        // VIP Addresses allowed to mint edition
+        mapping(address => bool) vipAllowedMinters;
+
+        // Who can currently mint
+        WhoCanMint whoCanMint;
+
+        // Mint counts for each address
+        mapping(address => uint256) mintCounts;                               
     }
 
     // Artists wallet address
@@ -123,21 +135,13 @@ contract ExpandedNFT is
     uint256 private _firstUnclaimed; 
     uint256 private _claimCount; 
 
-    // Addresses allowed to mint edition
-    mapping(address => bool) private _allowedMinters;
-    // VIP Addresses allowed to mint edition
-    mapping(address => bool) private _vipAllowedMinters;
-
-    // Who can currently mint
-    WhoCanMint private _whoCanMint;
-
-    // Mint counts for each address
-    mapping(address => uint256) private _mintCounts;
-
     Pricing private _pricing;
 
     // Price for general sales
     uint256 public salePrice;
+
+    // ERC20 interface for the payment token
+    IERC20Upgradeable private _paymentTokenERC20;
 
     // NFT rendering logic contract
     SharedNFTLogic private immutable _sharedNFTLogic;
@@ -145,7 +149,7 @@ contract ExpandedNFT is
     // Global constructor for factory
     constructor(SharedNFTLogic sharedNFTLogic) {
         _sharedNFTLogic = sharedNFTLogic;
-        _whoCanMint = WhoCanMint.ONLY_OWNER;
+        _pricing.whoCanMint = WhoCanMint.ONLY_OWNER;
     }
 
     /**
@@ -222,7 +226,7 @@ contract ExpandedNFT is
         require(currentPrice > 0, "Not for sale");
         require(msg.value == currentPrice, "Wrong price");
 
-        require(_mintCounts[msg.sender] < _currentMintLimit(), "Exceeded mint limit");
+        require(_pricing.mintCounts[msg.sender] < _currentMintLimit(), "Exceeded mint limit");
 
         address[] memory toMint = new address[](1);
         toMint[0] = msg.sender;
@@ -241,7 +245,7 @@ contract ExpandedNFT is
         require(currentPrice > 0, "Not for sale");
         require(msg.value == currentPrice, "Wrong price");
 
-        require(_mintCounts[msg.sender] < _currentMintLimit(), "Exceeded mint limit");
+        require(_pricing.mintCounts[msg.sender] < _currentMintLimit(), "Exceeded mint limit");
 
         address[] memory toMint = new address[](1);
         toMint[0] = to;
@@ -261,7 +265,7 @@ contract ExpandedNFT is
         require(currentPrice > 0, "Not for sale");
         require(msg.value == (currentPrice * recipients.length), "Wrong price");
 
-        require((_mintCounts[msg.sender] + recipients.length - 1) < _currentMintLimit(), "Exceeded mint limit");
+        require((_pricing.mintCounts[msg.sender] + recipients.length - 1) < _currentMintLimit(), "Exceeded mint limit");
 
         return _mintEditions(recipients);
     }   
@@ -277,7 +281,7 @@ contract ExpandedNFT is
         address currentMinter = msg.sender;
         uint256 lastindex = 1;
 
-        if (_whoCanMint == WhoCanMint.VIPS) {
+        if (_pricing.whoCanMint == WhoCanMint.VIPS) {
             uint256 foundCount = 0;
             for (uint256 reservationCounter = 0; reservationCounter < _reserveCount; reservationCounter++) {
                 for (uint256 i = 0; i < recipients.length; i++) {
@@ -289,8 +293,9 @@ contract ExpandedNFT is
                                 mainIndex
                             );
 
+                            _perTokenMetadata[mainIndex].editionState = ExpandedNFTStates.MINTED;
                             _tokenClaimed[mainIndex] = true;
-                            _mintCounts[currentMinter]++;
+                            _pricing.mintCounts[currentMinter]++;
                             _claimCount++;
                             foundCount++;
                             lastindex = mainIndex; 
@@ -317,8 +322,9 @@ contract ExpandedNFT is
                     currentIndex
                 );
 
+                _perTokenMetadata[currentIndex].editionState = ExpandedNFTStates.MINTED;
                 _tokenClaimed[currentIndex] = true;
-                _mintCounts[currentMinter]++;
+                _pricing.mintCounts[currentMinter]++;
                 _claimCount++;
 
             }
@@ -367,11 +373,11 @@ contract ExpandedNFT is
            based on who can currently mint.
      */
     function _currentSalesPrice() internal view returns (uint256){
-        if (_whoCanMint == WhoCanMint.VIPS) {
+        if (_pricing.whoCanMint == WhoCanMint.VIPS) {
             return _pricing.vipSalePrice;
-        } else if (_whoCanMint == WhoCanMint.MEMBERS) {
+        } else if (_pricing.whoCanMint == WhoCanMint.MEMBERS) {
             return _pricing.membersSalePrice;
-        } else if (_whoCanMint == WhoCanMint.ANYONE) {
+        } else if (_pricing.whoCanMint == WhoCanMint.ANYONE) {
             return salePrice;
         } 
             
@@ -397,11 +403,11 @@ contract ExpandedNFT is
            can be minted by one wallet
      */
     function _currentMintLimit() internal view returns (uint256){
-        if (_whoCanMint == WhoCanMint.VIPS) {
+        if (_pricing.whoCanMint == WhoCanMint.VIPS) {
             return _pricing.vipMintLimit;
-        } else if (_whoCanMint == WhoCanMint.MEMBERS) {
+        } else if (_pricing.whoCanMint == WhoCanMint.MEMBERS) {
             return _pricing.membersMintLimit;
-        } else if (_whoCanMint == WhoCanMint.ANYONE) {
+        } else if (_pricing.whoCanMint == WhoCanMint.ANYONE) {
             return _pricing.generalMintLimit;
         } 
             
@@ -418,9 +424,9 @@ contract ExpandedNFT is
     function setSalePrice(uint256 _salePrice) external onlyOwner {
         salePrice = _salePrice;
 
-        _whoCanMint = WhoCanMint.ANYONE;
+        _pricing.whoCanMint = WhoCanMint.ANYONE;
 
-        emit WhoCanMintChanged(_whoCanMint);
+        emit WhoCanMintChanged(_pricing.whoCanMint);
         emit PriceChanged(salePrice);
     }
 
@@ -434,9 +440,9 @@ contract ExpandedNFT is
     function setVIPSalePrice(uint256 _salePrice) external onlyOwner {
         _pricing.vipSalePrice = _salePrice;
 
-        _whoCanMint = WhoCanMint.VIPS;
+        _pricing.whoCanMint = WhoCanMint.VIPS;
 
-        emit WhoCanMintChanged(_whoCanMint);
+        emit WhoCanMintChanged(_pricing.whoCanMint);
         emit PriceChanged(salePrice);
     }
 
@@ -450,9 +456,9 @@ contract ExpandedNFT is
     function setMembersSalePrice(uint256 _salePrice) external onlyOwner {
         _pricing.membersSalePrice = _salePrice;
 
-        _whoCanMint = WhoCanMint.MEMBERS;
+        _pricing.whoCanMint = WhoCanMint.MEMBERS;
 
-        emit WhoCanMintChanged(_whoCanMint);
+        emit WhoCanMintChanged(_pricing.whoCanMint);
         emit PriceChanged(salePrice);
     }   
 
@@ -482,7 +488,7 @@ contract ExpandedNFT is
     function withdraw() external onlyOwner {
         uint256 currentBalance = address(this).balance;
         
-        uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10_000;
+        uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
         uint256 artistFee = currentBalance - platformFee;
 
         // No need for gas limit to trusted address.
@@ -495,22 +501,22 @@ contract ExpandedNFT is
             given edition id.
      */
     function _isAllowedToMint() internal view returns (bool) {
-        if (_whoCanMint == WhoCanMint.ANYONE) {
+        if (_pricing.whoCanMint == WhoCanMint.ANYONE) {
             return true;
         }
 
-        if (_whoCanMint == WhoCanMint.MEMBERS) {
-            if (_vipAllowedMinters[msg.sender]) {
+        if (_pricing.whoCanMint == WhoCanMint.MEMBERS) {
+            if (_pricing.vipAllowedMinters[msg.sender]) {
                 return true;
             }   
 
-            if (_allowedMinters[msg.sender]) {
+            if (_pricing.allowedMinters[msg.sender]) {
                 return true;
             }          
         }
 
-        if (_whoCanMint == WhoCanMint.VIPS) {
-            if (_vipAllowedMinters[msg.sender]) {
+        if (_pricing.whoCanMint == WhoCanMint.VIPS) {
+            if (_pricing.vipAllowedMinters[msg.sender]) {
                 return true;
             }            
         }
@@ -556,10 +562,35 @@ contract ExpandedNFT is
     }   
 
     /**
+        return the payment tokens address
+     */
+    function getPaymentToken()
+        public
+        view
+        returns (address)
+    {
+        return address(_paymentTokenERC20);
+    }
+
+     /**
+        set a new payment token address
+     */
+    function setPaymentToken(address paymentToken)
+        public
+        onlyOwner
+    {
+        if (address(_paymentTokenERC20) != address(0x0)) {
+            require(_paymentTokenERC20.balanceOf(address(this)) == 0, "token must have 0 balance");
+        }
+
+        _paymentTokenERC20 = IERC20Upgradeable(paymentToken);
+    }   
+
+    /**
       @dev Sets the types of users who is allowed to mint.
      */
     function getAllowedMinter() public view returns (WhoCanMint){
-        return _whoCanMint;
+        return _pricing.whoCanMint;
     }
 
     /**
@@ -569,7 +600,7 @@ contract ExpandedNFT is
     function setAllowedMinter(WhoCanMint minters) public onlyOwner {
         require(((minters >= WhoCanMint.ONLY_OWNER) && (minters <= WhoCanMint.ANYONE)), "Needs to be a valid minter type");
 
-        _whoCanMint = minters;
+        _pricing.whoCanMint = minters;
         emit WhoCanMintChanged(minters);
     }
 
@@ -584,7 +615,7 @@ contract ExpandedNFT is
      */
     function setApprovedMinters(uint256 count, address[] calldata minter, bool[] calldata allowed) public onlyOwner {
         for (uint256 i = 0; i < count; i++) {
-            _allowedMinters[minter[i]] = allowed[i];
+            _pricing.allowedMinters[minter[i]] = allowed[i];
         }
     }
 
@@ -599,7 +630,7 @@ contract ExpandedNFT is
      */
     function setApprovedVIPMinters(uint256 count, address[] calldata minter, bool[] calldata allowed) public onlyOwner {
         for (uint256 i = 0; i < count; i++) {
-            _vipAllowedMinters[minter[i]] = allowed[i];
+            _pricing.vipAllowedMinters[minter[i]] = allowed[i];
         }
     }
 
@@ -641,6 +672,16 @@ contract ExpandedNFT is
         emit RedeemStarted(tokenId, _msgSender());
     }
 
+    function abortRedemption(uint256 tokenId) public {
+        require(_exists(tokenId), "No token");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
+
+        require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEM_STARTED), "You currently can not redeem");
+
+        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.MINTED;
+        emit RedeemAborted(tokenId, _msgSender());
+    }
+
     function setOfferTerms(uint256 tokenId, uint256 fee) public onlyOwner {
         require(_exists(tokenId), "No token");        
         require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEM_STARTED), "Wrong state");
@@ -662,11 +703,37 @@ contract ExpandedNFT is
         emit OfferRejected(tokenId);
     }
 
-    function acceptOfferTerms(uint256 tokenId) external payable  {
+    function acceptOfferTerms(uint256 tokenId) external {
         require(_exists(tokenId), "No token");        
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
+
         require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.SET_OFFER_TERMS), "You currently can not redeem");
-        require(msg.value == _perTokenMetadata[tokenId].editionFee, "Wrong price");
+
+        //_paymentTokenERC20.approve(address(this), 0);
+        _paymentTokenERC20.approve(address(this), _perTokenMetadata[tokenId].editionFee);
+        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) == 0, "Non zero allowance");
+        _paymentTokenERC20.approve(address(this), _perTokenMetadata[tokenId].editionFee);
+        //require(_paymentTokenERC20.allowance(_msgSender(), address(this)) == 0, "Non zero allowance");
+        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "set");
+
+
+        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.MAKE_PAYMENT; 
+
+        emit OfferAccepted(tokenId);
+    }
+
+    function payRedemption(uint256 tokenId) external {
+        require(_exists(tokenId), "No token");        
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
+
+        require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.MAKE_PAYMENT), "You currently can not redeem");
+
+        _paymentTokenERC20.approve(address(this), _perTokenMetadata[tokenId].editionFee);
+        //require(_paymentTokenERC20.allowance(_msgSender(), address(this)) == 0, "Non zero allowance");
+        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "set");
+
+        //_paymentTokenERC20.approve(address(this), _perTokenMetadata[tokenId].editionFee);
+        //_paymentTokenERC20.transfer(address(this), _perTokenMetadata[tokenId].editionFee);
 
         _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.ACCEPTED_OFFER;
 

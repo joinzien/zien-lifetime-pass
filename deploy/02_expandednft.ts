@@ -12,4 +12,4 @@ module.exports = async ({ getNamedAccounts, deployments }: any) => {
   });
 };
 module.exports.tags = ["ExpandedNFT"];
-module.exports.dependencies = ["SharedNFTLogic"];
+module.exports.dependencies = ["SharedNFTLogic", "TestCash"];
