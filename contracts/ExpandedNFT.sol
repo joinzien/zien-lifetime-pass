@@ -275,27 +275,56 @@ contract ExpandedNFT is
         returns (uint256)
     {
         address currentMinter = msg.sender;
+        uint256 lastindex = 1;
 
-        uint256 currentIndex = 1;
-        for (uint256 i = 0; i < recipients.length; i++) {
-            while ((_tokenClaimed[currentIndex] == true) && (currentIndex < (dropSize + 1))) {
-                currentIndex++;
+        if (_whoCanMint == WhoCanMint.VIPS) {
+            uint256 foundCount = 0;
+            for (uint256 reservationCounter = 0; reservationCounter < _reserveCount; reservationCounter++) {
+                for (uint256 i = 0; i < recipients.length; i++) {
+                    if (_reserveAddress[reservationCounter] == currentMinter) {
+                        uint256 mainIndex = _reserveTokenId[reservationCounter];
+                        if ( _tokenClaimed[mainIndex] == false) {
+                            _mint(
+                                recipients[i],
+                                mainIndex
+                            );
+
+                            _tokenClaimed[mainIndex] = true;
+                            _mintCounts[currentMinter]++;
+                            _claimCount++;
+                            foundCount++;
+                            lastindex = mainIndex; 
+                        }
+                    }
+                }
             }
 
-            require(currentIndex < (dropSize + 1), "Sold out");
+            require(foundCount == recipients.length, "Not enough reservations");
 
-            _mint(
-                recipients[i],
-                currentIndex
-            );
+            return lastindex; 
+        
+        } else {
+            uint256 currentIndex = 1;
+            for (uint256 i = 0; i < recipients.length; i++) {
+                while ((_tokenClaimed[currentIndex] == true) && (currentIndex < (dropSize + 1))) {
+                    currentIndex++;
+                }
 
-            _tokenClaimed[currentIndex] = true;
-            _mintCounts[currentMinter]++;
-            _claimCount++;
+                require(currentIndex < (dropSize + 1), "Sold out");
 
-        }
+                _mint(
+                    recipients[i],
+                    currentIndex
+                );
 
-        return currentIndex;            
+                _tokenClaimed[currentIndex] = true;
+                _mintCounts[currentMinter]++;
+                _claimCount++;
+
+            }
+
+            return currentIndex;
+        }            
     }    
 
     /**

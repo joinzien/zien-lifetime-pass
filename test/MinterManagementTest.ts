@@ -78,11 +78,13 @@ describe("MinterManagement", () => {
     });
 
     it("Contract owner user access control", async () => {
-      await minterContract.setAllowedMinter(0);
+      await minterContract.reserve ([signerAddress], [1]) 
 
+      await minterContract.setAllowedMinter(0);
+      
       // Mint as a contract owner
       await expect(minterContract.mintEdition(signerAddress)).to.be.revertedWith("Not for sale");      
-
+     
       minterContract.setAllowedMinter(1);
 
       // Mint as a VIP
@@ -128,6 +130,7 @@ describe("MinterManagement", () => {
     it("VIP user access control", async () => {
       let user = (await ethers.getSigners())[2];
       let userAddress = await user.getAddress();
+      await minterContract.reserve ([userAddress], [1])       
 
       await minterContract.setApprovedVIPMinters(1, [userAddress], [true]);
 
@@ -226,7 +229,7 @@ describe("MinterManagement", () => {
     it("General user access control", async () => {
       let user = (await ethers.getSigners())[2];
       let userAddress = await user.getAddress();
-
+ 
       await minterContract.setAllowedMinter(0);
 
       // Mint as a contract owner

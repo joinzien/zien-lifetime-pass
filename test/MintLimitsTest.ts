@@ -159,6 +159,7 @@ describe("Mint Limits", () => {
     )) as ExpandedNFT;
 
     await minterContract.setPricing(10, 500, 0, 0, 0, 1, 1, 1);
+    await minterContract.reserve ([signerAddress], [1]) 
 
     const [_, s2] = await ethers.getSigners();
     await expect(minterContract.purchase()).to.be.revertedWith("Not for sale");
