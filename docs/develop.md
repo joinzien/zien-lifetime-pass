@@ -16,4 +16,4 @@
 
 # Verifying:
 
-`yarn hardhat sourcify --network rinkeby && hardhat etherscan-verify --network rinkeby`
+`yarn hardhat sourcify --network rinkeby && yarn hardhat etherscan-verify --network rinkeby`
