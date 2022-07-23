@@ -99,10 +99,10 @@ contract ExpandedNFT is
         // Price for VIP sales
         uint256 vipMintLimit;
 
-        // Price for VIP sales
+        // Price for member sales
         uint256 membersMintLimit;
 
-        // Price for VIP sales
+        // Price for general sales
         uint256 generalMintLimit;   
 
         // Addresses allowed to mint edition
@@ -209,6 +209,47 @@ contract ExpandedNFT is
     function totalSupply() public view returns (uint256) {
         return _claimCount - 1;
     }
+
+    /// @dev returns the royalty BPS
+    function getRoyaltyBPS() public view returns (uint256) {
+        return _pricing.royaltyBPS;
+    }
+
+    /// @dev returns the split BPS
+    function getSplitBPS() public view returns (uint256) {
+        return _pricing.splitBPS;
+    }
+
+    /// @dev returns the VIP sale price
+    function getVIPSalePrice() public view returns (uint256) {
+        return _pricing.vipSalePrice;
+    }
+
+    /// @dev returns the member sale price
+    function getMembersSalePrice() public view returns (uint256) {
+        return _pricing.membersSalePrice;
+    }
+
+    /// @dev returns the VIP mint limit
+    function getVIPMintLimit() public view returns (uint256) {
+        return _pricing.vipMintLimit;
+    }
+
+    /// @dev returns the member mint limit
+    function getMembersMintLimit() public view returns (uint256) {
+        return _pricing.membersMintLimit;
+    }
+
+    /// @dev returns the general mint limit
+    function getGeneralMintLimit() public view returns (uint256) {
+        return salePrice;
+    }
+
+    /// @dev returns who can mint
+    function getWhoCanMint() public view returns (uint256) {
+        return uint256(_pricing.whoCanMint);
+    }
+
     /**
         Simple eth-based sales function
         More complex sales functions can be implemented through IExpandedNFT interface
