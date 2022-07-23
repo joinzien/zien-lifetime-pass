@@ -117,6 +117,15 @@ contract ExpandedNFT is
     // Total size of the drop that can be minted
     uint256 public dropSize;
 
+    // reservation list
+    uint256 private _reserveCount;
+    mapping(uint256 => address) private _reserveAddress;
+    mapping(uint256 => uint256) private _reserveTokenId;
+
+    mapping(uint256 => bool) private _TokenClaimed; 
+    uint256 private _firstUnclaimed; 
+    uint256 private _claimCount; 
+
     // Current token id minted
     CountersUpgradeable.Counter private _atEditionId;
 
@@ -199,7 +208,7 @@ contract ExpandedNFT is
 
     /// @dev returns the number of minted tokens within the drop
     function totalSupply() public view returns (uint256) {
-        return _atEditionId.current() - 1;
+        return _claimCount;
     }
     /**
         Simple eth-based sales function
@@ -284,6 +293,8 @@ contract ExpandedNFT is
             address currentMinter = msg.sender;
             _mintCounts[currentMinter] = _mintCounts[currentMinter] + 1;
 
+            _claimCount++; 
+
             _atEditionId.increment();
         }
 
@@ -339,6 +350,20 @@ contract ExpandedNFT is
         } 
             
         return 0;       
+    }
+
+    /**
+      @param wallets A list of wallets
+      @param tokenIDs A list of tokenId to reserve                                                                           
+      @dev Set various pricing related values
+     */
+    function reserve (address[] calldata wallets, uint256[] calldata tokenIDs) 
+        external onlyOwner {  
+        for (uint256 i = 0; i < wallets.length; i++) {
+            _reserveAddress[_reserveCount] = wallets[i]; 
+            _reserveTokenId[_reserveCount] = tokenIDs[i];                
+            _reserveCount++;
+        }
     }
 
     /**
