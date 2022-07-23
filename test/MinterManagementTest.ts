@@ -120,7 +120,9 @@ describe("MinterManagement", () => {
           "0x0000000000000000000000000000000000000000",
           signerAddress,
           3
-        );        
+        );
+        
+      expect(await minterContract.totalSupply()).to.be.equal(3);
     }); 
     
     it("VIP user access control", async () => {
@@ -171,7 +173,9 @@ describe("MinterManagement", () => {
           "0x0000000000000000000000000000000000000000",
           userAddress,
           3
-        );        
+        );
+        
+      expect(await minterContract.totalSupply()).to.be.equal(3);
     }); 
     
     it("Members user access control", async () => {
@@ -214,7 +218,9 @@ describe("MinterManagement", () => {
           "0x0000000000000000000000000000000000000000",
           userAddress,
           2
-        );        
+        ); 
+        
+        expect(await minterContract.totalSupply()).to.be.equal(2);
     });  
     
     it("General user access control", async () => {
@@ -247,7 +253,9 @@ describe("MinterManagement", () => {
           "0x0000000000000000000000000000000000000000",
           userAddress,
           1
-        );        
+        );
+        
+      expect(await minterContract.totalSupply()).to.be.equal(1);
     });     
   });
 });

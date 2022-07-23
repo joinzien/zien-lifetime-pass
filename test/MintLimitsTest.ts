@@ -80,6 +80,7 @@ describe("Mint Limits", () => {
         .purchase({ value: ethers.utils.parseEther("0.2") })
     ).to.emit(minterContract, "EditionSold");
     await expect(minterContract.purchase({ value: ethers.utils.parseEther("0.2") })).to.be.revertedWith( "Exceeded mint limit");
+    expect(await minterContract.totalSupply()).to.be.equal(1);
   });
 
   it("member mint limit", async () => {
@@ -124,6 +125,7 @@ describe("Mint Limits", () => {
         .purchase({ value: ethers.utils.parseEther("0.2") })
     ).to.emit(minterContract, "EditionSold");
     await expect(minterContract.purchase({ value: ethers.utils.parseEther("0.2") })).to.be.revertedWith( "Exceeded mint limit");
+    expect(await minterContract.totalSupply()).to.be.equal(1);
   });
   
   it("VIP mint limit", async () => {
@@ -168,5 +170,6 @@ describe("Mint Limits", () => {
         .purchase({ value: ethers.utils.parseEther("0.2") })
     ).to.emit(minterContract, "EditionSold");
     await expect(minterContract.purchase({ value: ethers.utils.parseEther("0.2") })).to.be.revertedWith( "Exceeded mint limit");
+    expect(await minterContract.totalSupply()).to.be.equal(1);
   });  
 });

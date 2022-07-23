@@ -122,7 +122,9 @@ describe("Mint Pricing", () => {
           "0x0000000000000000000000000000000000000000",
           userAddress,
           3
-        );     
+        );  
+        
+        expect(await minterContract.totalSupply()).to.be.equal(3);
     }); 
   });
 });
