@@ -92,45 +92,32 @@ describe("Redeem", () => {
     await minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
 
     expect(
-      await minterContract.setSalePrice(ethers.utils.parseEther("0.2"))
+        await minterContract.setSalePrice(ethers.utils.parseEther("0.2"))
     ).to.emit(minterContract, "PriceChanged");
+    
     expect(
-      await minterContract
+        await minterContract
         .connect(user)
         .purchase({ value: ethers.utils.parseEther("0.2") })
     ).to.emit(minterContract, "EditionSold");
 
     expect(await minterContract.totalSupply()).to.be.equal(1);
 
-    await expect(minterContract.setOfferTerms(1, 2)).to.be.revertedWith("Wrong state");
-    await expect(minterContract.rejectOfferTerms(1)).to.be.revertedWith("Not approved");
-    await expect(minterContract.acceptOfferTerms(1)).to.be.revertedWith("Not approved");
-    await expect(minterContract.connect(user).setOfferTerms(1, 2)).to.be.revertedWith("Ownable: caller is not the owner");
-    await expect(minterContract.connect(user).rejectOfferTerms(1)).to.be.revertedWith("You currently can not redeem");
-    await expect(minterContract.connect(user).acceptOfferTerms(1)).to.be.revertedWith("You currently can not redeem");
+    expect(await paymentToken.balanceOf(user.address)).to.be.equal("0x0000000000000000000000000000000000000000");
+    const EditionCost = 1000000000;
+    await paymentToken.mint(user.address, EditionCost);   
+    expect(await paymentToken.balanceOf(user.address)).to.be.equal(EditionCost);    
 
-    await expect(minterContract.redeem(1)).to.be.revertedWith("Not approved");
-
-    await minterContract.connect(user).redeem(1);    
-    await minterContract.connect(user).abortRedemption(1);       
+    await minterContract.setPaymentToken(paymentToken.address);
+    expect(await minterContract.getPaymentToken()).to.be.equal(paymentToken.address);
+    
     await minterContract.connect(user).redeem(1);  
-    
-    await expect(minterContract.connect(user).redeem(1)).to.be.revertedWith("You currently can not redeem'");  
 
-    await expect(minterContract.rejectOfferTerms(1)).to.be.revertedWith("Not approved");
-    await expect(minterContract.acceptOfferTerms(1)).to.be.revertedWith("Not approved");
-    await expect(minterContract.connect(user).setOfferTerms(1, 2)).to.be.revertedWith("Ownable: caller is not the owner");
-    await expect(minterContract.connect(user).rejectOfferTerms(1)).to.be.revertedWith("You currently can not redeem");
-    await expect(minterContract.connect(user).acceptOfferTerms(1)).to.be.revertedWith("You currently can not redeem"); 
-    
-    const USDC1000 = 1000000000;
-    await minterContract.setOfferTerms(1, USDC1000);
+    await minterContract.setOfferTerms(1, EditionCost);
 
-    await expect(await paymentToken.balanceOf(user.address)).to.be.equal("0x0000000000000000000000000000000000000000");
+    //await minterContract.connect(user).acceptOfferTerms(1);  
 
-    paymentToken.mint(user.address, USDC1000);
-    
-    await expect(await paymentToken.balanceOf(user.address)).to.be.equal(USDC1000);    
+    //await minterContract.connect(user).payRedemption(1);
 
   });
 });
