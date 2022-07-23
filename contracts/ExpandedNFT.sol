@@ -482,7 +482,7 @@ contract ExpandedNFT is
     function withdraw() external onlyOwner {
         uint256 currentBalance = address(this).balance;
         
-        uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10_000;
+        uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
         uint256 artistFee = currentBalance - platformFee;
 
         // No need for gas limit to trusted address.

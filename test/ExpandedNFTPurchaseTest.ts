@@ -9,7 +9,7 @@ import {
   ExpandedNFT,
 } from "../typechain";
 
-describe("ExpandedNFT", () => {
+describe("Purchase", () => {
   let signer: SignerWithAddress;
   let signerAddress: string;
 
@@ -35,7 +35,7 @@ describe("ExpandedNFT", () => {
     signerAddress = await signer.getAddress();
 
     artist = (await ethers.getSigners())[1];
-    artistAddress = await signer.getAddress();    
+    artistAddress = await artist.getAddress();    
   });
 
   it("purchases a edition", async () => {
@@ -68,7 +68,7 @@ describe("ExpandedNFT", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
+    await minterContract.setPricing(10, 5000, 10, 10, 10, 1, 1, 1);
 
     expect(await minterContract.name()).to.be.equal("Testing Token");
     expect(await minterContract.symbol()).to.be.equal("TEST");
@@ -86,13 +86,23 @@ describe("ExpandedNFT", () => {
         .connect(s2)
         .purchase({ value: ethers.utils.parseEther("0.2") })
     ).to.emit(minterContract, "EditionSold");
+
     const signerBalance = await signer.getBalance();
+    const artistBalance = await artist.getBalance();
+
     await minterContract.withdraw();
+
     // Some ETH is lost from withdraw contract interaction.
     expect(
       (await signer.getBalance())
         .sub(signerBalance)
-        .gte(ethers.utils.parseEther("0.19"))
+        .gte(ethers.utils.parseEther("0.09"))
+    ).to.be.true;
+
+    expect(
+      (await artist.getBalance())
+        .sub(artistBalance)
+        .gte(ethers.utils.parseEther("0.09"))
     ).to.be.true;
 
     expect(await minterContract.totalSupply()).to.be.equal(1);
