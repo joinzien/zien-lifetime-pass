@@ -218,6 +218,8 @@ contract ExpandedNFT is
         require(currentPrice > 0, "Not for sale");
         require(msg.value == currentPrice, "Wrong price");
 
+        require(_mintCounts[msg.sender] < _currentMintLimit(), "Exceeded mint limit");
+
         address[] memory toMint = new address[](1);
         toMint[0] = msg.sender;
         emit EditionSold(currentPrice, msg.sender);
@@ -330,6 +332,22 @@ contract ExpandedNFT is
             return _pricing.membersSalePrice;
         } else if (_whoCanMint == WhoCanMint.ANYONE) {
             return salePrice;
+        } 
+            
+        return 0;       
+    }
+
+    /**
+      @dev returns the current loimit on edition that 
+           can be minted by one wallet
+     */
+    function _currentMintLimit() internal view returns (uint256){
+        if (_whoCanMint == WhoCanMint.VIPS) {
+            return _pricing.vipMintLimit;
+        } else if (_whoCanMint == WhoCanMint.MEMBERS) {
+            return _pricing.membersMintLimit;
+        } else if (_whoCanMint == WhoCanMint.ANYONE) {
+            return _pricing.generalMintLimit;
         } 
             
         return 0;       
