@@ -4,8 +4,8 @@ module.exports = async ({ getNamedAccounts, deployments }: any ) => {
 
   await deploy("TestCash", {
     from: deployer,
-    args: [],
     log: true,
   });
 };
+
 module.exports.tags = ["TestCash"];

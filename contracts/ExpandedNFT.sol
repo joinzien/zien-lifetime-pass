@@ -12,10 +12,10 @@ import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC72
 import {IERC2981Upgradeable, IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 import {SharedNFTLogic} from "./SharedNFTLogic.sol";
 import {IExpandedNFT} from "./IExpandedNFT.sol";
-
 /**
     This is a smart contract for handling dynamic contract minting.
 
@@ -139,6 +139,9 @@ contract ExpandedNFT is
 
     // Price for general sales
     uint256 public salePrice;
+
+    // ERC20 interface for the payment token
+    IExpandedNFT private _paymentTokenERC20;
 
     // NFT rendering logic contract
     SharedNFTLogic private immutable _sharedNFTLogic;

@@ -9,8 +9,6 @@ import {
   TestCash,
 } from "../typechain";
 
-
-
 describe("Redeem", () => {
   let signer: SignerWithAddress;
   let signerAddress: string;
@@ -24,15 +22,20 @@ describe("Redeem", () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
       "ExpandedNFT",
-      "TestCash",
     ]);
+
     const dynamicMintableAddress = (
       await deployments.get("ExpandedNFT")
     ).address;
+
     dynamicSketch = (await ethers.getContractAt(
       "DropCreator",
       DropCreator.address
     )) as DropCreator;
+
+    const dynamicMintableAddressERC20 = (
+        await deployments.get("TestCash")
+      ).address;
 
     signer = (await ethers.getSigners())[0];
     signerAddress = await signer.getAddress();
