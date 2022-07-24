@@ -19,6 +19,7 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 - [How to develop locally?](./docs/develop.md)
 - [How do I control who can mint?](./docs/permissioning.md)
 - [How to I mint?](./docs/minting.md)
+- [How to I redeem an edition?](./docs/redemption.md)
 
 ## Deployed
 
