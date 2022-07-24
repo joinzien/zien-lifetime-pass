@@ -117,6 +117,9 @@ contract ExpandedNFT is
         mapping(address => uint256) mintCounts;                               
     }
 
+    // metadata
+    string public description;
+
     // Artists wallet address
     address private _artistWallet;
 
@@ -158,7 +161,7 @@ contract ExpandedNFT is
       @param _name Name of drop, used in the title as "$NAME NUMBER/TOTAL"
       @param _symbol Symbol of the new token contract
       @param _dropSize Number of editions that can be minted in total.    
-      @param description Description of the edition, used in the description field of the NFT
+      @param _description Description of the edition, used in the description field of the NFT
       @param imageUrl Image URL of the the edition. Strongly encouraged to be used, if necessary, only animation URL can be used. One of animation and image url need to exist in a drop to render the NFT.
       @param imageHash SHA256 of the given image in bytes32 format (0xHASH). If no image is included, the hash can be zero.
       @param animationUrl Animation URL of the edition. Not required, but if omitted image URL needs to be included. This follows the opensea spec for NFTs
@@ -173,7 +176,7 @@ contract ExpandedNFT is
         string memory _name,
         string memory _symbol,
         uint256 _dropSize,
-        string[] memory description,
+        string[] memory _description,
         string[] memory animationUrl,
         bytes32[] memory animationHash,
         string[] memory imageUrl,
@@ -183,6 +186,7 @@ contract ExpandedNFT is
 
         __ERC721_init(_name, _symbol);
         __Ownable_init();
+
         // Set ownership to original sender of contract call
         transferOwnership(_owner);
 
@@ -193,10 +197,12 @@ contract ExpandedNFT is
         _firstUnclaimed = 1; 
         _claimCount = 1; 
 
+        // Set the metadata
+        description = _name;
         for (uint i = 0; i < dropSize; i++) {
             uint index = i + 1;
             
-            _perTokenMetadata[index].description = description[i];
+            _perTokenMetadata[index].description = _description[i];
 
             _perTokenMetadata[index].animationUrl = animationUrl[i];
             _perTokenMetadata[index].animationHash = animationHash[i];
@@ -764,7 +770,7 @@ contract ExpandedNFT is
 
     function productionComplete(
         uint256 tokenId,
-        string memory description,
+        string memory _description,
         string memory animationUrl,
         bytes32 animationHash,
         string memory imageUrl,
@@ -776,7 +782,7 @@ contract ExpandedNFT is
         require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.ACCEPTED_OFFER), "You currently can not redeem");
 
         // Set the NFT to display as redeemed
-        _perTokenMetadata[tokenId].description = description;
+        _perTokenMetadata[tokenId].description = _description;
         _perTokenMetadata[tokenId].redeemedAnimationUrl = animationUrl;
         _perTokenMetadata[tokenId].redeemedAnimationHash = animationHash;
         _perTokenMetadata[tokenId].redeemedImageUrl = imageUrl;
