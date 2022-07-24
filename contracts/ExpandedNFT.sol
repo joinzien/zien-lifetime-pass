@@ -816,8 +816,13 @@ contract ExpandedNFT is
             bytes32
         )
     {
+        if (_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEMED) {        
+           return (_perTokenMetadata[tokenId].redeemedImageUrl, _perTokenMetadata[tokenId].redeemedImageHash,
+                _perTokenMetadata[tokenId].redeemedAnimationUrl, _perTokenMetadata[tokenId].redeemedAnimationHash);
+        }
+
         return (_perTokenMetadata[tokenId].imageUrl, _perTokenMetadata[tokenId].imageHash,
-                _perTokenMetadata[tokenId].animationUrl, _perTokenMetadata[tokenId].animationHash);
+             _perTokenMetadata[tokenId].animationUrl, _perTokenMetadata[tokenId].animationHash);
     }
 
     /**
@@ -863,6 +868,18 @@ contract ExpandedNFT is
         returns (string memory)
     {
         require(_exists(tokenId), "No token");
+
+        if (_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEMED) {
+            return
+                _sharedNFTLogic.createMetadataEdition(
+                    name(),
+                    _perTokenMetadata[tokenId].description,
+                    _perTokenMetadata[tokenId].redeemedImageUrl,
+                    _perTokenMetadata[tokenId].redeemedAnimationUrl,
+                    tokenId,
+                    dropSize
+                );
+        }
 
         return
             _sharedNFTLogic.createMetadataEdition(

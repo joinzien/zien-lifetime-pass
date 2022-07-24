@@ -165,4 +165,38 @@ describe("Redeem", () => {
 
     await expect(minterContract.connect(user).redeem(1)).to.be.revertedWith("You currently can not redeem");
   });  
+
+  it("URLs and meta data should change when redeemed", async () => {
+    await minterContract.connect(user).redeem(1);
+
+    await minterContract.setOfferTerms(1, ethers.utils.parseEther("0.1"));
+
+    await minterContract.connect(user).acceptOfferTerms(1, {
+      value: ethers.utils.parseEther("0.1")
+    })
+
+    const description = "Redeemed version of the description";
+
+    const animationUrl = "http://redeemed.com/animation.mp4";
+    const animationHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
+    const imageUrl = "";
+    const imageHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+    const conditionReportUrl = "http://condiitionreport.com/report.pdf";
+    const conditionReportHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+    await minterContract.productionComplete(1, description, animationUrl, animationHash, imageUrl, imageHash, conditionReportUrl, conditionReportHash);
+
+    const startURIs = await minterContract.connect(user).getURIs(1);
+    const startTokenURI = await minterContract.connect(user).tokenURI(1);
+
+    await minterContract.connect(user).acceptDelivery(1);
+
+    const endURIs = await minterContract.connect(user).getURIs(1);
+    const endTokenURI = await minterContract.connect(user).tokenURI(1);
+    
+    expect(startURIs).to.not.equal(endURIs);
+    expect(startTokenURI).to.not.equal(endTokenURI);    
+  });  
+
 });
