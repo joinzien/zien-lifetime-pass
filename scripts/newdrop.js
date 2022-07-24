@@ -2,7 +2,7 @@
 
 async function main() {
     // Set up an ethers contract, representing our deployed Box instance
-    const address = '0x586FB3320328Cf74501594D5dd963254D306e3ED';
+    const address = '0xD932D4D3B7da3b3dF2cf103B4d2C6782fD9390a6';
     const dropCreatorContract = await ethers.getContractFactory('DropCreator');
     const dropCreator = await dropCreatorContract.attach(address);
 

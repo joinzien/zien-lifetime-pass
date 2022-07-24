@@ -31,7 +31,7 @@ contract ExpandedNFT is
 {
     enum WhoCanMint{ ONLY_OWNER, VIPS, MEMBERS, ANYONE }
 
-    enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, MAKE_PAYMENT, PRODUCTION_COMPLETE, REDEEMED }
+    enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, PRODUCTION_COMPLETE, REDEEMED }
     
     event PriceChanged(uint256 amount);
     event EditionSold(uint256 price, address owner);
@@ -117,6 +117,9 @@ contract ExpandedNFT is
         mapping(address => uint256) mintCounts;                               
     }
 
+    // metadata
+    string public description;
+
     // Artists wallet address
     address private _artistWallet;
 
@@ -158,7 +161,7 @@ contract ExpandedNFT is
       @param _name Name of drop, used in the title as "$NAME NUMBER/TOTAL"
       @param _symbol Symbol of the new token contract
       @param _dropSize Number of editions that can be minted in total.    
-      @param description Description of the edition, used in the description field of the NFT
+      @param _description Description of the edition, used in the description field of the NFT
       @param imageUrl Image URL of the the edition. Strongly encouraged to be used, if necessary, only animation URL can be used. One of animation and image url need to exist in a drop to render the NFT.
       @param imageHash SHA256 of the given image in bytes32 format (0xHASH). If no image is included, the hash can be zero.
       @param animationUrl Animation URL of the edition. Not required, but if omitted image URL needs to be included. This follows the opensea spec for NFTs
@@ -173,7 +176,7 @@ contract ExpandedNFT is
         string memory _name,
         string memory _symbol,
         uint256 _dropSize,
-        string[] memory description,
+        string[] memory _description,
         string[] memory animationUrl,
         bytes32[] memory animationHash,
         string[] memory imageUrl,
@@ -183,6 +186,7 @@ contract ExpandedNFT is
 
         __ERC721_init(_name, _symbol);
         __Ownable_init();
+
         // Set ownership to original sender of contract call
         transferOwnership(_owner);
 
@@ -193,10 +197,12 @@ contract ExpandedNFT is
         _firstUnclaimed = 1; 
         _claimCount = 1; 
 
+        // Set the metadata
+        description = _name;
         for (uint i = 0; i < dropSize; i++) {
             uint index = i + 1;
             
-            _perTokenMetadata[index].description = description[i];
+            _perTokenMetadata[index].description = _description[i];
 
             _perTokenMetadata[index].animationUrl = animationUrl[i];
             _perTokenMetadata[index].animationHash = animationHash[i];
@@ -528,6 +534,7 @@ contract ExpandedNFT is
      */
     function withdraw() external onlyOwner {
         uint256 currentBalance = address(this).balance;
+        require(currentBalance > 0, "No ETh to transfer");
         
         uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
         uint256 artistFee = currentBalance - platformFee;
@@ -744,46 +751,22 @@ contract ExpandedNFT is
         emit OfferRejected(tokenId);
     }
 
-    function acceptOfferTerms(uint256 tokenId) external {
+    function acceptOfferTerms(uint256 tokenId) external payable{
         require(_exists(tokenId), "No token");        
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
 
         require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.SET_OFFER_TERMS), "You currently can not redeem");
 
-        //_paymentTokenERC20.approve(address(this), 0);
-        _paymentTokenERC20.approve(address(this), _perTokenMetadata[tokenId].editionFee);
-        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) == 0, "Non zero allowance");
-        _paymentTokenERC20.approve(address(this), _perTokenMetadata[tokenId].editionFee);
-        //require(_paymentTokenERC20.allowance(_msgSender(), address(this)) == 0, "Non zero allowance");
-        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "set");
+        require(msg.value == _perTokenMetadata[tokenId].editionFee, "Wrong price");
 
-
-        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.MAKE_PAYMENT; 
-
-        emit OfferAccepted(tokenId);
-    }
-
-    function payRedemption(uint256 tokenId) external {
-        require(_exists(tokenId), "No token");        
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
-
-        require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.MAKE_PAYMENT), "You currently can not redeem");
-
-        _paymentTokenERC20.approve(address(this), _perTokenMetadata[tokenId].editionFee);
-        //require(_paymentTokenERC20.allowance(_msgSender(), address(this)) == 0, "Non zero allowance");
-        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "set");
-
-        //_paymentTokenERC20.approve(address(this), _perTokenMetadata[tokenId].editionFee);
-        //_paymentTokenERC20.transfer(address(this), _perTokenMetadata[tokenId].editionFee);
-
-        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.ACCEPTED_OFFER;
+        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.ACCEPTED_OFFER; 
 
         emit OfferAccepted(tokenId);
     }
 
     function productionComplete(
         uint256 tokenId,
-        string memory description,
+        string memory _description,
         string memory animationUrl,
         bytes32 animationHash,
         string memory imageUrl,
@@ -795,7 +778,7 @@ contract ExpandedNFT is
         require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.ACCEPTED_OFFER), "You currently can not redeem");
 
         // Set the NFT to display as redeemed
-        _perTokenMetadata[tokenId].description = description;
+        _perTokenMetadata[tokenId].description = _description;
         _perTokenMetadata[tokenId].redeemedAnimationUrl = animationUrl;
         _perTokenMetadata[tokenId].redeemedAnimationHash = animationHash;
         _perTokenMetadata[tokenId].redeemedImageUrl = imageUrl;
@@ -833,8 +816,13 @@ contract ExpandedNFT is
             bytes32
         )
     {
+        if (_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEMED) {        
+           return (_perTokenMetadata[tokenId].redeemedImageUrl, _perTokenMetadata[tokenId].redeemedImageHash,
+                _perTokenMetadata[tokenId].redeemedAnimationUrl, _perTokenMetadata[tokenId].redeemedAnimationHash);
+        }
+
         return (_perTokenMetadata[tokenId].imageUrl, _perTokenMetadata[tokenId].imageHash,
-                _perTokenMetadata[tokenId].animationUrl, _perTokenMetadata[tokenId].animationHash);
+             _perTokenMetadata[tokenId].animationUrl, _perTokenMetadata[tokenId].animationHash);
     }
 
     /**
@@ -880,6 +868,18 @@ contract ExpandedNFT is
         returns (string memory)
     {
         require(_exists(tokenId), "No token");
+
+        if (_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEMED) {
+            return
+                _sharedNFTLogic.createMetadataEdition(
+                    name(),
+                    _perTokenMetadata[tokenId].description,
+                    _perTokenMetadata[tokenId].redeemedImageUrl,
+                    _perTokenMetadata[tokenId].redeemedAnimationUrl,
+                    tokenId,
+                    dropSize
+                );
+        }
 
         return
             _sharedNFTLogic.createMetadataEdition(
