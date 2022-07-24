@@ -25,7 +25,7 @@
     "prepack": "hardhat compile",
     "lint": "npx solhint 'contracts/**/*.sol' --fix && npx prettier '**/*.{json,md}' --write",
     "size": "yarn hardhat size-contracts",
-    "verify": "hardhat sourcify --network rinkeby && hardhat etherscan-verify --network rinkeby"
+    "verify": "yarn hardhat sourcify --network rinkeby && yarn hardhat etherscan-verify --network rinkeby"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.1.0",
