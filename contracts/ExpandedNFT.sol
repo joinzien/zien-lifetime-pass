@@ -286,17 +286,9 @@ contract ExpandedNFT is
       @dev This mints one edition to the given address by an allowed minter on the edition instance.
      */
     function mintEdition(address to) external payable override returns (uint256) {
-        require(_isAllowedToMint(), "Needs to be an allowed minter");
-
-        uint256 currentPrice = _currentSalesPrice();
-        require(currentPrice > 0, "Not for sale");
-        require(msg.value == currentPrice, "Wrong price");
-
-        require(_pricing.mintCounts[msg.sender] < _currentMintLimit(), "Exceeded mint limit");
-
         address[] memory toMint = new address[](1);
         toMint[0] = to;
-        return _mintEditions(toMint);
+        return _mintEditionsBody(toMint);        
     }
 
     /**
@@ -305,6 +297,16 @@ contract ExpandedNFT is
      */
     function mintEditions(address[] memory recipients)
         external payable override returns (uint256)
+    {
+        return _mintEditionsBody(recipients);
+    }   
+
+    /**
+      @param recipients list of addresses to send the newly minted editions to
+      @dev This mints multiple editions to the given list of addresses.
+     */
+    function _mintEditionsBody(address[] memory recipients)
+        internal returns (uint256)
     {
         require(_isAllowedToMint(), "Needs to be an allowed minter");
 
@@ -315,7 +317,8 @@ contract ExpandedNFT is
         require((_pricing.mintCounts[msg.sender] + recipients.length - 1) < _currentMintLimit(), "Exceeded mint limit");
 
         return _mintEditions(recipients);
-    }   
+    }  
+
 
     /**
       @dev Private function to mint without any access checks.
