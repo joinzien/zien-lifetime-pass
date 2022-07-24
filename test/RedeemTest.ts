@@ -139,4 +139,30 @@ describe("Redeem", () => {
 
     await minterContract.connect(user).acceptDelivery(1);
   });
+
+  it("Redeem an edition more than once", async () => {
+    await minterContract.connect(user).redeem(1);
+
+    await minterContract.setOfferTerms(1, ethers.utils.parseEther("0.1"));
+
+    await minterContract.connect(user).acceptOfferTerms(1, {
+      value: ethers.utils.parseEther("0.1")
+    })
+
+    const description = "Redeemed version of the description";
+
+    const animationUrl = "http://redeemed.com/animation.mp4";
+    const animationHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
+    const imageUrl = "";
+    const imageHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+    const conditionReportUrl = "http://condiitionreport.com/report.pdf";
+    const conditionReportHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+    await minterContract.productionComplete(1, description, animationUrl, animationHash, imageUrl, imageHash, conditionReportUrl, conditionReportHash);
+
+    await minterContract.connect(user).acceptDelivery(1);
+
+    await expect(minterContract.connect(user).redeem(1)).to.be.revertedWith("You currently can not redeem");
+  });  
 });
