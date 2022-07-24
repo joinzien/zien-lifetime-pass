@@ -528,6 +528,7 @@ contract ExpandedNFT is
      */
     function withdraw() external onlyOwner {
         uint256 currentBalance = address(this).balance;
+        require(currentBalance > 0, "No ETh to transfer");
         
         uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
         uint256 artistFee = currentBalance - platformFee;

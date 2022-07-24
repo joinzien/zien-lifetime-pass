@@ -21,6 +21,10 @@ describe("Redeem", () => {
 
   let dynamicSketch: DropCreator;
 
+  let minterContract : ExpandedNFT;
+
+  let paymentToken: TestCash;
+
   beforeEach(async () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
@@ -47,10 +51,8 @@ describe("Redeem", () => {
     artistAddress = await artist.getAddress();
     
     user = (await ethers.getSigners())[2];
-    userAddress = await user.getAddress();     
-  });
-
-  it("purchases a edition", async () => {
+    userAddress = await user.getAddress();
+    
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -75,7 +77,7 @@ describe("Redeem", () => {
     );
 
     const dropResult = await dynamicSketch.getDropAtId(0);
-    const minterContract = (await ethers.getContractAt(
+    minterContract = (await ethers.getContractAt(
       "ExpandedNFT",
       dropResult
     )) as ExpandedNFT;
@@ -84,7 +86,7 @@ describe("Redeem", () => {
         "TestCash"
       ]);
   
-      const paymentToken = (await ethers.getContractAt(
+    paymentToken = (await ethers.getContractAt(
         "TestCash",
         TestCash.address
       )) as TestCash;    
@@ -93,8 +95,11 @@ describe("Redeem", () => {
 
     expect(
         await minterContract.setSalePrice(ethers.utils.parseEther("0.2"))
-    ).to.emit(minterContract, "PriceChanged");
-    
+    ).to.emit(minterContract, "PriceChanged");    
+
+  });
+
+  it("purchases a edition", async () => {
     expect(
         await minterContract
         .connect(user)
@@ -117,7 +122,7 @@ describe("Redeem", () => {
 
     await minterContract.connect(user).acceptOfferTerms(1);  
 
-    //await minterContract.connect(user).payRedemption(1);
+    //await minterContract.payRedemption(1);
 
   });
 });
