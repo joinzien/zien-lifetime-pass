@@ -288,6 +288,7 @@ contract ExpandedNFT is
     function mintEdition(address to) external payable override returns (uint256) {
         address[] memory toMint = new address[](1);
         toMint[0] = to;
+
         return _mintEditionsBody(toMint);        
     }
 
@@ -316,9 +317,50 @@ contract ExpandedNFT is
 
         require((_pricing.mintCounts[msg.sender] + recipients.length - 1) < _currentMintLimit(), "Exceeded mint limit");
 
+        if (_pricing.whoCanMint == WhoCanMint.VIPS) {
+            return _vipMintEditions(recipients);
+        }
+
         return _mintEditions(recipients);
     }  
 
+    /**
+      @dev Private function to mint without any access checks.
+           Called by the public edition minting functions.
+     */
+    function _vipMintEditions(address[] memory recipients)
+        internal
+        returns (uint256)
+    {
+        address currentMinter = msg.sender;
+        uint256 lastindex = 1;
+
+        uint256 foundCount = 0;
+        for (uint256 reservationCounter = 0; reservationCounter < _reserveCount; reservationCounter++) {
+            for (uint256 i = 0; i < recipients.length; i++) {
+                if (_reserveAddress[reservationCounter] == currentMinter) {
+                    uint256 mainIndex = _reserveTokenId[reservationCounter];
+                    if ( _tokenClaimed[mainIndex] == false) {
+                        _mint(
+                            recipients[i],
+                            mainIndex
+                        );
+
+                        _perTokenMetadata[mainIndex].editionState = ExpandedNFTStates.MINTED;
+                        _tokenClaimed[mainIndex] = true;
+                        _pricing.mintCounts[currentMinter]++;
+                        _claimCount++;
+                        foundCount++;
+                        lastindex = mainIndex; 
+                    }
+                }
+            }
+        }
+
+        require(foundCount == recipients.length, "Not enough reservations");
+
+        return lastindex;          
+    }    
 
     /**
       @dev Private function to mint without any access checks.
@@ -329,59 +371,30 @@ contract ExpandedNFT is
         returns (uint256)
     {
         address currentMinter = msg.sender;
-        uint256 lastindex = 1;
 
-        if (_pricing.whoCanMint == WhoCanMint.VIPS) {
-            uint256 foundCount = 0;
-            for (uint256 reservationCounter = 0; reservationCounter < _reserveCount; reservationCounter++) {
-                for (uint256 i = 0; i < recipients.length; i++) {
-                    if (_reserveAddress[reservationCounter] == currentMinter) {
-                        uint256 mainIndex = _reserveTokenId[reservationCounter];
-                        if ( _tokenClaimed[mainIndex] == false) {
-                            _mint(
-                                recipients[i],
-                                mainIndex
-                            );
-
-                            _perTokenMetadata[mainIndex].editionState = ExpandedNFTStates.MINTED;
-                            _tokenClaimed[mainIndex] = true;
-                            _pricing.mintCounts[currentMinter]++;
-                            _claimCount++;
-                            foundCount++;
-                            lastindex = mainIndex; 
-                        }
-                    }
-                }
+        uint256 currentIndex = 1;
+        for (uint256 i = 0; i < recipients.length; i++) {
+            while ((_tokenClaimed[currentIndex] == true) && (currentIndex < (dropSize + 1))) {
+                currentIndex++;
             }
 
-            require(foundCount == recipients.length, "Not enough reservations");
+            require(currentIndex < (dropSize + 1), "Sold out");
 
-            return lastindex; 
-        
-        } else {
-            uint256 currentIndex = 1;
-            for (uint256 i = 0; i < recipients.length; i++) {
-                while ((_tokenClaimed[currentIndex] == true) && (currentIndex < (dropSize + 1))) {
-                    currentIndex++;
-                }
+            _mint(
+                recipients[i],
+                currentIndex
+            );
 
-                require(currentIndex < (dropSize + 1), "Sold out");
+            _perTokenMetadata[currentIndex].editionState = ExpandedNFTStates.MINTED;
+            _tokenClaimed[currentIndex] = true;
+            _pricing.mintCounts[currentMinter]++;
+            _claimCount++;
 
-                _mint(
-                    recipients[i],
-                    currentIndex
-                );
+        }
 
-                _perTokenMetadata[currentIndex].editionState = ExpandedNFTStates.MINTED;
-                _tokenClaimed[currentIndex] = true;
-                _pricing.mintCounts[currentMinter]++;
-                _claimCount++;
-
-            }
-
-            return currentIndex;
-        }            
+        return currentIndex;        
     }    
+
 
     /**
       @param _royaltyBPS BPS of the royalty set on the contract. Can be 0 for no royalty.
