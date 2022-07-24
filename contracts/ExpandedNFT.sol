@@ -806,29 +806,6 @@ contract ExpandedNFT is
     }
 
     /**
-      @dev Get URIs for edition NFT
-      @return _imageUrl, _imageHash, _animationUrl, _animationHash
-     */
-    function getURIs(uint256 tokenId)
-        public
-        view
-        returns (
-            string memory,
-            bytes32,
-            string memory,
-            bytes32
-        )
-    {
-        if (_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEMED) {        
-           return (_perTokenMetadata[tokenId].redeemedImageUrl, _perTokenMetadata[tokenId].redeemedImageHash,
-                _perTokenMetadata[tokenId].redeemedAnimationUrl, _perTokenMetadata[tokenId].redeemedAnimationHash);
-        }
-
-        return (_perTokenMetadata[tokenId].imageUrl, _perTokenMetadata[tokenId].imageHash,
-             _perTokenMetadata[tokenId].animationUrl, _perTokenMetadata[tokenId].animationHash);
-    }
-
-    /**
       @dev Get URIs for the condition report
       @return _imageUrl, _imageHash
      */
@@ -857,6 +834,29 @@ contract ExpandedNFT is
             return (owner(), 0);
         }
         return (owner(), (_salePrice * _pricing.royaltyBPS) / 10_000);
+    }
+
+    /**
+      @dev Get URIs for edition NFT
+      @return _imageUrl, _imageHash, _animationUrl, _animationHash
+     */
+    function getURIs(uint256 tokenId)
+        public
+        view
+        returns (
+            string memory,
+            bytes32,
+            string memory,
+            bytes32
+        )
+    {
+        if (_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEMED) {        
+           return (_perTokenMetadata[tokenId].redeemedImageUrl, _perTokenMetadata[tokenId].redeemedImageHash,
+                _perTokenMetadata[tokenId].redeemedAnimationUrl, _perTokenMetadata[tokenId].redeemedAnimationHash);
+        }
+
+        return (_perTokenMetadata[tokenId].imageUrl, _perTokenMetadata[tokenId].imageHash,
+             _perTokenMetadata[tokenId].animationUrl, _perTokenMetadata[tokenId].animationHash);
     }
 
     /**
