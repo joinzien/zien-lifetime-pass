@@ -115,7 +115,7 @@ describe("Redeem", () => {
 
     await minterContract.setOfferTerms(1, EditionCost);
 
-    //await minterContract.connect(user).acceptOfferTerms(1);  
+    await minterContract.connect(user).acceptOfferTerms(1);  
 
     //await minterContract.connect(user).payRedemption(1);
 

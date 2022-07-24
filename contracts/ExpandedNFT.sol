@@ -31,7 +31,7 @@ contract ExpandedNFT is
 {
     enum WhoCanMint{ ONLY_OWNER, VIPS, MEMBERS, ANYONE }
 
-    enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, MAKE_PAYMENT, PRODUCTION_COMPLETE, REDEEMED }
+    enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, PRODUCTION_COMPLETE, REDEEMED }
     
     event PriceChanged(uint256 amount);
     event EditionSold(uint256 price, address owner);
@@ -751,32 +751,12 @@ contract ExpandedNFT is
         require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.SET_OFFER_TERMS), "You currently can not redeem");
 
         //_paymentTokenERC20.approve(address(this), 0);
-        _paymentTokenERC20.approve(address(this), _perTokenMetadata[tokenId].editionFee);
-        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) == 0, "Non zero allowance");
-        _paymentTokenERC20.approve(address(this), _perTokenMetadata[tokenId].editionFee);
         //require(_paymentTokenERC20.allowance(_msgSender(), address(this)) == 0, "Non zero allowance");
-        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "set");
-
-
-        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.MAKE_PAYMENT; 
-
-        emit OfferAccepted(tokenId);
-    }
-
-    function payRedemption(uint256 tokenId) external {
-        require(_exists(tokenId), "No token");        
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
-
-        require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.MAKE_PAYMENT), "You currently can not redeem");
-
-        _paymentTokenERC20.approve(address(this), _perTokenMetadata[tokenId].editionFee);
-        //require(_paymentTokenERC20.allowance(_msgSender(), address(this)) == 0, "Non zero allowance");
-        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "set");
 
         //_paymentTokenERC20.approve(address(this), _perTokenMetadata[tokenId].editionFee);
-        //_paymentTokenERC20.transfer(address(this), _perTokenMetadata[tokenId].editionFee);
+        //require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "set");
 
-        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.ACCEPTED_OFFER;
+        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.ACCEPTED_OFFER; 
 
         emit OfferAccepted(tokenId);
     }
