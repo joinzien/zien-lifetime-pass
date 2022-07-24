@@ -119,9 +119,11 @@ describe("Redeem", () => {
   it("Redeem an edition", async () => {
     await minterContract.connect(user).redeem(1);
 
-    await minterContract.setOfferTerms(1, EditionCost);
+    await minterContract.setOfferTerms(1, ethers.utils.parseEther("0.1"));
 
-    await minterContract.connect(user).acceptOfferTerms(1);
+    await minterContract.connect(user).acceptOfferTerms(1, {
+      value: ethers.utils.parseEther("0.1")
+    })
 
     const description = "Redeemed version of the description";
 
@@ -132,6 +134,7 @@ describe("Redeem", () => {
 
     const conditionReportUrl = "http://condiitionreport.com/report.pdf";
     const conditionReportHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
     await minterContract.productionComplete(1, description, animationUrl, animationHash, imageUrl, imageHash, conditionReportUrl, conditionReportHash);
 
     await minterContract.connect(user).acceptDelivery(1);
