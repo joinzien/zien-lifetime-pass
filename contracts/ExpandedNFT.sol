@@ -191,7 +191,7 @@ contract ExpandedNFT is
 
         // Set the metadata
         description = _name;
-        _loadedMetadata = 0;
+        _loadedMetadata = 0; 
     }
 
     /**
@@ -211,11 +211,8 @@ contract ExpandedNFT is
         string[] memory imageUrl,
         bytes32[] memory imageHash
     ) public {
-        uint256 startIndex = _loadedMetadata;
-        uint256 endIndex = startIndex + _description.length;
-
-        for (uint i = startIndex; i < endIndex; i++) {
-            uint index = i + 1;
+        for (uint i = 0; i < _description.length; i++) {
+            uint index =  _loadedMetadata + i + 1;
             
             _perTokenMetadata[index].description = _description[i];
 
