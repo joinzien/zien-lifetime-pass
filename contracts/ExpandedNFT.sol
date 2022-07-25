@@ -795,7 +795,7 @@ contract ExpandedNFT is
         require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.SET_OFFER_TERMS), "You currently can not redeem");
 
         require(paymentAmount >= _perTokenMetadata[tokenId].editionFee, "Wrong price");
-        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "insufficient allowance");
+        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "Insufficient allowance");
 
         bool success = _paymentTokenERC20.transferFrom(_msgSender(), address(this), _perTokenMetadata[tokenId].editionFee);
         require(success, "Could not transfer token");

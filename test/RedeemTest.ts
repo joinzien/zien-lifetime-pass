@@ -144,6 +144,28 @@ describe("Redeem", () => {
     await minterContract.connect(user).acceptDelivery(1);
   });
 
+  it("Send wrong payment amount", async () => {
+    await minterContract.connect(user).redeem(1);
+
+    await minterContract.setOfferTerms(1, editionCost);
+
+    await paymentToken.connect(user).approve(minterContract.address, 0);
+    await paymentToken.connect(user).approve(minterContract.address, editionCost);
+
+    await expect(minterContract.connect(user).acceptOfferTerms(1, 0)).to.be.revertedWith( "Wrong price");  
+  });
+
+  it("Approve wrong payment amount", async () => {
+    await minterContract.connect(user).redeem(1);
+
+    await minterContract.setOfferTerms(1, editionCost);
+
+    await paymentToken.connect(user).approve(minterContract.address, 0);
+    await paymentToken.connect(user).approve(minterContract.address, editionCost/2);
+
+    await expect(minterContract.connect(user).acceptOfferTerms(1, editionCost)).to.be.revertedWith( "Insufficient allowance");  
+  });
+
   it("Redeem an edition more than once", async () => {
     await minterContract.connect(user).redeem(1);
 
