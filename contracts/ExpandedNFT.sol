@@ -330,33 +330,47 @@ contract ExpandedNFT is
         returns (uint256)
     {
         address currentMinter = msg.sender;
-        uint256 lastindex = 1;
 
-        uint256 foundCount = 0;
-        for (uint256 reservationCounter = 0; reservationCounter < _reserveCount; reservationCounter++) {
-            for (uint256 i = 0; i < recipients.length; i++) {
-                if (_reserveAddress[reservationCounter] == currentMinter) {
-                    uint256 mainIndex = _reserveTokenId[reservationCounter];
-                    if ( _tokenClaimed[mainIndex] == false) {
-                        _mint(
-                            recipients[i],
-                            mainIndex
-                        );
+        uint256 unclaimed = 0;
+        uint256 firstUnclaimed = _reserveCount;
 
-                        _perTokenMetadata[mainIndex].editionState = ExpandedNFTStates.MINTED;
-                        _tokenClaimed[mainIndex] = true;
-                        _pricing.mintCounts[currentMinter]++;
-                        _claimCount++;
-                        foundCount++;
-                        lastindex = mainIndex; 
+        for (uint256 r = 0; r < _reserveCount; r++) {
+            if (_reserveAddress[r] == currentMinter) {
+                uint256 id = _reserveTokenId[r];
+
+                if (_tokenClaimed[id] != true) {
+                    if (r < firstUnclaimed) {
+                       firstUnclaimed = r; 
                     }
+
+                    unclaimed++;
                 }
             }
         }
 
-        require(foundCount == recipients.length, "Not enough reservations");
+        require(unclaimed >= recipients.length, "Can not mint all editions");
 
-        return lastindex;          
+        uint256 idToMint = 1;
+
+        uint256 reservationCounter = firstUnclaimed;
+        for (uint256 i = 0; i < recipients.length; i++) {
+            while (_reserveAddress[reservationCounter] != currentMinter) {
+                reservationCounter++;
+            }  
+
+            idToMint = _reserveTokenId[reservationCounter];
+
+            _mint(recipients[i], idToMint);
+
+            _perTokenMetadata[idToMint].editionState = ExpandedNFTStates.MINTED;
+            _tokenClaimed[idToMint] = true;
+            _pricing.mintCounts[currentMinter]++;
+            _claimCount++;
+
+            reservationCounter++;
+        }
+
+        return idToMint;            
     }    
 
     /**
