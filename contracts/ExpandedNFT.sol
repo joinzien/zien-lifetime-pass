@@ -135,8 +135,8 @@ contract ExpandedNFT is
     mapping(uint256 => uint256) private _reserveTokenId;
 
     mapping(uint256 => bool) private _tokenClaimed; 
-    uint256 private _firstUnclaimed; 
     uint256 private _claimCount; 
+    uint256 private _currentIndex;
 
     Pricing private _pricing;
 
@@ -194,8 +194,8 @@ contract ExpandedNFT is
         dropSize = _dropSize;
 
         // Set edition id start to be 1 not 0
-        _firstUnclaimed = 1; 
-        _claimCount = 1; 
+        _claimCount = 0; 
+        _currentIndex = 1;
 
         // Set the metadata
         description = _name;
@@ -213,7 +213,7 @@ contract ExpandedNFT is
 
     /// @dev returns the number of minted tokens within the drop
     function totalSupply() public view returns (uint256) {
-        return _claimCount - 1;
+        return _claimCount;
     }
 
     /// @dev returns the royalty BPS
@@ -267,18 +267,13 @@ contract ExpandedNFT is
      */
 
     function purchase() external payable returns (uint256) {
-        require(_isAllowedToMint(), "Needs to be an allowed minter");
-
         uint256 currentPrice = _currentSalesPrice();
-        require(currentPrice > 0, "Not for sale");
-        require(msg.value == currentPrice, "Wrong price");
-
-        require(_pricing.mintCounts[msg.sender] < _currentMintLimit(), "Exceeded mint limit");
+        emit EditionSold(currentPrice, msg.sender);
 
         address[] memory toMint = new address[](1);
         toMint[0] = msg.sender;
-        emit EditionSold(currentPrice, msg.sender);
-        return _mintEditions(toMint);
+
+        return _mintEditionsBody(toMint);  
     }
 
      /**
@@ -316,6 +311,8 @@ contract ExpandedNFT is
         require(msg.value == (currentPrice * recipients.length), "Wrong price");
 
         require((_pricing.mintCounts[msg.sender] + recipients.length - 1) < _currentMintLimit(), "Exceeded mint limit");
+
+        require(_claimCount + recipients.length <= dropSize, "Over drop size");
 
         if (_pricing.whoCanMint == WhoCanMint.VIPS) {
             return _vipMintEditions(recipients);
@@ -371,30 +368,22 @@ contract ExpandedNFT is
         returns (uint256)
     {
         address currentMinter = msg.sender;
-
-        uint256 currentIndex = 1;
+       
         for (uint256 i = 0; i < recipients.length; i++) {
-            while ((_tokenClaimed[currentIndex] == true) && (currentIndex < (dropSize + 1))) {
-                currentIndex++;
-            }
+            while (_tokenClaimed[_currentIndex] == true) {
+                _currentIndex++;
+            }  
 
-            require(currentIndex < (dropSize + 1), "Sold out");
+            _mint(recipients[i], _currentIndex);
 
-            _mint(
-                recipients[i],
-                currentIndex
-            );
-
-            _perTokenMetadata[currentIndex].editionState = ExpandedNFTStates.MINTED;
-            _tokenClaimed[currentIndex] = true;
+            _perTokenMetadata[_currentIndex].editionState = ExpandedNFTStates.MINTED;
+            _tokenClaimed[_currentIndex] = true;
             _pricing.mintCounts[currentMinter]++;
             _claimCount++;
-
         }
 
-        return currentIndex;        
+        return _currentIndex;        
     }    
-
 
     /**
       @param _royaltyBPS BPS of the royalty set on the contract. Can be 0 for no royalty.
@@ -713,8 +702,7 @@ contract ExpandedNFT is
 
     /// Returns the number of editions allowed to mint
     function numberCanMint() public view override returns (uint256) {
-         // _claimCount is one-indexed hence the need to remove one here
-        return dropSize + 1 - _claimCount;
+        return dropSize - _claimCount;
     }
 
     /**
