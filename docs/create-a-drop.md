@@ -6,12 +6,13 @@
    - Name: `string` Token Name Symbol (shows in etherscan).
    - Symbol: `string` Symbol of the Token (shows in etherscan).
    - Drop Size: `uint256` The number of editions in this drop, if set to 0, the drop is not capped/limited.
+3. Call`loadMetadataChunk` in `DropCreator` with the given arguments to create a new drop contract:
    - Description: `string` Description of the Token (shows in the NFT description).
    - Animation URL: `string` IPFS/Arweave URL of the animation (video, webpage, audio, etc).
    - Animation Hash: `SHA256` Hash of the animation, 0x0 if no animation url provided.
    - Image URL: `string` IPFS/Arweave URL of the image (image/, gifs are good for previewing images).
    - Image Hash: `SHA256` Hash of the image, 0x0 if no image url provided.
-3. Call `setPricing` in the new drop contract:
+4. Call `setPricing` in the new drop contract:
    - BPS Royalty: `uint256` In [Basis points][bps] (BPS). 500 = 5%, 1000 = 10%, so on and so forth, set to 0 for no on-chain royalty (not supported by all marketplaces).
    - BPS Split: `uint256` In [Basis points][bps] (BPS). 500 = 5%, 1000 = 10%, so on and so forth, set to 0 for no on-chain royalty (not supported by all marketplaces).
    - VIP Sale Price: `uint256` In [wei][wei]. Sale price for VIPs.
