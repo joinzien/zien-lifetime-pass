@@ -6,7 +6,7 @@
 
 async function main() {
     // Set up an ethers contract, representing our deployed Box instance
-    const address = '0x084C382c0592283466865C17eEe6cA04e679a6D0';
+    const address = '0x18F1912Ab9C123323C35C7758F8DA7407695242e';
     const expandedNFTContract = await ethers.getContractFactory('ExpandedNFT');
     const expandedNFT = await expandedNFTContract.attach(address);
 
@@ -30,6 +30,13 @@ async function main() {
     );
 
     console.log("Tx hash: " + result.hash);
+
+    const fee = ethers.utils.parseEther("0.01");
+    await expandedNFT.setPricing(10, 5000, 3, 1, 100, fee, fee, fee);
+
+    // anyone can mint
+    await expandedNFT.setAllowedMinter(3);
+
 }
 
 main()
