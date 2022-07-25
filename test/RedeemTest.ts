@@ -10,7 +10,7 @@ import {
 } from "../typechain";
 
 describe("Redeem", () => {
-  const EditionCost = 1000000000;
+  const editionCost = 1000000000;
 
   let signer: SignerWithAddress;
   let signerAddress: string;
@@ -112,8 +112,8 @@ describe("Redeem", () => {
 
     expect(await paymentToken.balanceOf(user.address)).to.be.equal("0x0000000000000000000000000000000000000000");
 
-    await paymentToken.mint(user.address, EditionCost);
-    expect(await paymentToken.balanceOf(user.address)).to.be.equal(EditionCost);
+    await paymentToken.mint(user.address, editionCost);
+    expect(await paymentToken.balanceOf(user.address)).to.be.equal(editionCost);
 
     await minterContract.setPaymentToken(paymentToken.address);
     expect(await minterContract.getPaymentToken()).to.be.equal(paymentToken.address);
@@ -122,11 +122,12 @@ describe("Redeem", () => {
   it("Redeem an edition", async () => {
     await minterContract.connect(user).redeem(1);
 
-    await minterContract.setOfferTerms(1, ethers.utils.parseEther("0.1"));
+    await minterContract.setOfferTerms(1, editionCost);
 
-    await minterContract.connect(user).acceptOfferTerms(1, {
-      value: ethers.utils.parseEther("0.1")
-    })
+    await paymentToken.connect(user).approve(minterContract.address, 0);
+    await paymentToken.connect(user).approve(minterContract.address, editionCost);
+
+    await minterContract.connect(user).acceptOfferTerms(1, editionCost);
 
     const description = "Redeemed version of the description";
 
@@ -143,14 +144,37 @@ describe("Redeem", () => {
     await minterContract.connect(user).acceptDelivery(1);
   });
 
+  it("Send wrong payment amount", async () => {
+    await minterContract.connect(user).redeem(1);
+
+    await minterContract.setOfferTerms(1, editionCost);
+
+    await paymentToken.connect(user).approve(minterContract.address, 0);
+    await paymentToken.connect(user).approve(minterContract.address, editionCost);
+
+    await expect(minterContract.connect(user).acceptOfferTerms(1, 0)).to.be.revertedWith( "Wrong price");  
+  });
+
+  it("Approve wrong payment amount", async () => {
+    await minterContract.connect(user).redeem(1);
+
+    await minterContract.setOfferTerms(1, editionCost);
+
+    await paymentToken.connect(user).approve(minterContract.address, 0);
+    await paymentToken.connect(user).approve(minterContract.address, editionCost/2);
+
+    await expect(minterContract.connect(user).acceptOfferTerms(1, editionCost)).to.be.revertedWith( "Insufficient allowance");  
+  });
+
   it("Redeem an edition more than once", async () => {
     await minterContract.connect(user).redeem(1);
 
-    await minterContract.setOfferTerms(1, ethers.utils.parseEther("0.1"));
+    await minterContract.setOfferTerms(1, editionCost);
 
-    await minterContract.connect(user).acceptOfferTerms(1, {
-      value: ethers.utils.parseEther("0.1")
-    })
+    await paymentToken.connect(user).approve(minterContract.address, 0);
+    await paymentToken.connect(user).approve(minterContract.address, editionCost);
+
+    await minterContract.connect(user).acceptOfferTerms(1, editionCost);
 
     const description = "Redeemed version of the description";
 
@@ -172,11 +196,12 @@ describe("Redeem", () => {
   it("URLs and meta data should change when redeemed", async () => {
     await minterContract.connect(user).redeem(1);
 
-    await minterContract.setOfferTerms(1, ethers.utils.parseEther("0.1"));
+    await minterContract.setOfferTerms(1, editionCost);
 
-    await minterContract.connect(user).acceptOfferTerms(1, {
-      value: ethers.utils.parseEther("0.1")
-    })
+    await paymentToken.connect(user).approve(minterContract.address, 0);
+    await paymentToken.connect(user).approve(minterContract.address, editionCost);
+
+    await minterContract.connect(user).acceptOfferTerms(1, editionCost);
 
     const description = "Redeemed version of the description";
 

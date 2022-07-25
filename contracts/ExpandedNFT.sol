@@ -191,7 +191,7 @@ contract ExpandedNFT is
 
         // Set the metadata
         description = _name;
-        _loadedMetadata = 0;
+        _loadedMetadata = 0; 
     }
 
     /**
@@ -211,11 +211,8 @@ contract ExpandedNFT is
         string[] memory imageUrl,
         bytes32[] memory imageHash
     ) public {
-        uint256 startIndex = _loadedMetadata;
-        uint256 endIndex = startIndex + _description.length;
-
-        for (uint i = startIndex; i < endIndex; i++) {
-            uint index = i + 1;
+        for (uint i = 0; i < _description.length; i++) {
+            uint index =  _loadedMetadata + i + 1;
             
             _perTokenMetadata[index].description = _description[i];
 
@@ -226,6 +223,10 @@ contract ExpandedNFT is
         }
 
         _loadedMetadata += _description.length;
+    }
+
+    function metadataloaded() view public returns (bool){
+        return (_loadedMetadata >= dropSize);
     }
 
     /// @dev returns the number of minted tokens within the drop
@@ -572,14 +573,24 @@ contract ExpandedNFT is
      */
     function withdraw() external onlyOwner {
         uint256 currentBalance = address(this).balance;
-        require(currentBalance > 0, "No ETh to transfer");
-        
-        uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
-        uint256 artistFee = currentBalance - platformFee;
+        if (currentBalance > 0) {
+            uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
+            uint256 artistFee = currentBalance - platformFee;
 
-        // No need for gas limit to trusted address.
-        AddressUpgradeable.sendValue(payable(owner()), platformFee);
-        AddressUpgradeable.sendValue(payable(_artistWallet), artistFee);
+            AddressUpgradeable.sendValue(payable(owner()), platformFee);
+            AddressUpgradeable.sendValue(payable(_artistWallet), artistFee);
+        }
+
+        if (address(_paymentTokenERC20) != address(0x0)) {
+            uint256 currentBalanceERC20 = _paymentTokenERC20.balanceOf(address(this));
+            if (currentBalanceERC20 > 0) {
+                uint256 platformFee = (currentBalanceERC20 * _pricing.splitBPS) / 10000;
+                uint256 artistFee = currentBalanceERC20 - platformFee;
+
+                _paymentTokenERC20.transfer(owner(), platformFee);
+                _paymentTokenERC20.transfer(_artistWallet, artistFee);
+            }
+        }
     }
 
     /**
@@ -788,13 +799,17 @@ contract ExpandedNFT is
         emit OfferRejected(tokenId);
     }
 
-    function acceptOfferTerms(uint256 tokenId) external payable{
+    function acceptOfferTerms(uint256 tokenId, uint256 paymentAmount) external {
         require(_exists(tokenId), "No token");        
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
 
         require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.SET_OFFER_TERMS), "You currently can not redeem");
 
-        require(msg.value == _perTokenMetadata[tokenId].editionFee, "Wrong price");
+        require(paymentAmount >= _perTokenMetadata[tokenId].editionFee, "Wrong price");
+        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "Insufficient allowance");
+
+        bool success = _paymentTokenERC20.transferFrom(_msgSender(), address(this), _perTokenMetadata[tokenId].editionFee);
+        require(success, "Could not transfer token");
 
         _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.ACCEPTED_OFFER; 
 

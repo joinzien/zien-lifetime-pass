@@ -26,7 +26,7 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 
 ### Rinkeby
 
-- DropCreator [0x4274A19b9B0e2e47cB30091856c8444EB1b0429F](https://rinkeby.etherscan.io/address/0x4274A19b9B0e2e47cB30091856c8444EB1b0429F)
-- ExpandedNFT [0xAB9729E55859B1FeFa619eF924273823C0c5614b](https://rinkeby.etherscan.io/address/0xAB9729E55859B1FeFa619eF924273823C0c5614b)
+- DropCreator [0xd55b33d0614a3ec0D3ed54DEae7F3746C9046fE8](https://rinkeby.etherscan.io/address/0xd55b33d0614a3ec0D3ed54DEae7F3746C9046fE8)
+- ExpandedNFT [0x16Ad1D9B30bA287c823dCa78320383Ce18856D14](https://rinkeby.etherscan.io/address/0x16Ad1D9B30bA287c823dCa78320383Ce18856D14)
 - SharedNFTLogic [0x355a9bd0D92c77241A713BcaaB429e31802a7F4f](https://rinkeby.etherscan.io/address/0x355a9bd0D92c77241A713BcaaB429e31802a7F4f)
 - TestCash [0xFfC79238FdCe6C95F785Da8F63e002eC0c55336c](https://rinkeby.etherscan.io/address/0xFfC79238FdCe6C95F785Da8F63e002eC0c55336c)
