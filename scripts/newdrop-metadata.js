@@ -6,7 +6,7 @@
 
 async function main() {
     // Set up an ethers contract, representing our deployed Box instance
-    const address = '0x9D8b2e456Df01Ee8FA887833d7c3A131Ad351ACa';
+    const address = '0x084C382c0592283466865C17eEe6cA04e679a6D0';
     const expandedNFTContract = await ethers.getContractFactory('ExpandedNFT');
     const expandedNFT = await expandedNFTContract.attach(address);
 
