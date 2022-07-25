@@ -572,14 +572,24 @@ contract ExpandedNFT is
      */
     function withdraw() external onlyOwner {
         uint256 currentBalance = address(this).balance;
-        require(currentBalance > 0, "No ETh to transfer");
-        
-        uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
-        uint256 artistFee = currentBalance - platformFee;
+        if (currentBalance > 0) {
+            uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
+            uint256 artistFee = currentBalance - platformFee;
 
-        // No need for gas limit to trusted address.
-        AddressUpgradeable.sendValue(payable(owner()), platformFee);
-        AddressUpgradeable.sendValue(payable(_artistWallet), artistFee);
+            AddressUpgradeable.sendValue(payable(owner()), platformFee);
+            AddressUpgradeable.sendValue(payable(_artistWallet), artistFee);
+        }
+
+        if (address(_paymentTokenERC20) != address(0x0)) {
+            uint256 currentBalanceERC20 = _paymentTokenERC20.balanceOf(address(this));
+            if (currentBalanceERC20 > 0) {
+                uint256 platformFee = (currentBalanceERC20 * _pricing.splitBPS) / 10000;
+                uint256 artistFee = currentBalanceERC20 - platformFee;
+
+                _paymentTokenERC20.transfer(owner(), platformFee);
+                _paymentTokenERC20.transfer(_artistWallet, artistFee);
+            }
+        }
     }
 
     /**
