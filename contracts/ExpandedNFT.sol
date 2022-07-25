@@ -228,6 +228,10 @@ contract ExpandedNFT is
         _loadedMetadata += _description.length;
     }
 
+    function metadataloaded() view public returns (bool){
+        return (_loadedMetadata >= dropSize);
+    }
+
     /// @dev returns the number of minted tokens within the drop
     function totalSupply() public view returns (uint256) {
         return _claimCount;
