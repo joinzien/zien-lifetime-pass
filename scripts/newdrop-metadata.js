@@ -32,7 +32,7 @@ async function main() {
     console.log("Tx hash: " + result.hash);
 
     const fee = ethers.utils.parseEther("0.01");
-    await expandedNFT.setPricing(10, 5000, 3, 1, 100, fee, fee, fee);
+    await expandedNFT.setPricing(10, 5000, fee, fee, fee, 3, 1, 10);
 
     // anyone can mint
     await expandedNFT.setAllowedMinter(3);
