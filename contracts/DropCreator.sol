@@ -33,21 +33,11 @@ contract DropCreator {
     /// @param _artistWallet User that created the drop
     /// @param _name Name of the drop contract
     /// @param _symbol Symbol of the drop contract
-    /// @param _description Metadata: Description of the drop entry
-    /// @param _animationUrl Metadata: Animation url (optional) of the drop entry
-    /// @param _animationHash Metadata: SHA-256 Hash of the animation (if no animation url, can be 0x0)
-    /// @param _imageUrl Metadata: Image url (semi-required) of the drop entry
-    /// @param _imageHash Metadata: SHA-256 hash of the Image of the drop entry (if not image, can be 0x0)
     function createDrop(
         address _artistWallet,
         string memory _name,
         string memory _symbol,
-        uint256 _dropSize,
-        string[] memory _description,
-        string[] memory _animationUrl,
-        bytes32[] memory _animationHash,
-        string[] memory _imageUrl,
-        bytes32[] memory _imageHash
+        uint256 _dropSize
     ) external returns (uint256) {
         require(_dropSize > 0, "Drop size must be > 0");
 
@@ -61,12 +51,7 @@ contract DropCreator {
             _artistWallet,
             _name,
             _symbol,
-            _dropSize,
-            _description,
-            _animationUrl,
-            _animationHash,
-            _imageUrl,
-            _imageHash
+            _dropSize
         );
 
         uint256 newId = _atContract.current();        

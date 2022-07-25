@@ -129,6 +129,8 @@ contract ExpandedNFT is
     // Total size of the drop that can be minted
     uint256 public dropSize;
 
+    uint256 private _loadedMetadata;
+
     // reservation list
     uint256 private _reserveCount;
     mapping(uint256 => address) private _reserveAddress;
@@ -161,11 +163,6 @@ contract ExpandedNFT is
       @param _name Name of drop, used in the title as "$NAME NUMBER/TOTAL"
       @param _symbol Symbol of the new token contract
       @param _dropSize Number of editions that can be minted in total.    
-      @param _description Description of the edition, used in the description field of the NFT
-      @param imageUrl Image URL of the the edition. Strongly encouraged to be used, if necessary, only animation URL can be used. One of animation and image url need to exist in a drop to render the NFT.
-      @param imageHash SHA256 of the given image in bytes32 format (0xHASH). If no image is included, the hash can be zero.
-      @param animationUrl Animation URL of the edition. Not required, but if omitted image URL needs to be included. This follows the opensea spec for NFTs
-      @param animationHash The associated hash of the animation in sha-256 bytes32 format. If animation is omitted the hash can be zero.
       @dev Function to create a new drop. Can only be called by the allowed creator
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
@@ -175,12 +172,7 @@ contract ExpandedNFT is
         address artistWallet,
         string memory _name,
         string memory _symbol,
-        uint256 _dropSize,
-        string[] memory _description,
-        string[] memory animationUrl,
-        bytes32[] memory animationHash,
-        string[] memory imageUrl,
-        bytes32[] memory imageHash
+        uint256 _dropSize
     ) public initializer {
         require(_dropSize > 0, "Drop size must be > 0");
 
@@ -199,7 +191,30 @@ contract ExpandedNFT is
 
         // Set the metadata
         description = _name;
-        for (uint i = 0; i < dropSize; i++) {
+        _loadedMetadata = 0;
+    }
+
+    /**
+      @param _description Description of the edition, used in the description field of the NFT
+      @param imageUrl Image URL of the the edition. Strongly encouraged to be used, if necessary, only animation URL can be used. One of animation and image url need to exist in a drop to render the NFT.
+      @param imageHash SHA256 of the given image in bytes32 format (0xHASH). If no image is included, the hash can be zero.
+      @param animationUrl Animation URL of the edition. Not required, but if omitted image URL needs to be included. This follows the opensea spec for NFTs
+      @param animationHash The associated hash of the animation in sha-256 bytes32 format. If animation is omitted the hash can be zero.
+      @dev Function to create a new drop. Can only be called by the allowed creator
+           Sets the only allowed minter to the address that creates/owns the drop.
+           This can be re-assigned or updated later
+     */
+    function loadMetadataChunk(
+        string[] memory _description,
+        string[] memory animationUrl,
+        bytes32[] memory animationHash,
+        string[] memory imageUrl,
+        bytes32[] memory imageHash
+    ) public {
+        uint256 startIndex = _loadedMetadata;
+        uint256 endIndex = startIndex + _description.length;
+
+        for (uint i = startIndex; i < endIndex; i++) {
             uint index = i + 1;
             
             _perTokenMetadata[index].description = _description[i];
@@ -209,6 +224,8 @@ contract ExpandedNFT is
             _perTokenMetadata[index].imageUrl = imageUrl[i];
             _perTokenMetadata[index].imageHash = imageHash[i];
         }
+
+        _loadedMetadata += _description.length;
     }
 
     /// @dev returns the number of minted tokens within the drop
@@ -304,6 +321,8 @@ contract ExpandedNFT is
     function _mintEditionsBody(address[] memory recipients)
         internal returns (uint256)
     {
+        require(_loadedMetadata >= dropSize, "Not all metadata loaded");
+
         require(_isAllowedToMint(), "Needs to be an allowed minter");
 
         uint256 currentPrice = _currentSalesPrice();

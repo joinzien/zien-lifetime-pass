@@ -48,7 +48,17 @@ describe("MinterManagement", () => {
         artistAddress,
         "Testing Token",
         "TEST",
-        10,
+        10);
+
+      const dropResult = await dynamicSketch.getDropAtId(0);
+      minterContract = (await ethers.getContractAt(
+        "ExpandedNFT",
+        dropResult
+      )) as ExpandedNFT;
+
+      const mintCost = ethers.utils.parseEther("0.1");
+
+      await minterContract.loadMetadataChunk(   
         ["This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all",
         "This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all"],
         ["https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
@@ -67,13 +77,6 @@ describe("MinterManagement", () => {
         "0x0000000000000000000000000000000000000000000000000000000000000000"]
       );
 
-      const dropResult = await dynamicSketch.getDropAtId(0);
-      minterContract = (await ethers.getContractAt(
-        "ExpandedNFT",
-        dropResult
-      )) as ExpandedNFT;
-
-      const mintCost = ethers.utils.parseEther("0.1");
       await minterContract.setPricing(10, 500, mintCost, mintCost, mintCost, 20, 20, 20);       
     });
 

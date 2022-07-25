@@ -45,7 +45,16 @@ describe("ExpandedNFT", () => {
       "Testing Token",
       "TEST",
       10, // 1% royalty since BPS  
-      ["This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all",
+    );
+
+    const dropResult = await dynamicSketch.getDropAtId(0);
+    const minterContract = (await ethers.getContractAt(
+      "ExpandedNFT",
+      dropResult
+    )) as ExpandedNFT;
+
+    await minterContract.loadMetadataChunk(     
+        ["This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all",
         "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all"],
       ["https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
         "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
@@ -62,12 +71,6 @@ describe("ExpandedNFT", () => {
         "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
         "0x0000000000000000000000000000000000000000000000000000000000000000"]
     );
-
-    const dropResult = await dynamicSketch.getDropAtId(0);
-    const minterContract = (await ethers.getContractAt(
-      "ExpandedNFT",
-      dropResult
-    )) as ExpandedNFT;
 
     await minterContract.setPricing(10, 500, 0, 0, 0, 10, 10, 10);
 
@@ -97,7 +100,17 @@ describe("ExpandedNFT", () => {
         artistAddress,
         "Testing Token",
         "TEST",
-        10,
+        10);
+
+      const dropResult = await dynamicSketch.getDropAtId(0);
+      minterContract = (await ethers.getContractAt(
+        "ExpandedNFT",
+        dropResult
+      )) as ExpandedNFT;
+
+      const mintCost = ethers.utils.parseEther("0.1");      
+
+      await minterContract.loadMetadataChunk(         
         ["This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all",
           "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all"],
         ["https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
@@ -116,13 +129,6 @@ describe("ExpandedNFT", () => {
           "0x0000000000000000000000000000000000000000000000000000000000000000"]
       );
 
-      const dropResult = await dynamicSketch.getDropAtId(0);
-      minterContract = (await ethers.getContractAt(
-        "ExpandedNFT",
-        dropResult
-      )) as ExpandedNFT;
-
-      const mintCost = ethers.utils.parseEther("0.1");      
       await minterContract.setPricing(10, 500, mintCost, mintCost, mintCost, 15, 15, 15);
       await minterContract.setAllowedMinter(3);
     });
@@ -176,12 +182,7 @@ describe("ExpandedNFT", () => {
         artistAddress,
         "Testing Token",
         "TEST",
-        0,
-        ["This is a testing token for all"],
-        ["https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy"],
-        ["0x0000000000000000000000000000000000000000000000000000000000000000"],
-        [""],
-        ["0x0000000000000000000000000000000000000000000000000000000000000000"]
+        0
       )).to.be.reverted;
       expect(await minterContract.totalSupply()).to.be.equal(0);
     });
@@ -212,24 +213,7 @@ describe("ExpandedNFT", () => {
           artistAddress,
           "test name",
           "SYM",
-          12,
-          ["This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all",
-            "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all"],
-          ["animation", "animation",
-            "animation", "animation",
-            "animation", "animation",
-            "animation", "animation",
-            "animation", "animation"],
-          ["0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-            "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-            "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-            "0x0000000000000000000000000000000000000000000000000000000000000000"],
-          ["uri", "uri", "uri", "uri", "uri", "uri", "uri", "uri", "uri", "uri"],
-          ["0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-            "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-            "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-            "0x0000000000000000000000000000000000000000000000000000000000000000"]
-        )
+          12)
       ).to.be.revertedWith("Initializable: contract is already initialized");
       await minterContract.mintEdition(await signer1.getAddress(), {
         value: ethers.utils.parseEther("0.1")
@@ -298,8 +282,18 @@ describe("ExpandedNFT", () => {
           artistAddress,
           "Testing Token",
           "TEST",
-          10,
-          ["This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all",
+          10);
+
+        const dropResult = await dynamicSketch.getDropAtId(1);
+        const minterContractNew = (await ethers.getContractAt(
+          "ExpandedNFT",
+          dropResult
+        )) as ExpandedNFT;
+
+        const mintCost = ethers.utils.parseEther("0.1");     
+
+        await minterContractNew.loadMetadataChunk(           
+            ["This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all",
             "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all"],
           ["https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
             "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
@@ -315,15 +309,8 @@ describe("ExpandedNFT", () => {
             "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
             "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
             "0x0000000000000000000000000000000000000000000000000000000000000000"]
-        );
+        );        
 
-        const dropResult = await dynamicSketch.getDropAtId(1);
-        const minterContractNew = (await ethers.getContractAt(
-          "ExpandedNFT",
-          dropResult
-        )) as ExpandedNFT;
-
-        const mintCost = ethers.utils.parseEther("0.1");      
         await minterContractNew.setPricing(200, 500, mintCost, mintCost, mintCost, 12, 12, 12);
         await minterContractNew.setAllowedMinter(3);
 
