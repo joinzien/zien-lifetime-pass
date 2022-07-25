@@ -788,13 +788,17 @@ contract ExpandedNFT is
         emit OfferRejected(tokenId);
     }
 
-    function acceptOfferTerms(uint256 tokenId) external payable{
+    function acceptOfferTerms(uint256 tokenId, uint256 paymentAmount) external {
         require(_exists(tokenId), "No token");        
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
 
         require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.SET_OFFER_TERMS), "You currently can not redeem");
 
-        require(msg.value == _perTokenMetadata[tokenId].editionFee, "Wrong price");
+        require(paymentAmount >= _perTokenMetadata[tokenId].editionFee, "Wrong price");
+        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "insufficient allowance");
+
+        bool success = _paymentTokenERC20.transferFrom(_msgSender(), address(this), _perTokenMetadata[tokenId].editionFee);
+        require(success, "Could not transfer token");
 
         _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.ACCEPTED_OFFER; 
 
