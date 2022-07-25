@@ -365,7 +365,7 @@ describe("ExpandedNFT", () => {
         minterContract.mintEdition(signerAddress, {
           value: ethers.utils.parseEther("0.1")
         })
-      ).to.be.revertedWith("Sold out");
+      ).to.be.revertedWith("Over drop size");
 
       const tokenURI = await minterContract.tokenURI(10);
       const parsedTokenURI = parseDataURI(tokenURI);

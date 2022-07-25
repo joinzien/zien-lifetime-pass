@@ -135,8 +135,8 @@ contract ExpandedNFT is
     mapping(uint256 => uint256) private _reserveTokenId;
 
     mapping(uint256 => bool) private _tokenClaimed; 
-    uint256 private _firstUnclaimed; 
     uint256 private _claimCount; 
+    uint256 private _currentIndex;
 
     Pricing private _pricing;
 
@@ -194,8 +194,8 @@ contract ExpandedNFT is
         dropSize = _dropSize;
 
         // Set edition id start to be 1 not 0
-        _firstUnclaimed = 1; 
-        _claimCount = 1; 
+        _claimCount = 0; 
+        _currentIndex = 1;
 
         // Set the metadata
         description = _name;
@@ -213,7 +213,7 @@ contract ExpandedNFT is
 
     /// @dev returns the number of minted tokens within the drop
     function totalSupply() public view returns (uint256) {
-        return _claimCount - 1;
+        return _claimCount;
     }
 
     /// @dev returns the royalty BPS
@@ -267,18 +267,13 @@ contract ExpandedNFT is
      */
 
     function purchase() external payable returns (uint256) {
-        require(_isAllowedToMint(), "Needs to be an allowed minter");
-
         uint256 currentPrice = _currentSalesPrice();
-        require(currentPrice > 0, "Not for sale");
-        require(msg.value == currentPrice, "Wrong price");
-
-        require(_pricing.mintCounts[msg.sender] < _currentMintLimit(), "Exceeded mint limit");
+        emit EditionSold(currentPrice, msg.sender);
 
         address[] memory toMint = new address[](1);
         toMint[0] = msg.sender;
-        emit EditionSold(currentPrice, msg.sender);
-        return _mintEditions(toMint);
+
+        return _mintEditionsBody(toMint);  
     }
 
      /**
@@ -286,17 +281,10 @@ contract ExpandedNFT is
       @dev This mints one edition to the given address by an allowed minter on the edition instance.
      */
     function mintEdition(address to) external payable override returns (uint256) {
-        require(_isAllowedToMint(), "Needs to be an allowed minter");
-
-        uint256 currentPrice = _currentSalesPrice();
-        require(currentPrice > 0, "Not for sale");
-        require(msg.value == currentPrice, "Wrong price");
-
-        require(_pricing.mintCounts[msg.sender] < _currentMintLimit(), "Exceeded mint limit");
-
         address[] memory toMint = new address[](1);
         toMint[0] = to;
-        return _mintEditions(toMint);
+
+        return _mintEditionsBody(toMint);        
     }
 
     /**
@@ -306,6 +294,16 @@ contract ExpandedNFT is
     function mintEditions(address[] memory recipients)
         external payable override returns (uint256)
     {
+        return _mintEditionsBody(recipients);
+    }   
+
+    /**
+      @param recipients list of addresses to send the newly minted editions to
+      @dev This mints multiple editions to the given list of addresses.
+     */
+    function _mintEditionsBody(address[] memory recipients)
+        internal returns (uint256)
+    {
         require(_isAllowedToMint(), "Needs to be an allowed minter");
 
         uint256 currentPrice = _currentSalesPrice();
@@ -314,8 +312,66 @@ contract ExpandedNFT is
 
         require((_pricing.mintCounts[msg.sender] + recipients.length - 1) < _currentMintLimit(), "Exceeded mint limit");
 
+        require(_claimCount + recipients.length <= dropSize, "Over drop size");
+
+        if (_pricing.whoCanMint == WhoCanMint.VIPS) {
+            return _vipMintEditions(recipients);
+        }
+
         return _mintEditions(recipients);
-    }   
+    }  
+
+    /**
+      @dev Private function to mint without any access checks.
+           Called by the public edition minting functions.
+     */
+    function _vipMintEditions(address[] memory recipients)
+        internal
+        returns (uint256)
+    {
+        address currentMinter = msg.sender;
+
+        uint256 unclaimed = 0;
+        uint256 firstUnclaimed = _reserveCount;
+
+        for (uint256 r = 0; r < _reserveCount; r++) {
+            if (_reserveAddress[r] == currentMinter) {
+                uint256 id = _reserveTokenId[r];
+
+                if (_tokenClaimed[id] != true) {
+                    if (r < firstUnclaimed) {
+                       firstUnclaimed = r; 
+                    }
+
+                    unclaimed++;
+                }
+            }
+        }
+
+        require(unclaimed >= recipients.length, "Can not mint all editions");
+
+        uint256 idToMint = 1;
+
+        uint256 reservationCounter = firstUnclaimed;
+        for (uint256 i = 0; i < recipients.length; i++) {
+            while (_reserveAddress[reservationCounter] != currentMinter) {
+                reservationCounter++;
+            }  
+
+            idToMint = _reserveTokenId[reservationCounter];
+
+            _mint(recipients[i], idToMint);
+
+            _perTokenMetadata[idToMint].editionState = ExpandedNFTStates.MINTED;
+            _tokenClaimed[idToMint] = true;
+            _pricing.mintCounts[currentMinter]++;
+            _claimCount++;
+
+            reservationCounter++;
+        }
+
+        return idToMint;            
+    }    
 
     /**
       @dev Private function to mint without any access checks.
@@ -326,58 +382,21 @@ contract ExpandedNFT is
         returns (uint256)
     {
         address currentMinter = msg.sender;
-        uint256 lastindex = 1;
+       
+        for (uint256 i = 0; i < recipients.length; i++) {
+            while (_tokenClaimed[_currentIndex] == true) {
+                _currentIndex++;
+            }  
 
-        if (_pricing.whoCanMint == WhoCanMint.VIPS) {
-            uint256 foundCount = 0;
-            for (uint256 reservationCounter = 0; reservationCounter < _reserveCount; reservationCounter++) {
-                for (uint256 i = 0; i < recipients.length; i++) {
-                    if (_reserveAddress[reservationCounter] == currentMinter) {
-                        uint256 mainIndex = _reserveTokenId[reservationCounter];
-                        if ( _tokenClaimed[mainIndex] == false) {
-                            _mint(
-                                recipients[i],
-                                mainIndex
-                            );
+            _mint(recipients[i], _currentIndex);
 
-                            _perTokenMetadata[mainIndex].editionState = ExpandedNFTStates.MINTED;
-                            _tokenClaimed[mainIndex] = true;
-                            _pricing.mintCounts[currentMinter]++;
-                            _claimCount++;
-                            foundCount++;
-                            lastindex = mainIndex; 
-                        }
-                    }
-                }
-            }
+            _perTokenMetadata[_currentIndex].editionState = ExpandedNFTStates.MINTED;
+            _tokenClaimed[_currentIndex] = true;
+            _pricing.mintCounts[currentMinter]++;
+            _claimCount++;
+        }
 
-            require(foundCount == recipients.length, "Not enough reservations");
-
-            return lastindex; 
-        
-        } else {
-            uint256 currentIndex = 1;
-            for (uint256 i = 0; i < recipients.length; i++) {
-                while ((_tokenClaimed[currentIndex] == true) && (currentIndex < (dropSize + 1))) {
-                    currentIndex++;
-                }
-
-                require(currentIndex < (dropSize + 1), "Sold out");
-
-                _mint(
-                    recipients[i],
-                    currentIndex
-                );
-
-                _perTokenMetadata[currentIndex].editionState = ExpandedNFTStates.MINTED;
-                _tokenClaimed[currentIndex] = true;
-                _pricing.mintCounts[currentMinter]++;
-                _claimCount++;
-
-            }
-
-            return currentIndex;
-        }            
+        return _currentIndex;        
     }    
 
     /**
@@ -697,8 +716,7 @@ contract ExpandedNFT is
 
     /// Returns the number of editions allowed to mint
     function numberCanMint() public view override returns (uint256) {
-         // _claimCount is one-indexed hence the need to remove one here
-        return dropSize + 1 - _claimCount;
+        return dropSize - _claimCount;
     }
 
     /**
@@ -803,29 +821,6 @@ contract ExpandedNFT is
     }
 
     /**
-      @dev Get URIs for edition NFT
-      @return _imageUrl, _imageHash, _animationUrl, _animationHash
-     */
-    function getURIs(uint256 tokenId)
-        public
-        view
-        returns (
-            string memory,
-            bytes32,
-            string memory,
-            bytes32
-        )
-    {
-        if (_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEMED) {        
-           return (_perTokenMetadata[tokenId].redeemedImageUrl, _perTokenMetadata[tokenId].redeemedImageHash,
-                _perTokenMetadata[tokenId].redeemedAnimationUrl, _perTokenMetadata[tokenId].redeemedAnimationHash);
-        }
-
-        return (_perTokenMetadata[tokenId].imageUrl, _perTokenMetadata[tokenId].imageHash,
-             _perTokenMetadata[tokenId].animationUrl, _perTokenMetadata[tokenId].animationHash);
-    }
-
-    /**
       @dev Get URIs for the condition report
       @return _imageUrl, _imageHash
      */
@@ -854,6 +849,29 @@ contract ExpandedNFT is
             return (owner(), 0);
         }
         return (owner(), (_salePrice * _pricing.royaltyBPS) / 10_000);
+    }
+
+    /**
+      @dev Get URIs for edition NFT
+      @return _imageUrl, _imageHash, _animationUrl, _animationHash
+     */
+    function getURIs(uint256 tokenId)
+        public
+        view
+        returns (
+            string memory,
+            bytes32,
+            string memory,
+            bytes32
+        )
+    {
+        if (_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEMED) {        
+           return (_perTokenMetadata[tokenId].redeemedImageUrl, _perTokenMetadata[tokenId].redeemedImageHash,
+                _perTokenMetadata[tokenId].redeemedAnimationUrl, _perTokenMetadata[tokenId].redeemedAnimationHash);
+        }
+
+        return (_perTokenMetadata[tokenId].imageUrl, _perTokenMetadata[tokenId].imageHash,
+             _perTokenMetadata[tokenId].animationUrl, _perTokenMetadata[tokenId].animationHash);
     }
 
     /**
