@@ -96,9 +96,7 @@ contract SharedNFTLogic is IPublicSharedMetadata {
                 mediaData,
                 'properties": {"number": ',
                 numberToString(tokenOfEdition),
-                ', "name": "',
-                name,
-                '"}}'
+                '}}'
             );
             // solhint-enable quotes
     }
