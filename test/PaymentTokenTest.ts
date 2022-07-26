@@ -56,7 +56,8 @@ describe("Payment Token", () => {
       dropResult
     )) as ExpandedNFT;
       
-    await minterContract.loadMetadataChunk(   
+    await minterContract.loadMetadataChunk( 
+      0, 10,   
       ["This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all",
       "This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all"],
       ["https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",

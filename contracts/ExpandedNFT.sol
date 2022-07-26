@@ -205,14 +205,22 @@ contract ExpandedNFT is
            This can be re-assigned or updated later
      */
     function loadMetadataChunk(
+        uint256 startOffset,
+        uint256 count,
         string[] memory _description,
         string[] memory animationUrl,
         bytes32[] memory animationHash,
         string[] memory imageUrl,
         bytes32[] memory imageHash
     ) public {
-        for (uint i = 0; i < _description.length; i++) {
-            uint index =  _loadedMetadata + i + 1;
+        require(_description.length == count, "Data size mismatch");
+        require(animationUrl.length == count, "Data size mismatch");
+        require(animationHash.length == count, "Data size mismatch");
+        require(imageUrl.length == count, "Data size mismatch");
+        require(imageHash.length == count, "Data size mismatch");
+
+        for (uint i = 0; i < count; i++) {
+            uint index =  startOffset + i + 1;
             
             _perTokenMetadata[index].description = _description[i];
 
@@ -222,7 +230,7 @@ contract ExpandedNFT is
             _perTokenMetadata[index].imageHash = imageHash[i];
         }
 
-        _loadedMetadata += _description.length;
+        _loadedMetadata += count;
     }
 
     function metadataloaded() public view returns (bool){
