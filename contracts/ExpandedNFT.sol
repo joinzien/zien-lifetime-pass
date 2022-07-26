@@ -225,7 +225,7 @@ contract ExpandedNFT is
         _loadedMetadata += _description.length;
     }
 
-    function metadataloaded() view public returns (bool){
+    function metadataloaded() public view returns (bool){
         return (_loadedMetadata >= dropSize);
     }
 
