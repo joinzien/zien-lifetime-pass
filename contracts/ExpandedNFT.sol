@@ -208,10 +208,11 @@ contract ExpandedNFT is
         uint256 startOffset,
         uint256 count,
         string[] memory _description,
-        string[] memory imageUrl,
-        bytes32[] memory imageHash,
         string[] memory animationUrl,
-        bytes32[] memory animationHash
+        bytes32[] memory animationHash,
+        string[] memory imageUrl,
+        bytes32[] memory imageHash
+
     ) public {
         require(_description.length == count, "Data size mismatch");
         require(animationUrl.length == count, "Data size mismatch");
@@ -223,11 +224,11 @@ contract ExpandedNFT is
             uint index =  startOffset + i + 1;
             
             _perTokenMetadata[index].description = _description[i];
-
-            _perTokenMetadata[index].animationUrl = animationUrl[i];
-            _perTokenMetadata[index].animationHash = animationHash[i];
             _perTokenMetadata[index].imageUrl = imageUrl[i];
             _perTokenMetadata[index].imageHash = imageHash[i];
+            _perTokenMetadata[index].animationUrl = animationUrl[i];
+            _perTokenMetadata[index].animationHash = animationHash[i];
+
         }
 
         _loadedMetadata += count;
@@ -864,7 +865,7 @@ contract ExpandedNFT is
 
     /**
       @dev Get URIs for the condition report
-      @return _imageUrl, _imageHash
+      @return conditionReportUrl, conditionReportHash
      */
     function getConditionReport(uint256 tokenId)
         public
