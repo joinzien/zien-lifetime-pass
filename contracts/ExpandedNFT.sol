@@ -208,10 +208,10 @@ contract ExpandedNFT is
         uint256 startOffset,
         uint256 count,
         string[] memory _description,
-        string[] memory animationUrl,
-        bytes32[] memory animationHash,
         string[] memory imageUrl,
-        bytes32[] memory imageHash
+        bytes32[] memory imageHash,
+        string[] memory animationUrl,
+        bytes32[] memory animationHash
     ) public {
         require(_description.length == count, "Data size mismatch");
         require(animationUrl.length == count, "Data size mismatch");
