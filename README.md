@@ -24,6 +24,12 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 
 ## Deployed
 
+### Mainnet
+
+- DropCreator [0xe93103a0a9aa6a7e7605e8b1f2d6e6445fe2769f](https://etherscan.io/address/0xe93103a0a9aa6a7e7605e8b1f2d6e6445fe2769f)
+- ExpandedNFT [0xcdd58aea1642494c7d9578912c34b0bfd88a73c9](https://etherscan.io/address/0xcdd58aea1642494c7d9578912c34b0bfd88a73c9)
+- SharedNFTLogic [0x6883e3b3aea73cbeccbfa6a11c3a617c2f92c574](https://etherscan.io/address/0x6883e3b3aea73cbeccbfa6a11c3a617c2f92c574f)
+
 ### Rinkeby
 
 - DropCreator [0xd55b33d0614a3ec0D3ed54DEae7F3746C9046fE8](https://rinkeby.etherscan.io/address/0xd55b33d0614a3ec0D3ed54DEae7F3746C9046fE8)
