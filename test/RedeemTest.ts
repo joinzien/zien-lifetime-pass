@@ -1,3 +1,7 @@
+// Copyright Zien X Ltd
+
+"use strict";
+
 import { expect } from "chai";
 import "@nomiclabs/hardhat-ethers";
 import { ethers, deployments } from "hardhat";
