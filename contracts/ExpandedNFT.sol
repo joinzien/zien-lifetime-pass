@@ -233,7 +233,6 @@ contract ExpandedNFT is
             _perTokenMetadata[index].imageHash = imageHash[i];
             _perTokenMetadata[index].animationUrl = animationUrl[i];
             _perTokenMetadata[index].animationHash = animationHash[i];
-
         }
 
         _loadedMetadata += count;
