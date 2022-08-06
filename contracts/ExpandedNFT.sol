@@ -216,6 +216,9 @@ contract ExpandedNFT is
         bytes32[] memory imageHash
 
     ) public {
+        require(startIndex > 0, "StartIndex > 0");
+        require(startIndex + count <= dropSize + 1, "Data large than drop size");
+
         require(_description.length == count, "Data size mismatch");
         require(animationUrl.length == count, "Data size mismatch");
         require(animationHash.length == count, "Data size mismatch");
