@@ -195,17 +195,19 @@ contract ExpandedNFT is
     }
 
     /**
-      @param _description Description of the edition, used in the description field of the NFT
-      @param imageUrl Image URL of the the edition. Strongly encouraged to be used, if necessary, only animation URL can be used. One of animation and image url need to exist in a drop to render the NFT.
-      @param imageHash SHA256 of the given image in bytes32 format (0xHASH). If no image is included, the hash can be zero.
+      @param startIndex The first ID index to write the data
+      @param _description How many rows of data to load
+      @param count Description of the edition, used in the description field of the NFT
       @param animationUrl Animation URL of the edition. Not required, but if omitted image URL needs to be included. This follows the opensea spec for NFTs
       @param animationHash The associated hash of the animation in sha-256 bytes32 format. If animation is omitted the hash can be zero.
+      @param imageUrl Image URL of the the edition. Strongly encouraged to be used, if necessary, only animation URL can be used. One of animation and image url need to exist in a drop to render the NFT.
+      @param imageHash SHA256 of the given image in bytes32 format (0xHASH). If no image is included, the hash can be zero.
       @dev Function to create a new drop. Can only be called by the allowed creator
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
      */
     function loadMetadataChunk(
-        uint256 startOffset,
+        uint256 startIndex,
         uint256 count,
         string[] memory _description,
         string[] memory animationUrl,
@@ -221,7 +223,7 @@ contract ExpandedNFT is
         require(imageHash.length == count, "Data size mismatch");
 
         for (uint i = 0; i < count; i++) {
-            uint index =  startOffset + i + 1;
+            uint index =  startIndex + i;
             
             _perTokenMetadata[index].description = _description[i];
             _perTokenMetadata[index].imageUrl = imageUrl[i];
