@@ -56,6 +56,8 @@ contract ExpandedNFT is
         // Edition description
         string description;
 
+        bool metadataLoaded;
+
         // Minted
 
         // animation_url field in the metadata
@@ -233,9 +235,12 @@ contract ExpandedNFT is
             _perTokenMetadata[index].imageHash = imageHash[i];
             _perTokenMetadata[index].animationUrl = animationUrl[i];
             _perTokenMetadata[index].animationHash = animationHash[i];
-        }
 
-        _loadedMetadata += count;
+            if (_perTokenMetadata[index].metadataLoaded != true) {
+                _perTokenMetadata[index].metadataLoaded = true;
+               _loadedMetadata++; 
+            }
+        }
     }
 
     function metadataloaded() public view returns (bool){
