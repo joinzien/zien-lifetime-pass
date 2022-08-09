@@ -84,7 +84,7 @@ describe("LoadMetadata", () => {
      expect(metadataLoaded).to.be.equal(false);
   });
 
-  it("Load metadata below the starting index", async () => {
+  it("Load metadata over the ending index", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -115,7 +115,7 @@ describe("LoadMetadata", () => {
         "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
         "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
         "0x0000000000000000000000000000000000000000000000000000000000000000"]
-    )).to.be.revertedWith("StartIndex > 0");
+    )).to.be.revertedWith("Data large than drop size");
 
     const metadataLoaded = await minterContract.metadataloaded();
      expect(metadataLoaded).to.be.equal(false);
