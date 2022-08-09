@@ -996,10 +996,7 @@ contract ExpandedNFT is
     function getConditionReportUrl(uint256 tokenId)
         public
         view
-        returns (
-            string memory,
-            bytes32
-        )
+        returns (string memory)
     {
         return (_perTokenMetadata[tokenId].conditionReportUrl);
     }
@@ -1011,9 +1008,7 @@ contract ExpandedNFT is
     function getConditionReportHash(uint256 tokenId)
         public
         view
-        returns (
-            string memory
-        )
+        returns (bytes32)
     {
         return (_perTokenMetadata[tokenId].conditionReportHash);
     }
