@@ -56,6 +56,8 @@ contract ExpandedNFT is
         // Edition description
         string description;
 
+        bool metadataLoaded;
+
         // Minted
 
         // animation_url field in the metadata
@@ -195,17 +197,19 @@ contract ExpandedNFT is
     }
 
     /**
-      @param _description Description of the edition, used in the description field of the NFT
-      @param imageUrl Image URL of the the edition. Strongly encouraged to be used, if necessary, only animation URL can be used. One of animation and image url need to exist in a drop to render the NFT.
-      @param imageHash SHA256 of the given image in bytes32 format (0xHASH). If no image is included, the hash can be zero.
+      @param startIndex The first ID index to write the data
+      @param _description How many rows of data to load
+      @param count Description of the edition, used in the description field of the NFT
       @param animationUrl Animation URL of the edition. Not required, but if omitted image URL needs to be included. This follows the opensea spec for NFTs
       @param animationHash The associated hash of the animation in sha-256 bytes32 format. If animation is omitted the hash can be zero.
+      @param imageUrl Image URL of the the edition. Strongly encouraged to be used, if necessary, only animation URL can be used. One of animation and image url need to exist in a drop to render the NFT.
+      @param imageHash SHA256 of the given image in bytes32 format (0xHASH). If no image is included, the hash can be zero.
       @dev Function to create a new drop. Can only be called by the allowed creator
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
      */
     function loadMetadataChunk(
-        uint256 startOffset,
+        uint256 startIndex,
         uint256 count,
         string[] memory _description,
         string[] memory animationUrl,
@@ -214,6 +218,9 @@ contract ExpandedNFT is
         bytes32[] memory imageHash
 
     ) public {
+        require(startIndex > 0, "StartIndex > 0");
+        require(startIndex + count <= dropSize + 1, "Data large than drop size");
+
         require(_description.length == count, "Data size mismatch");
         require(animationUrl.length == count, "Data size mismatch");
         require(animationHash.length == count, "Data size mismatch");
@@ -221,7 +228,7 @@ contract ExpandedNFT is
         require(imageHash.length == count, "Data size mismatch");
 
         for (uint i = 0; i < count; i++) {
-            uint index =  startOffset + i + 1;
+            uint index =  startIndex + i;
             
             _perTokenMetadata[index].description = _description[i];
             _perTokenMetadata[index].imageUrl = imageUrl[i];
@@ -229,9 +236,11 @@ contract ExpandedNFT is
             _perTokenMetadata[index].animationUrl = animationUrl[i];
             _perTokenMetadata[index].animationHash = animationHash[i];
 
+            if (_perTokenMetadata[index].metadataLoaded != true) {
+                _perTokenMetadata[index].metadataLoaded = true;
+               _loadedMetadata++; 
+            }
         }
-
-        _loadedMetadata += count;
     }
 
     function metadataloaded() public view returns (bool){
@@ -864,18 +873,144 @@ contract ExpandedNFT is
     }
 
     /**
+        @dev Get URI for given token id
+        @param tokenId token id to get uri for
+        @return base64-encoded json metadata object
+    */
+    function getDescription(uint256 tokenId)
+        public
+        view
+        returns (string memory)
+    {
+        return _perTokenMetadata[tokenId].description;
+    }
+
+    /**
+        @dev Get URI for given token id
+        @param tokenId token id to get uri for
+        @return base64-encoded json metadata object
+    */
+    function getImageUrl(uint256 tokenId)
+        public
+        view
+        returns (string memory)
+    {
+        return _perTokenMetadata[tokenId].imageUrl;
+    }
+
+    /**
+        @dev Get URI for given token id
+        @param tokenId token id to get uri for
+        @return base64-encoded json metadata object
+    */
+    function getImageHash(uint256 tokenId)
+        public
+        view
+        returns (bytes32)
+    {
+        return _perTokenMetadata[tokenId].imageHash;
+    }
+
+     /**
+        @dev Get URI for given token id
+        @param tokenId token id to get uri for
+        @return base64-encoded json metadata object
+    */
+    function getAnimationUrl(uint256 tokenId)
+        public
+        view
+        returns (string memory)
+    {
+        return _perTokenMetadata[tokenId].animationUrl;
+    }  
+
+     /**
+        @dev Get URI for given token id
+        @param tokenId token id to get uri for
+        @return base64-encoded json metadata object
+    */
+    function getAnimationHash(uint256 tokenId)
+        public
+        view
+        returns (bytes32)
+    {
+        return _perTokenMetadata[tokenId].animationHash;
+    }  
+
+    /**
+        @dev Get URI for given token id
+        @param tokenId token id to get uri for
+        @return base64-encoded json metadata object
+    */
+    function getRedeemedImageUrl(uint256 tokenId)
+        public
+        view
+        returns (string memory)
+    {
+        return _perTokenMetadata[tokenId].redeemedImageUrl;
+    }
+
+    /**
+        @dev Get URI for given token id
+        @param tokenId token id to get uri for
+        @return base64-encoded json metadata object
+    */
+    function getRedeemedImageHash(uint256 tokenId)
+        public
+        view
+        returns (bytes32)
+    {
+        return _perTokenMetadata[tokenId].redeemedImageHash;
+    }
+
+     /**
+        @dev Get URI for given token id
+        @param tokenId token id to get uri for
+        @return base64-encoded json metadata object
+    */
+    function getRedeemedAnimationUrl(uint256 tokenId)
+        public
+        view
+        returns (string memory)
+    {
+        return _perTokenMetadata[tokenId].redeemedAnimationUrl;
+    }   
+
+     /**
+        @dev Get URI for given token id
+        @param tokenId token id to get uri for
+        @return base64-encoded json metadata object
+    */
+    function getRedeemedAnimationHash(uint256 tokenId)
+        public
+        view
+        returns (bytes32)
+    {
+        return _perTokenMetadata[tokenId].redeemedAnimationHash;
+    }  
+
+    /**
       @dev Get URIs for the condition report
       @return conditionReportUrl, conditionReportHash
      */
-    function getConditionReport(uint256 tokenId)
+    function getConditionReportUrl(uint256 tokenId)
         public
         view
-        returns (
-            string memory,
-            bytes32
-        )
+        returns (string memory)
     {
-        return (_perTokenMetadata[tokenId].conditionReportUrl, _perTokenMetadata[tokenId].conditionReportHash);
+        return (_perTokenMetadata[tokenId].conditionReportUrl);
+    }
+
+    /**
+      @dev Get URIs for the condition report
+      @return conditionReportUrl, conditionReportHash
+     */
+    function getConditionReportHash(uint256 tokenId)
+        public
+        view
+        returns (bytes32)
+    {
+        return (_perTokenMetadata[tokenId].conditionReportHash);
     }
 
     /**
