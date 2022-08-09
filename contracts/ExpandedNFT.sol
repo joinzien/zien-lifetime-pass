@@ -993,7 +993,7 @@ contract ExpandedNFT is
       @dev Get URIs for the condition report
       @return conditionReportUrl, conditionReportHash
      */
-    function getConditionReport(uint256 tokenId)
+    function getConditionReportUrl(uint256 tokenId)
         public
         view
         returns (
@@ -1001,7 +1001,21 @@ contract ExpandedNFT is
             bytes32
         )
     {
-        return (_perTokenMetadata[tokenId].conditionReportUrl, _perTokenMetadata[tokenId].conditionReportHash);
+        return (_perTokenMetadata[tokenId].conditionReportUrl);
+    }
+
+    /**
+      @dev Get URIs for the condition report
+      @return conditionReportUrl, conditionReportHash
+     */
+    function getConditionReportHash(uint256 tokenId)
+        public
+        view
+        returns (
+            string memory
+        )
+    {
+        return (_perTokenMetadata[tokenId].conditionReportHash);
     }
 
     /**
