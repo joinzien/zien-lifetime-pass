@@ -1,7 +1,7 @@
 name: JavaScript lint
 on: push
 jobs:
-  run-test:
+  run-lint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
