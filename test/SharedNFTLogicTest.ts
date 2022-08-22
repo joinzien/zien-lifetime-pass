@@ -115,23 +115,6 @@ describe("SharedNFTLogicTest", () => {
       throw "No parsed token uri";
     }
 
-    // Check metadata from edition
-    const uriData = Buffer.from(parsedTokenURI.body).toString("utf-8");
-    const metadata = JSON.parse(uriData);
 
-    expect(parsedTokenURI.mimeType.type).to.equal("application");
-    expect(parsedTokenURI.mimeType.subtype).to.equal("json");
-    // expect(parsedTokenURI.mimeType.parameters.get("charset")).to.equal(
-    //   "utf-8"
-    // );
-    expect(JSON.stringify(metadata)).to.equal(
-      JSON.stringify({
-        name: "Testing Token 1/10",
-        description: "This is a testing token for all",
-        animation_url:
-          "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy?id=1",
-        properties: { number: 1, name: "Testing Token" },
-      })
-    );
   });
 });
