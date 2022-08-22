@@ -902,10 +902,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/data-urls@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@types/data-urls/-/data-urls-2.0.1.tgz#4a5491583513e8a84044f7e7fbac2ca246c44ed9"
-  integrity sha512-8/IGbezKc9SEeL9BHdZ4whS9EaYzXfQ6eEC2s34RXfnaEkTasKCWldq/gfoEzbByDD5GXyqEESogVRtdskJXEA==
+"@types/data-urls@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/data-urls/-/data-urls-3.0.0.tgz#26151e3cc2c303062164bb2d6cdd02c380bedb69"
+  integrity sha512-8cBD/dcWuTimpnHrG0QHVBd/9DHoeNrifPUMeQKtSKDVzqwE8WYNT0R8aKxXF8wEYXsmcp3lHbO2Q5Sk+OuCdg==
   dependencies:
     "@types/node" "*"
     "@types/whatwg-mimetype" "*"
