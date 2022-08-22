@@ -324,7 +324,7 @@ describe("SharedNFTLogicTest", () => {
         image:
           "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy?id=1",
         animation_url:
-          "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy?id=1",          
+          "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn4xw43jcy4knwful7ymmgy?id=1",          
         properties: { number: 1, name: "Testing Token" },
       })
     );
