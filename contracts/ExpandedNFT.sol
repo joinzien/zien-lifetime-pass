@@ -157,6 +157,8 @@ contract ExpandedNFT is
     constructor(SharedNFTLogic sharedNFTLogic) {
         _sharedNFTLogic = sharedNFTLogic;
         _pricing.whoCanMint = WhoCanMint.ONLY_OWNER;
+
+        _disableInitializers();
     }
 
     /**
