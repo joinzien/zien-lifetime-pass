@@ -21,19 +21,23 @@ describe("ExpandedNFT", () => {
   let artistAddress: string;
 
   let dynamicSketch: DropCreator;
+  let editionImpl: ExpandedNFT;
 
   beforeEach(async () => {
-    const { DropCreator } = await deployments.fixture([
+    const { DropCreator, ExpandedNFT } = await deployments.fixture([
       "DropCreator",
       "ExpandedNFT",
     ]);
-    const dynamicMintableAddress = (
-      await deployments.get("ExpandedNFT")
-    ).address;
+
     dynamicSketch = (await ethers.getContractAt(
       "DropCreator",
       DropCreator.address
     )) as DropCreator;
+
+    editionImpl = (await ethers.getContractAt(
+      "ExpandedNFT",
+      ExpandedNFT.address
+    )) as ExpandedNFT;    
 
     signer = (await ethers.getSigners())[0];
     signerAddress = await signer.getAddress();
@@ -41,6 +45,18 @@ describe("ExpandedNFT", () => {
     artist = (await ethers.getSigners())[1];
     artistAddress = await signer.getAddress();
 
+  });
+
+  it("does not allow re-initialization of the implementation contract", async () => {
+    await expect(
+      editionImpl.initialize(
+        signerAddress,
+        artistAddress,
+        "test name",
+        "SYM",
+        12
+      )
+    ).to.be.revertedWith("Initializable: contract is already initialized");
   });
 
   it("makes a new drop", async () => {
