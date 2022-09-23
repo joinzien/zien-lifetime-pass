@@ -6,5 +6,5 @@
 3. The collector now has the final offer.
    A. The collector can call `rejectOfferTerms` to stop the process.
    B. The collector can approve the drop contract for the full payment amount then call `acceptOfferTerms` to start the production process.
-4. The platform calls `productionComplete` to mark the work has finsihed, adding the condtional report and redeemed version of the work.
-5. Once the collector receives the work. they can call `acceptDelivery`. Marknig that edition as reddeemed and switching the showing the redeemed version.
+4. The platform calls `productionComplete` to mark the work has finished, adding the condition report and updated metadata.
+5. Once the collector receives the work they can call `acceptDelivery`. Marking that edition as redeemed and switching to display the redeemed version.
