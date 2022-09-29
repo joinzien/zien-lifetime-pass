@@ -15,12 +15,12 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 
 ## How do I create and use Expanded NFTs?
 
-- [How do I create a new drop?](./docs/create-a-drop.md)
-- [How to develop locally?](./docs/develop.md)
-- [How do I control who can mint?](./docs/permissioning.md)
-- [How to mint?](./docs/minting.md)
-- [How to redeem an edition?](./docs/redemption.md)
-- [How to withdraw royalties?](./docs/withdraw.md)
+- [How do I create a new drop?](./doc/create-a-drop.md)
+- [How to develop locally?](./doc/develop.md)
+- [How do I control who can mint?](./doc/permissioning.md)
+- [How to mint?](./doc/minting.md)
+- [How to redeem an edition?](./doc/redemption.md)
+- [How to withdraw royalties?](./doc/withdraw.md)
 
 ## Deployed
 
@@ -30,9 +30,9 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 - ExpandedNFT [0xcdd58aea1642494c7d9578912c34b0bfd88a73c9](https://etherscan.io/address/0xcdd58aea1642494c7d9578912c34b0bfd88a73c9)
 - SharedNFTLogic [0x6883e3b3aea73cbeccbfa6a11c3a617c2f92c574](https://etherscan.io/address/0x6883e3b3aea73cbeccbfa6a11c3a617c2f92c574)
 
-### Rinkeby
+### Goerli
 
-- DropCreator [0xd55b33d0614a3ec0D3ed54DEae7F3746C9046fE8](https://rinkeby.etherscan.io/address/0xd55b33d0614a3ec0D3ed54DEae7F3746C9046fE8)
-- ExpandedNFT [0x16Ad1D9B30bA287c823dCa78320383Ce18856D14](https://rinkeby.etherscan.io/address/0x16Ad1D9B30bA287c823dCa78320383Ce18856D14)
-- SharedNFTLogic [0x355a9bd0D92c77241A713BcaaB429e31802a7F4f](https://rinkeby.etherscan.io/address/0x355a9bd0D92c77241A713BcaaB429e31802a7F4f)
-- TestCash [0xFfC79238FdCe6C95F785Da8F63e002eC0c55336c](https://rinkeby.etherscan.io/address/0xFfC79238FdCe6C95F785Da8F63e002eC0c55336c)
+- DropCreator [0xeff21941a8964f7132a31b970c838fb30674cbde](https://goerli.etherscan.io/address/0xeff21941a8964f7132a31b970c838fb30674cbde)
+- ExpandedNFT [0x8f31e6a4f322668d3764850aa27dbf65172f2543](https://goerli.etherscan.io/address/0x8f31e6a4f322668d3764850aa27dbf65172f2543)
+- SharedNFTLogic [0xecd59f3933649cf892402428723086e79829d2d7](https://goerli.etherscan.io/address/0xecd59f3933649cf892402428723086e79829d2d7)
+- TestCash [0x9e4e27b8d9643d2405c24328869641e310da310f](https://goerli.etherscan.io/address/0x9e4e27b8d9643d2405c24328869641e310da310f)
