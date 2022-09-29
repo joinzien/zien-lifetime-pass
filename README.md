@@ -15,12 +15,12 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 
 ## How do I create and use Expanded NFTs?
 
-- [How do I create a new drop?](./docs/create-a-drop.md)
-- [How to develop locally?](./docs/develop.md)
-- [How do I control who can mint?](./docs/permissioning.md)
-- [How to mint?](./docs/minting.md)
-- [How to redeem an edition?](./docs/redemption.md)
-- [How to withdraw royalties?](./docs/withdraw.md)
+- [How do I create a new drop?](./doc/create-a-drop.md)
+- [How to develop locally?](./doc/develop.md)
+- [How do I control who can mint?](./doc/permissioning.md)
+- [How to mint?](./doc/minting.md)
+- [How to redeem an edition?](./doc/redemption.md)
+- [How to withdraw royalties?](./doc/withdraw.md)
 
 ## Deployed
 
