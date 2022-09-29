@@ -24,15 +24,6 @@ if (process.env.DEV_MNEMONIC) {
     },
     gasPrice: 80000000000,
   };
-  if (process.env.RINKEBY_RPC) {
-    networks.rinkeby = {
-      chainId: 4,
-      url: process.env.RINKEBY_RPC,
-      accounts: {
-        mnemonic: process.env.DEV_MNEMONIC,
-      },
-    };
-  }
   if (process.env.MAINNET_RPC) {
     networks.rinkeby = {
       chainId: 1,
