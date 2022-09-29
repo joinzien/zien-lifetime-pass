@@ -12,8 +12,8 @@
 
 (Replace network with desired network)
 
-`yarn hardhat deploy --network rinkeby`
+`yarn hardhat deploy --network goerli`
 
 # Verifying:
 
-`yarn hardhat sourcify --network rinkeby && yarn hardhat etherscan-verify --network rinkeby`
+`yarn hardhat sourcify --network goerli && yarn hardhat etherscan-verify --network goerli`
