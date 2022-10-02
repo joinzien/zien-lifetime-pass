@@ -1,7 +1,7 @@
 //
 // scripts/newdrop.js
 //
-// npx hardhat run --network rinkeby ./scripts/newdrop-metadata.js
+// npx hardhat run --network rinkeby ./scripts/newdrop-price.js
 //
 
 async function main() {
