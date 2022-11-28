@@ -533,7 +533,7 @@ contract ExpandedNFT is
         _pricing.whoCanMint = WhoCanMint.ANYONE;
 
         emit WhoCanMintChanged(_pricing.whoCanMint);
-        emit PriceChanged(salePrice);
+        emit PriceChanged(_salePrice);
     }
 
     /**
@@ -549,7 +549,7 @@ contract ExpandedNFT is
         _pricing.whoCanMint = WhoCanMint.VIPS;
 
         emit WhoCanMintChanged(_pricing.whoCanMint);
-        emit PriceChanged(salePrice);
+        emit PriceChanged(_salePrice);
     }
 
      /**
@@ -585,7 +585,7 @@ contract ExpandedNFT is
         _pricing.membersSalePrice = membersSalePrice;
         salePrice = generalSalePrice;        
 
-        emit PriceChanged(salePrice);
+        emit PriceChanged(generalSalePrice);
     }  
 
     /**
