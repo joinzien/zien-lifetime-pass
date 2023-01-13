@@ -12,7 +12,7 @@
 
 (Replace network with desired network)
 
-`yarn hardhat deploy --network goerli`
+`yarn deploy --network goerli`
 
 # Verifying:
 
