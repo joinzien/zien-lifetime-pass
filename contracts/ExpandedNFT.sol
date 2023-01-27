@@ -295,6 +295,22 @@ contract ExpandedNFT is
     }
 
     /**
+      @dev returns the current ETH sales price
+           based on who can currently mint.
+     */
+    function price() public view returns (uint256){
+        if (_pricing.whoCanMint == WhoCanMint.VIPS) {
+            return _pricing.vipSalePrice;
+        } else if (_pricing.whoCanMint == WhoCanMint.MEMBERS) {
+            return _pricing.membersSalePrice;
+        } else if (_pricing.whoCanMint == WhoCanMint.ANYONE) {
+            return salePrice;
+        } 
+            
+        return 0;       
+    }
+
+    /**
         Simple eth-based sales function
         More complex sales functions can be implemented through IExpandedNFT interface
      */
@@ -305,7 +321,7 @@ contract ExpandedNFT is
      */
 
     function purchase() external payable returns (uint256) {
-        uint256 currentPrice = _currentSalesPrice();
+        uint256 currentPrice = price();
         emit EditionSold(currentPrice, msg.sender);
 
         address[] memory toMint = new address[](1);
@@ -346,7 +362,7 @@ contract ExpandedNFT is
 
         require(_isAllowedToMint(), "Needs to be an allowed minter");
 
-        uint256 currentPrice = _currentSalesPrice();
+        uint256 currentPrice = price();
         require(currentPrice > 0, "Not for sale");
         require(msg.value == (currentPrice * recipients.length), "Wrong price");
 
@@ -472,22 +488,6 @@ contract ExpandedNFT is
         _pricing.generalMintLimit = _generalMintLimit;
 
         emit PriceChanged(salePrice);
-    }
-
-    /**
-      @dev returns the current ETH sales price
-           based on who can currently mint.
-     */
-    function _currentSalesPrice() internal view returns (uint256){
-        if (_pricing.whoCanMint == WhoCanMint.VIPS) {
-            return _pricing.vipSalePrice;
-        } else if (_pricing.whoCanMint == WhoCanMint.MEMBERS) {
-            return _pricing.membersSalePrice;
-        } else if (_pricing.whoCanMint == WhoCanMint.ANYONE) {
-            return salePrice;
-        } 
-            
-        return 0;       
     }
 
     /**
