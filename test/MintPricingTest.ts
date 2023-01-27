@@ -95,6 +95,9 @@ describe("Mint Pricing", () => {
 
       await minterContract.setAllowedMinter(1);
 
+      // Check the VIP price
+      expect(await minterContract.price()).to.be.equal(ethers.utils.parseEther("0.1"));
+
       // Mint as a VIP
       await expect(minterContract.connect(user).mintEdition(userAddress, {
         value: ethers.utils.parseEther("0.1")
@@ -108,6 +111,9 @@ describe("Mint Pricing", () => {
 
       await minterContract.setAllowedMinter(2);
 
+      // Check the member price
+      expect(await minterContract.price()).to.be.equal(ethers.utils.parseEther("0.2"));
+
       // Mint as a Member
       await expect(minterContract.connect(user).mintEdition(userAddress, {
         value: ethers.utils.parseEther("0.2")
@@ -120,6 +126,9 @@ describe("Mint Pricing", () => {
         );
 
       await minterContract.setAllowedMinter(3);
+
+      // Check the general price
+      expect(await minterContract.price()).to.be.equal(ethers.utils.parseEther("0.4"));
 
       // Mint as the general public
       await expect(minterContract.connect(user).mintEdition(userAddress, {
