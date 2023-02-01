@@ -200,8 +200,8 @@ contract ExpandedNFT is
 
     /**
       @param startIndex The first ID index to write the data
-      @param _description How many rows of data to load
-      @param count Description of the edition, used in the description field of the NFT
+      @param count How many rows of data to load 
+      @param _description Description of the edition, used in the description field of the NFT
       @param animationUrl Animation URL of the edition. Not required, but if omitted image URL needs to be included. This follows the opensea spec for NFTs
       @param animationHash The associated hash of the animation in sha-256 bytes32 format. If animation is omitted the hash can be zero.
       @param imageUrl Image URL of the the edition. Strongly encouraged to be used, if necessary, only animation URL can be used. One of animation and image url need to exist in a drop to render the NFT.
