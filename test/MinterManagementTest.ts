@@ -94,7 +94,7 @@ describe("MinterManagement", () => {
      
       minterContract.setAllowedMinter(1);
 
-      // Mint as a VIP
+      // Mint as a member of the allow list
       await expect(minterContract.mintEdition(signerAddress, {
         value: ethers.utils.parseEther("0.1")
       }))
@@ -134,12 +134,12 @@ describe("MinterManagement", () => {
       expect(await minterContract.totalSupply()).to.be.equal(3);
     }); 
     
-    it("VIP user access control", async () => {
+    it("Allow list user access control", async () => {
       let user = (await ethers.getSigners())[2];
       let userAddress = await user.getAddress();
       await minterContract.reserve ([userAddress], [1])       
 
-      await minterContract.setApprovedVIPMinters(1, [userAddress], [true]);
+      await minterContract.setAllowListMinters(1, [userAddress], [true]);
 
       await minterContract.setAllowedMinter(0);
 
@@ -148,7 +148,7 @@ describe("MinterManagement", () => {
 
       await minterContract.setAllowedMinter(1);
 
-      // Mint as a VIP
+      // Mint as a member of the allow list
       await expect(minterContract.connect(user).mintEdition(userAddress, {
         value: ethers.utils.parseEther("0.1")
       }))
