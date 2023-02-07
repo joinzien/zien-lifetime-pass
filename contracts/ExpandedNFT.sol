@@ -263,6 +263,16 @@ contract ExpandedNFT is
     }
 
     /**
+      @dev returns the current state of the provided token
+     */
+    function redeemedState(uint256 tokenId) public view returns (uint256) {
+        require(tokenId > 0, "tokenID > 0");
+        require(tokenId <= dropSize, "tokenID <= drop size");
+
+        return uint256(_perTokenMetadata[tokenId].editionState);
+    }
+
+    /**
         Simple eth-based sales function
         More complex sales functions can be implemented through IExpandedNFT interface
      */
