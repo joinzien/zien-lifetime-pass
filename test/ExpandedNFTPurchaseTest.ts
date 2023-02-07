@@ -74,7 +74,7 @@ describe("Purchase", () => {
       "0x0000000000000000000000000000000000000000000000000000000000000000"]
     );
 
-    await minterContract.setPricing(10, 5000, 10, 10, 10, 1, 1, 1);
+    await minterContract.setPricing(10, 5000, 10, 10, 1, 1);
 
     expect(await minterContract.name()).to.be.equal("Testing Token");
     expect(await minterContract.symbol()).to.be.equal("TEST");

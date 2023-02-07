@@ -78,9 +78,9 @@ describe("SharedNFTLogicTest", () => {
     );
 
     const mintCost = ethers.utils.parseEther("0.1");      
-    await minterContract.setPricing(10, 500, mintCost, mintCost, mintCost, 15, 15, 15);
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 15, 15);
 
-    await minterContract.setAllowedMinter(3);
+    await minterContract.setAllowedMinter(2);
 
     // Mint first edition
     await expect(minterContract.mintEdition(signerAddress, {
@@ -171,9 +171,9 @@ describe("SharedNFTLogicTest", () => {
     );
 
     const mintCost = ethers.utils.parseEther("0.1");      
-    await minterContract.setPricing(10, 500, mintCost, mintCost, mintCost, 15, 15, 15);
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 15, 15);
 
-    await minterContract.setAllowedMinter(3);
+    await minterContract.setAllowedMinter(2);
 
     // Mint first edition
     await expect(minterContract.mintEdition(signerAddress, {
@@ -269,9 +269,9 @@ describe("SharedNFTLogicTest", () => {
     );
 
     const mintCost = ethers.utils.parseEther("0.1");      
-    await minterContract.setPricing(10, 500, mintCost, mintCost, mintCost, 15, 15, 15);
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 15, 15);
 
-    await minterContract.setAllowedMinter(3);
+    await minterContract.setAllowedMinter(2);
 
     // Mint first edition
     await expect(minterContract.mintEdition(signerAddress, {
@@ -361,9 +361,9 @@ describe("SharedNFTLogicTest", () => {
     );
 
     const mintCost = ethers.utils.parseEther("0.1");      
-    await minterContract.setPricing(10, 500, mintCost, mintCost, mintCost, 15, 15, 15);
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 15, 15);
 
-    await minterContract.setAllowedMinter(3);
+    await minterContract.setAllowedMinter(2);
 
     // Mint first edition
     await expect(minterContract.mintEdition(signerAddress, {

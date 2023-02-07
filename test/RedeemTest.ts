@@ -101,7 +101,7 @@ describe("Redeem", () => {
         "0x0000000000000000000000000000000000000000000000000000000000000000"]
     );
 
-    await minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
+    await minterContract.setPricing(10, 500, 10, 10, 1, 1);
 
     expect(
       await minterContract.setSalePrice(ethers.utils.parseEther("0.2"))
