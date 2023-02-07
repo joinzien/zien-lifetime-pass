@@ -74,19 +74,34 @@ describe("Mint Limits", () => {
       "0x0000000000000000000000000000000000000000000000000000000000000000"]
     );
 
-    await minterContract.setPricing(10, 500, 0, 0, 1, 1);
+    await minterContract.setPricing(10, 500, 0, 0, 2, 1);
 
-    const [_, s2] = await ethers.getSigners();
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);        
+
     await expect(minterContract.purchase()).to.be.revertedWith("Not for sale");
+    
     expect(
       await minterContract.setSalePrice(ethers.utils.parseEther("0.2"))
     ).to.emit(minterContract, "PriceChanged");
+
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(1);    
+ 
     expect(
       await minterContract
         .purchase({ value: ethers.utils.parseEther("0.2") })
     ).to.emit(minterContract, "EditionSold");
     await expect(minterContract.purchase({ value: ethers.utils.parseEther("0.2") })).to.be.revertedWith( "Exceeded mint limit");
+ 
     expect(await minterContract.totalSupply()).to.be.equal(1);
+
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);  
+
   });
   
   it("Allow list mint limit", async () => {
@@ -122,19 +137,34 @@ describe("Mint Limits", () => {
       "0x0000000000000000000000000000000000000000000000000000000000000000"]
     );
 
-    await minterContract.setPricing(10, 500, 0, 0, 1, 1);
+    await minterContract.setPricing(10, 500, 0, 0, 1, 2);
     await minterContract.reserve ([signerAddress], [1]) 
 
-    const [_, s2] = await ethers.getSigners();
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(1);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(2);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);    
+
     await expect(minterContract.purchase()).to.be.revertedWith("Not for sale");
+    
     expect(
       await minterContract.setAllowListSalePrice(ethers.utils.parseEther("0.2"))
     ).to.emit(minterContract, "PriceChanged");
+
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(1);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(2);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(1);    
+
     expect(
       await minterContract
         .purchase({ value: ethers.utils.parseEther("0.2") })
     ).to.emit(minterContract, "EditionSold");
+
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(1);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(2);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);       
+
     await expect(minterContract.purchase({ value: ethers.utils.parseEther("0.2") })).to.be.revertedWith( "Exceeded mint limit");
+    
     expect(await minterContract.totalSupply()).to.be.equal(1);
   });  
 });
