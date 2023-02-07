@@ -201,7 +201,7 @@ describe("MinterManagement", () => {
 
       await minterContract.setAllowedMinter(1);
 
-      // Mint as a VIP
+      // Mint as a member of the allow list
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");   
 
       await minterContract.setAllowedMinter(2);
@@ -244,7 +244,7 @@ describe("MinterManagement", () => {
 
       await minterContract.setAllowedMinter(1);
 
-      // Mint as a VIP
+      // Mint as a member of the allow list
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");   
 
       await minterContract.setAllowedMinter(2);
