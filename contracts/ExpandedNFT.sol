@@ -190,57 +190,6 @@ contract ExpandedNFT is
         _loadedMetadata = 0; 
     }
 
-    /**
-      @param startIndex The first ID index to write the data
-      @param count How many rows of data to load 
-      @param _description Description of the edition, used in the description field of the NFT
-      @param animationUrl Animation URL of the edition. Not required, but if omitted image URL needs to be included. This follows the opensea spec for NFTs
-      @param animationHash The associated hash of the animation in sha-256 bytes32 format. If animation is omitted the hash can be zero.
-      @param imageUrl Image URL of the the edition. Strongly encouraged to be used, if necessary, only animation URL can be used. One of animation and image url need to exist in a drop to render the NFT.
-      @param imageHash SHA256 of the given image in bytes32 format (0xHASH). If no image is included, the hash can be zero.
-      @dev Function to create a new drop. Can only be called by the allowed creator
-           Sets the only allowed minter to the address that creates/owns the drop.
-           This can be re-assigned or updated later
-     */
-    function loadMetadataChunk(
-        uint256 startIndex,
-        uint256 count,
-        string[] memory _description,
-        string[] memory animationUrl,
-        bytes32[] memory animationHash,
-        string[] memory imageUrl,
-        bytes32[] memory imageHash
-
-    ) public onlyOwner {
-        require(startIndex > 0, "StartIndex > 0");
-        require(startIndex + count <= dropSize + 1, "Data large than drop size");
-
-        require(_description.length == count, "Data size mismatch");
-        require(animationUrl.length == count, "Data size mismatch");
-        require(animationHash.length == count, "Data size mismatch");
-        require(imageUrl.length == count, "Data size mismatch");
-        require(imageHash.length == count, "Data size mismatch");
-
-        for (uint i = 0; i < count; i++) {
-            uint index =  startIndex + i;
-            
-            _perTokenMetadata[index].description = _description[i];
-            _perTokenMetadata[index].imageUrl = imageUrl[i];
-            _perTokenMetadata[index].imageHash = imageHash[i];
-            _perTokenMetadata[index].animationUrl = animationUrl[i];
-            _perTokenMetadata[index].animationHash = animationHash[i];
-
-            if (_perTokenMetadata[index].metadataLoaded != true) {
-                _perTokenMetadata[index].metadataLoaded = true;
-               _loadedMetadata++; 
-            }
-        }
-    }
-
-    function metadataloaded() public view returns (bool){
-        return (_loadedMetadata >= dropSize);
-    }
-
     /// @dev returns the number of minted tokens within the drop
     function totalSupply() public view returns (uint256) {
         return _claimCount;
@@ -698,6 +647,57 @@ contract ExpandedNFT is
     function setAllowListMinters(uint256 count, address[] calldata minter, bool[] calldata allowed) public onlyOwner {
         for (uint256 i = 0; i < count; i++) {
             _pricing.allowListMinters[minter[i]] = allowed[i];
+        }
+    }
+
+    function metadataloaded() public view returns (bool){
+        return (_loadedMetadata >= dropSize);
+    }
+
+    /**
+      @param startIndex The first ID index to write the data
+      @param count How many rows of data to load 
+      @param _description Description of the edition, used in the description field of the NFT
+      @param animationUrl Animation URL of the edition. Not required, but if omitted image URL needs to be included. This follows the opensea spec for NFTs
+      @param animationHash The associated hash of the animation in sha-256 bytes32 format. If animation is omitted the hash can be zero.
+      @param imageUrl Image URL of the the edition. Strongly encouraged to be used, if necessary, only animation URL can be used. One of animation and image url need to exist in a drop to render the NFT.
+      @param imageHash SHA256 of the given image in bytes32 format (0xHASH). If no image is included, the hash can be zero.
+      @dev Function to create a new drop. Can only be called by the allowed creator
+           Sets the only allowed minter to the address that creates/owns the drop.
+           This can be re-assigned or updated later
+     */
+    function loadMetadataChunk(
+        uint256 startIndex,
+        uint256 count,
+        string[] memory _description,
+        string[] memory animationUrl,
+        bytes32[] memory animationHash,
+        string[] memory imageUrl,
+        bytes32[] memory imageHash
+
+    ) public onlyOwner {
+        require(startIndex > 0, "StartIndex > 0");
+        require(startIndex + count <= dropSize + 1, "Data large than drop size");
+
+        require(_description.length == count, "Data size mismatch");
+        require(animationUrl.length == count, "Data size mismatch");
+        require(animationHash.length == count, "Data size mismatch");
+        require(imageUrl.length == count, "Data size mismatch");
+        require(imageHash.length == count, "Data size mismatch");
+
+        for (uint i = 0; i < count; i++) {
+            uint index =  startIndex + i;
+            
+            _perTokenMetadata[index].description = _description[i];
+            _perTokenMetadata[index].imageUrl = imageUrl[i];
+            _perTokenMetadata[index].imageHash = imageHash[i];
+            _perTokenMetadata[index].animationUrl = animationUrl[i];
+            _perTokenMetadata[index].animationHash = animationHash[i];
+
+            if (_perTokenMetadata[index].metadataLoaded != true) {
+                _perTokenMetadata[index].metadataLoaded = true;
+               _loadedMetadata++; 
+            }
         }
     }
 
