@@ -702,6 +702,47 @@ contract ExpandedNFT is
     }
 
     /**
+      @param tokenID The index to write the data
+      @param animationUrl Animation URL of the edition. Not required, but if omitted image URL needs to be included. This follows the opensea spec for NFTs
+      @param animationHash The associated hash of the animation in sha-256 bytes32 format. If animation is omitted the hash can be zero.
+      @param imageUrl Image URL of the the edition. Strongly encouraged to be used, if necessary, only animation URL can be used. One of animation and image url need to exist in a drop to render the NFT.
+      @param imageHash SHA256 of the given image in bytes32 format (0xHASH). If no image is included, the hash can be zero.
+      @dev Function to create a new drop. Can only be called by the allowed creator
+           Sets the only allowed minter to the address that creates/owns the drop.
+           This can be re-assigned or updated later
+     */
+    function loadRedeemedMetadata(
+        uint256 tokenID,
+        string  memory animationUrl,
+        bytes32 animationHash,
+        string  memory imageUrl,
+        bytes32 imageHash
+
+    ) public onlyOwner {
+        require(tokenID > 0, "StartIndex > 0");
+        require(tokenID <= dropSize + 1, "Data large than drop size");
+     
+
+        _perTokenMetadata[tokenID].redeemedImageUrl = imageUrl;
+        _perTokenMetadata[tokenID].redeemedImageHash = imageHash;
+        _perTokenMetadata[tokenID].redeemedAnimationUrl = animationUrl;
+        _perTokenMetadata[tokenID].redeemedAnimationHash = animationHash;
+    }
+
+    /**
+      @dev Allows for updates of edition urls by the owner of the edition.
+           Only URLs can be updated (data-uris are supported), hashes cannot be updated.
+     */
+    function updateRedeemedURLs(
+        uint256 tokenId,
+        string memory imageUrl,
+        string memory animationUrl
+    ) public onlyOwner {
+        _perTokenMetadata[tokenId].redeemedImageUrl = imageUrl;
+        _perTokenMetadata[tokenId].redeemedAnimationUrl = animationUrl;
+    }
+
+    /**
       @dev Allows for updates of edition urls by the owner of the edition.
            Only URLs can be updated (data-uris are supported), hashes cannot be updated.
      */
