@@ -87,9 +87,8 @@ describe("Mint Pricing", () => {
       await minterContract.reserve ([userAddress], [1]) 
 
       const mintCost1 = ethers.utils.parseEther("0.1");  
-      const mintCost2 = ethers.utils.parseEther("0.2");  
-      const mintCost3 = ethers.utils.parseEther("0.4");                  
-      await minterContract.setPricing(200, 500, mintCost1, mintCost2, mintCost3, 10, 10, 10);  
+      const mintCost2 = ethers.utils.parseEther("0.4");                  
+      await minterContract.setPricing(200, 500, mintCost1,  mintCost2, 10, 10);  
 
       await minterContract.setAllowListMinters(1, [userAddress], [true]);
 
@@ -111,22 +110,6 @@ describe("Mint Pricing", () => {
 
       await minterContract.setAllowedMinter(2);
 
-      // Check the member price
-      expect(await minterContract.price()).to.be.equal(ethers.utils.parseEther("0.2"));
-
-      // Mint as a Member
-      await expect(minterContract.connect(user).mintEdition(userAddress, {
-        value: ethers.utils.parseEther("0.2")
-      }))
-        .to.emit(minterContract, "Transfer")
-        .withArgs(
-          "0x0000000000000000000000000000000000000000",
-          userAddress,
-          2
-        );
-
-      await minterContract.setAllowedMinter(3);
-
       // Check the general price
       expect(await minterContract.price()).to.be.equal(ethers.utils.parseEther("0.4"));
 
@@ -138,10 +121,10 @@ describe("Mint Pricing", () => {
         .withArgs(
           "0x0000000000000000000000000000000000000000",
           userAddress,
-          3
+          2
         );  
         
-        expect(await minterContract.totalSupply()).to.be.equal(3);
+        expect(await minterContract.totalSupply()).to.be.equal(2);
     }); 
   });
 });

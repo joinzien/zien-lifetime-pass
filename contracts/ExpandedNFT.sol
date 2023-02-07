@@ -29,7 +29,7 @@ contract ExpandedNFT is
     IERC2981Upgradeable,
     OwnableUpgradeable
 {
-    enum WhoCanMint{ ONLY_OWNER, ALLOWLIST, MEMBERS, ANYONE }
+    enum WhoCanMint{ ONLY_OWNER, ALLOWLIST, ANYONE }
 
     enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, PRODUCTION_COMPLETE, REDEEMED }
     
@@ -95,20 +95,12 @@ contract ExpandedNFT is
         // Price for allow list sales
         uint256 allowListSalePrice;
 
-        // Price for member sales
-        uint256 membersSalePrice;   
-
         // Limit for allow list sales
         uint256 allowListMintLimit;
-
-        // Price for member sales
-        uint256 membersMintLimit;
 
         // Price for general sales
         uint256 generalMintLimit;   
 
-        // Addresses allowed to mint edition
-        mapping(address => bool) allowedMinters;
         // Allow list Addresses allowed to mint edition
         mapping(address => bool) allowListMinters;
 
@@ -269,19 +261,9 @@ contract ExpandedNFT is
         return _pricing.allowListSalePrice;
     }
 
-    /// @dev returns the member sale price
-    function getMembersSalePrice() public view returns (uint256) {
-        return _pricing.membersSalePrice;
-    }
-
     /// @dev returns the allow list mint limit
     function getAllowListMintLimit() public view returns (uint256) {
         return _pricing.allowListMintLimit;
-    }
-
-    /// @dev returns the member mint limit
-    function getMembersMintLimit() public view returns (uint256) {
-        return _pricing.membersMintLimit;
     }
 
     /// @dev returns the general mint limit
@@ -301,8 +283,6 @@ contract ExpandedNFT is
     function price() public view returns (uint256){
         if (_pricing.whoCanMint == WhoCanMint.ALLOWLIST) {
             return _pricing.allowListSalePrice;
-        } else if (_pricing.whoCanMint == WhoCanMint.MEMBERS) {
-            return _pricing.membersSalePrice;
         } else if (_pricing.whoCanMint == WhoCanMint.ANYONE) {
             return salePrice;
         } 
@@ -459,32 +439,26 @@ contract ExpandedNFT is
       @param _royaltyBPS BPS of the royalty set on the contract. Can be 0 for no royalty.
       @param _splitBPS BPS of the royalty set on the contract. Can be 0 for no royalty. 
       @param _allowListSalePrice Sale price for allow listed wallets
-      @param _membersSalePrice SalePrice for Members  
       @param _generalSalePrice SalePrice for the general public     
       @param _allowListMintLimit Mint limit for allow listed wallets
-      @param _membersMintLimit Mint limit for Members  
       @param _generalMintLimit Mint limit for the general public                                                                                 
       @dev Set various pricing related values
      */
     function setPricing (
         uint256 _royaltyBPS,
         uint256 _splitBPS,
-        uint256 _allowListSalePrice,
-        uint256 _membersSalePrice,      
+        uint256 _allowListSalePrice,  
         uint256 _generalSalePrice,
         uint256 _allowListMintLimit,
-        uint256 _membersMintLimit,
         uint256 _generalMintLimit             
     ) external onlyOwner {  
         _pricing.royaltyBPS = _royaltyBPS;
         _pricing.splitBPS = _splitBPS;
 
         _pricing.allowListSalePrice = _allowListSalePrice;
-        _pricing.membersSalePrice = _membersSalePrice;
         salePrice = _generalSalePrice;
 
         _pricing.allowListMintLimit = _allowListMintLimit;
-        _pricing.membersMintLimit = _membersMintLimit;
         _pricing.generalMintLimit = _generalMintLimit;
 
         emit PriceChanged(salePrice);
@@ -505,14 +479,12 @@ contract ExpandedNFT is
     }
 
     /**
-      @dev returns the current loimit on edition that 
+      @dev returns the current limit on edition that 
            can be minted by one wallet
      */
     function _currentMintLimit() internal view returns (uint256){
         if (_pricing.whoCanMint == WhoCanMint.ALLOWLIST) {
             return _pricing.allowListMintLimit;
-        } else if (_pricing.whoCanMint == WhoCanMint.MEMBERS) {
-            return _pricing.membersMintLimit;
         } else if (_pricing.whoCanMint == WhoCanMint.ANYONE) {
             return _pricing.generalMintLimit;
         } 
@@ -553,26 +525,7 @@ contract ExpandedNFT is
     }
 
      /**
-      @param _salePrice if sale price is 0 sale is stopped, otherwise that amount 
-                       of ETH is needed to start the sale.
-      @dev This sets the members ETH sales price
-           Setting a sales price allows users to mint the drop until it sells out.
-           For more granular sales, use an external sales contract.
-     */
-    function setMembersSalePrice(uint256 _salePrice) external onlyOwner {
-        _pricing.membersSalePrice = _salePrice;
-
-        _pricing.whoCanMint = WhoCanMint.MEMBERS;
-
-        emit WhoCanMintChanged(_pricing.whoCanMint);
-        emit PriceChanged(salePrice);
-    }   
-
-
-     /**
       @param allowListSalePrice if sale price is 0 sale is stopped, otherwise that amount 
-                       of ETH is needed to start the sale.
-      @param membersSalePrice if sale price is 0 sale is stopped, otherwise that amount 
                        of ETH is needed to start the sale.
       @param generalSalePrice if sale price is 0 sale is stopped, otherwise that amount 
                        of ETH is needed to start the sale.                                              
@@ -580,9 +533,8 @@ contract ExpandedNFT is
            Setting a sales price allows users to mint the drop until it sells out.
            For more granular sales, use an external sales contract.
      */
-    function setSalePrices(uint256 allowListSalePrice, uint256 membersSalePrice, uint256 generalSalePrice) external onlyOwner {
+    function setSalePrices(uint256 allowListSalePrice, uint256 generalSalePrice) external onlyOwner {
         _pricing.allowListSalePrice = allowListSalePrice;
-        _pricing.membersSalePrice = membersSalePrice;
         salePrice = generalSalePrice;        
 
         emit PriceChanged(generalSalePrice);
@@ -620,16 +572,6 @@ contract ExpandedNFT is
     function _isAllowedToMint() internal view returns (bool) {
         if (_pricing.whoCanMint == WhoCanMint.ANYONE) {
             return true;
-        }
-
-        if (_pricing.whoCanMint == WhoCanMint.MEMBERS) {
-            if (_pricing.allowListMinters[msg.sender]) {
-                return true;
-            }   
-
-            if (_pricing.allowedMinters[msg.sender]) {
-                return true;
-            }          
         }
 
         if (_pricing.whoCanMint == WhoCanMint.ALLOWLIST) {
@@ -719,21 +661,6 @@ contract ExpandedNFT is
 
         _pricing.whoCanMint = minters;
         emit WhoCanMintChanged(minters);
-    }
-
-    /**
-      @param minter address to set approved minting status for
-      @param allowed boolean if that address is allowed to mint
-      @dev Sets the approved minting status of the given address.
-           This requires that msg.sender is the owner of the given edition id.
-           If the ZeroAddress (address(0x0)) is set as a minter,
-             anyone will be allowed to mint.
-           This setup is similar to setApprovalForAll in the ERC721 spec.
-     */
-    function setApprovedMinters(uint256 count, address[] calldata minter, bool[] calldata allowed) public onlyOwner {
-        for (uint256 i = 0; i < count; i++) {
-            _pricing.allowedMinters[minter[i]] = allowed[i];
-        }
     }
 
     /**

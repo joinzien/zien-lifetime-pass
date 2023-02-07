@@ -5,7 +5,6 @@
 import { expect } from "chai";
 import "@nomiclabs/hardhat-ethers";
 import { ethers, deployments } from "hardhat";
-import parseDataURI from "data-urls";
 
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
@@ -37,7 +36,7 @@ describe("AllowedMinters", () => {
 
   it("makes a new drop", async () => {
     const artist = (await ethers.getSigners())[1];
-    const artistAddress = await signer.getAddress();
+    const artistAddress = await artist.getAddress();
 
     await dynamicSketch.createDrop(
       artistAddress, "Testing Token",
@@ -69,7 +68,7 @@ describe("AllowedMinters", () => {
       "0x0000000000000000000000000000000000000000000000000000000000000000"]
     );
 
-    await minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
+    await minterContract.setPricing(10, 500, 10, 10, 1, 1);
 
     expect(await minterContract.name()).to.be.equal("Testing Token");
     expect(await minterContract.symbol()).to.be.equal("TEST");

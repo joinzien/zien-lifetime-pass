@@ -73,7 +73,7 @@ describe("ArtistWallet", () => {
       "0x0000000000000000000000000000000000000000000000000000000000000000"]
     );
 
-    minterContract.setPricing(10, 500, 10, 10, 10, 1, 1, 1);
+    minterContract.setPricing(10, 500, 10, 10, 1, 1);
 
     expect(await minterContract.getArtistWallet()).to.be.equal(artistAddress);
 
