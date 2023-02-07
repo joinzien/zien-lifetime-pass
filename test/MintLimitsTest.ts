@@ -78,7 +78,9 @@ describe("Mint Limits", () => {
 
     expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
     expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
-    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);        
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0); 
+    
+    expect(await minterContract.canMint(signerAddress)).to.be.equal(false);  
 
     await expect(minterContract.purchase()).to.be.revertedWith("Not for sale");
     
@@ -89,6 +91,8 @@ describe("Mint Limits", () => {
     expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
     expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
     expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(1);    
+
+    expect(await minterContract.canMint(signerAddress)).to.be.equal(true);  
  
     expect(
       await minterContract
@@ -101,6 +105,8 @@ describe("Mint Limits", () => {
     expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
     expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
     expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);  
+
+    expect(await minterContract.canMint(signerAddress)).to.be.equal(false);  
 
   });
   
@@ -144,6 +150,8 @@ describe("Mint Limits", () => {
     expect(await minterContract.getGeneralMintLimit()).to.be.equal(2);
     expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);    
 
+    expect(await minterContract.canMint(signerAddress)).to.be.equal(false);  
+
     await expect(minterContract.purchase()).to.be.revertedWith("Not for sale");
     
     expect(
@@ -154,6 +162,8 @@ describe("Mint Limits", () => {
     expect(await minterContract.getGeneralMintLimit()).to.be.equal(2);
     expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(1);    
 
+    expect(await minterContract.canMint(signerAddress)).to.be.equal(true);  
+
     expect(
       await minterContract
         .purchase({ value: ethers.utils.parseEther("0.2") })
@@ -162,6 +172,8 @@ describe("Mint Limits", () => {
     expect(await minterContract.getAllowListMintLimit()).to.be.equal(1);
     expect(await minterContract.getGeneralMintLimit()).to.be.equal(2);
     expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);       
+
+    expect(await minterContract.canMint(signerAddress)).to.be.equal(false);  
 
     await expect(minterContract.purchase({ value: ethers.utils.parseEther("0.2") })).to.be.revertedWith( "Exceeded mint limit");
     

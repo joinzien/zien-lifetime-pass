@@ -282,6 +282,13 @@ contract ExpandedNFT is
         return (currentMintLimit - _pricing.mintCounts[wallet]);   
     }
 
+    /// @dev returns  if the address can mint
+    function canMint(address wallet) public view returns (bool) {
+        uint256 currentMintLimit = getMintLimit(wallet);   
+        return (currentMintLimit > 0);   
+    }
+
+
     /// @dev returns who can mint
     function getWhoCanMint() public view returns (uint256) {
         return uint256(_pricing.whoCanMint);
