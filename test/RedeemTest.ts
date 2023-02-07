@@ -161,6 +161,18 @@ describe("Redeem", () => {
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(6); 
   });
 
+  it("Abort the redemption", async () => {
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1); 
+
+    await minterContract.connect(user).redeem(1);
+
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(2); 
+
+    await minterContract.connect(user).abortRedemption(1);
+
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1);    
+  });
+
   it("Send wrong payment amount", async () => {
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(1); 
 
