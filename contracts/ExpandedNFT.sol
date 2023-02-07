@@ -211,7 +211,7 @@ contract ExpandedNFT is
         string[] memory imageUrl,
         bytes32[] memory imageHash
 
-    ) public {
+    ) public onlyOwner {
         require(startIndex > 0, "StartIndex > 0");
         require(startIndex + count <= dropSize + 1, "Data large than drop size");
 
@@ -257,7 +257,7 @@ contract ExpandedNFT is
     }
 
     /// @dev returns the allow list sale price
-    function getAllowListSalePrice() public view returns (uint256) {
+    function getAllowListPrice() public view returns (uint256) {
         return _pricing.allowListSalePrice;
     }
 
@@ -268,7 +268,18 @@ contract ExpandedNFT is
 
     /// @dev returns the general mint limit
     function getGeneralMintLimit() public view returns (uint256) {
-        return salePrice;
+        return _pricing.generalMintLimit;
+    }
+
+    /// @dev returns mint limit for the address
+    function getMintLimit(address wallet) public view returns (uint256) {
+        uint256 currentMintLimit = _currentMintLimit();
+
+        if (_pricing.mintCounts[wallet]  >= currentMintLimit) {
+            return 0;
+        }
+            
+        return (currentMintLimit - _pricing.mintCounts[wallet]);   
     }
 
     /// @dev returns who can mint
@@ -276,7 +287,7 @@ contract ExpandedNFT is
         return uint256(_pricing.whoCanMint);
     }
 
-    /// @dev returns if thew address is on the allow list
+    /// @dev returns if the address is on the allow list
     function allowListed(address wallet) public view returns (bool) {
         return _pricing.allowListMinters[wallet];
     }
