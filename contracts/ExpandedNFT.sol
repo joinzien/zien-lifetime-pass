@@ -276,6 +276,11 @@ contract ExpandedNFT is
         return uint256(_pricing.whoCanMint);
     }
 
+    /// @dev returns if thew address is on the allow list
+    function allowListed(address wallet) public view returns (bool) {
+        return _pricing.allowListMinters[wallet];
+    }
+
     /**
       @dev returns the current ETH sales price
            based on who can currently mint.
