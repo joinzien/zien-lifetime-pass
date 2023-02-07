@@ -386,6 +386,100 @@ describe("LoadMetadata", () => {
     expect(metadataLoaded).to.be.equal(false);
   });
 
+  it("Load redeemed metadata, not as the owner", async () => {
+    await dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      10);
+
+    const dropResult = await dynamicSketch.getDropAtId(0);
+    minterContract = (await ethers.getContractAt(
+      "ExpandedNFT",
+      dropResult
+    )) as ExpandedNFT;
+
+    await expect(minterContract.connect(artist).loadRedeemedMetadata(
+      1, 
+      "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "0x0000000000000000000000000000000000000000000000000000000000000000", 
+      "", "0x0000000000000000000000000000000000000000000000000000000000000000"
+    )).to.be.revertedWith("caller is not the owner");   ;
+
+    const metadataLoaded = await minterContract.metadataloaded();
+    expect(metadataLoaded).to.be.equal(false);
+  });
+
+  it("Load redeemed metadata below the starting index", async () => {
+    await dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      10);
+
+    const dropResult = await dynamicSketch.getDropAtId(0);
+    minterContract = (await ethers.getContractAt(
+      "ExpandedNFT",
+      dropResult
+    )) as ExpandedNFT;
+
+    await expect(minterContract.loadRedeemedMetadata(
+      0, 
+      "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "0x0000000000000000000000000000000000000000000000000000000000000000", 
+      "", "0x0000000000000000000000000000000000000000000000000000000000000000"
+    )).to.be.revertedWith("tokenID > 0");
+
+    const metadataLoaded = await minterContract.metadataloaded();
+    expect(metadataLoaded).to.be.equal(false);
+  });
+
+  it("Load redeemed metadata over the ending index", async () => {
+    await dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      10);
+
+    const dropResult = await dynamicSketch.getDropAtId(0);
+    minterContract = (await ethers.getContractAt(
+      "ExpandedNFT",
+      dropResult
+    )) as ExpandedNFT;
+
+    await expect(minterContract.loadRedeemedMetadata(
+      11, 
+      "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "0x0000000000000000000000000000000000000000000000000000000000000000", 
+      "", "0x0000000000000000000000000000000000000000000000000000000000000000"
+    )).to.be.revertedWith("tokenID <= drop size");
+
+    const metadataLoaded = await minterContract.metadataloaded();
+    expect(metadataLoaded).to.be.equal(false);
+  });
+
+  it("Load redeemed metadata", async () => {
+    await dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      10);
+
+    const dropResult = await dynamicSketch.getDropAtId(0);
+    minterContract = (await ethers.getContractAt(
+      "ExpandedNFT",
+      dropResult
+    )) as ExpandedNFT;
+
+    await minterContract.loadRedeemedMetadata(
+      1, 
+      "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "0x0000000000000000000000000000000000000000000000000000000000000001", 
+      "", "0x0000000000000000000000000000000000000000000000000000000000000002"
+    );
+
+    expect(await minterContract.getRedeemedAnimationUrl(1)).to.be.equal("https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy");
+    expect(await minterContract.getRedeemedAnimationHash(1)).to.be.equal("0x0000000000000000000000000000000000000000000000000000000000000001");  
+    expect(await minterContract.getRedeemedImageUrl(1)).to.be.equal("");
+    expect(await minterContract.getRedeemedImageHash(1)).to.be.equal("0x0000000000000000000000000000000000000000000000000000000000000002");     
+  });
+
   it("getDescription", async () => {
     await dynamicSketch.createDrop(
       artistAddress,

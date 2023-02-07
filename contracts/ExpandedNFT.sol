@@ -719,8 +719,8 @@ contract ExpandedNFT is
         bytes32 imageHash
 
     ) public onlyOwner {
-        require(tokenID > 0, "StartIndex > 0");
-        require(tokenID <= dropSize + 1, "Data large than drop size");
+        require(tokenID > 0, "tokenID > 0");
+        require(tokenID <= dropSize, "tokenID <= drop size");
      
 
         _perTokenMetadata[tokenID].redeemedImageUrl = imageUrl;
