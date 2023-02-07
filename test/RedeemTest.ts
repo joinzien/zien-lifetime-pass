@@ -199,6 +199,22 @@ describe("Redeem", () => {
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(3);     
   });
 
+  it("Reject the offer terms", async () => {
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1); 
+
+    await minterContract.connect(user).redeem(1);
+
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(2); 
+
+    await minterContract.setOfferTerms(1, editionCost);
+
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(3); 
+
+    await minterContract.connect(user).rejectOfferTerms(1);
+
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1);    
+  });
+
   it("Redeem an edition more than once", async () => {
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(1); 
 
