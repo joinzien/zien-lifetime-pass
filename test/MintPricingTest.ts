@@ -80,7 +80,7 @@ describe("Mint Pricing", () => {
       );      
     });
    
-    it("VIP users", async () => {
+    it("Allow list users", async () => {
       let user = (await ethers.getSigners())[2];
       let userAddress = await user.getAddress();
 
@@ -91,14 +91,14 @@ describe("Mint Pricing", () => {
       const mintCost3 = ethers.utils.parseEther("0.4");                  
       await minterContract.setPricing(200, 500, mintCost1, mintCost2, mintCost3, 10, 10, 10);  
 
-      await minterContract.setApprovedVIPMinters(1, [userAddress], [true]);
+      await minterContract.setAllowListMinters(1, [userAddress], [true]);
 
       await minterContract.setAllowedMinter(1);
 
-      // Check the VIP price
+      // Check the allow list price
       expect(await minterContract.price()).to.be.equal(ethers.utils.parseEther("0.1"));
 
-      // Mint as a VIP
+      // Mint as a member of the allow list
       await expect(minterContract.connect(user).mintEdition(userAddress, {
         value: ethers.utils.parseEther("0.1")
       }))

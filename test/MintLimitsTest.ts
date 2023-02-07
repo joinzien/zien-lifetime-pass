@@ -137,7 +137,7 @@ describe("Mint Limits", () => {
     expect(await minterContract.totalSupply()).to.be.equal(1);
   });
   
-  it("VIP mint limit", async () => {
+  it("Allow list mint limit", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -176,7 +176,7 @@ describe("Mint Limits", () => {
     const [_, s2] = await ethers.getSigners();
     await expect(minterContract.purchase()).to.be.revertedWith("Not for sale");
     expect(
-      await minterContract.setVIPSalePrice(ethers.utils.parseEther("0.2"))
+      await minterContract.setAllowListSalePrice(ethers.utils.parseEther("0.2"))
     ).to.emit(minterContract, "PriceChanged");
     expect(
       await minterContract
