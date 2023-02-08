@@ -449,7 +449,7 @@ contract ExpandedNFT is
     /**
       @param wallets A list of wallets
       @param tokenIDs A list of tokenId to reserve                                                                           
-      @dev Set various pricing related values
+      @dev Reserve an edition for a wallet
      */
     function reserve (address[] calldata wallets, uint256[] calldata tokenIDs) 
         external onlyOwner {  
