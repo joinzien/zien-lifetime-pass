@@ -454,7 +454,7 @@ contract ExpandedNFT is
       @dev Reserve an edition for a wallet
      */
     function reserve (address[] calldata wallets, uint256[] calldata tokenIDs)  external onlyOwner {  
-        require(wallets.length == tokenIDs.length, "Both lists must be the same length");
+        require(wallets.length == tokenIDs.length, "Lists length must match");
 
         for (uint256 i = 0; i < wallets.length; i++) {
             _reservations[tokenIDs[i]] = wallets[i];

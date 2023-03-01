@@ -80,7 +80,7 @@ describe("Reservations", () => {
   });
 
   it("Number of wallet and tokenID must match", async () => {
-    await expect(minterContract.reserve([artistAddress], [1, 2])).to.be.revertedWith("Both lists must be the same length");
+    await expect(minterContract.reserve([artistAddress], [1, 2])).to.be.revertedWith("Lists length must match");
   });
 
   it("Make a reservation", async () => {
