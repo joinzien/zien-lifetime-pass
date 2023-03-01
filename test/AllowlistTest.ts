@@ -73,7 +73,18 @@ describe("Allow List", () => {
 
   });
 
-  it("allow list membership", async () => {
+  it("Add a wallet to the allow list", async () => {
+    expect(await minterContract.name()).to.be.equal("Testing Token");
+    expect(await minterContract.symbol()).to.be.equal("TEST");
+
+    expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
+
+    // Add a wallet to the allow list
+    await minterContract.setAllowListMinters(1, [artistAddress], [true])
+    expect(await minterContract.allowListed(artistAddress)).to.be.equal(true);
+  });
+
+  it("Remove a wallet to the allow list", async () => {
     expect(await minterContract.name()).to.be.equal("Testing Token");
     expect(await minterContract.symbol()).to.be.equal("TEST");
 
