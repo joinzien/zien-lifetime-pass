@@ -73,10 +73,14 @@ describe("Allow List", () => {
 
   });
 
-  it("Add a wallet to the allow list", async () => {
-    expect(await minterContract.name()).to.be.equal("Testing Token");
-    expect(await minterContract.symbol()).to.be.equal("TEST");
+  it("Only the owner can update the allow list", async () => {
+    expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
 
+    // Try to add a wallet to the allow list
+    await expect(minterContract.connect(artist).setAllowListMinters(1, [artistAddress], [true])).to.be.revertedWith("Ownable: caller is not the owner");
+  });
+
+  it("Add a wallet to the allow list", async () => {
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
 
     // Add a wallet to the allow list
@@ -85,9 +89,6 @@ describe("Allow List", () => {
   });
 
   it("Remove a wallet to the allow list", async () => {
-    expect(await minterContract.name()).to.be.equal("Testing Token");
-    expect(await minterContract.symbol()).to.be.equal("TEST");
-
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
 
     // Add a wallet to the allow list
