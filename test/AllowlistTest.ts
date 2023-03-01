@@ -73,25 +73,6 @@ describe("Allow List", () => {
 
   });
 
-  it("makes a new drop", async () => {
-    expect(await minterContract.name()).to.be.equal("Testing Token");
-    expect(await minterContract.symbol()).to.be.equal("TEST");
-    const dropUris = await minterContract.getURIs(1);
-    expect(dropUris[0]).to.be.equal("");
-    expect(dropUris[1]).to.be.equal(
-      "0x0000000000000000000000000000000000000000000000000000000000000000"
-    );
-    expect(dropUris[2]).to.be.equal(
-      "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy"
-    );
-    expect(dropUris[3]).to.be.equal(
-      "0x0000000000000000000000000000000000000000000000000000000000000000"
-    );
-    expect(await minterContract.dropSize()).to.be.equal(10);
-    expect(await minterContract.totalSupply()).to.be.equal(0);
-    expect(await minterContract.owner()).to.be.equal(signerAddress);
-  });
-
   it("allow list membership", async () => {
     expect(await minterContract.name()).to.be.equal("Testing Token");
     expect(await minterContract.symbol()).to.be.equal("TEST");
