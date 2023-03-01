@@ -6,12 +6,12 @@
     
  */
 
-pragma solidity ^0.8.15;
+pragma solidity ^0.8.19;
 
 import {ClonesUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
 import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 
-import "./ExpandedNFT.sol";
+import {ExpandedNFT} from "./ExpandedNFT.sol";
 
 contract DropCreator {
     using CountersUpgradeable for CountersUpgradeable.Counter;
