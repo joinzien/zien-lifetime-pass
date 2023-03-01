@@ -126,6 +126,8 @@ contract ExpandedNFT is
     uint256 private _loadedMetadata;
 
     // reservation list
+    mapping(uint256 => address) private _reservations;
+
     uint256 private _reserveCount;
     mapping(uint256 => address) private _reserveAddress;
     mapping(uint256 => uint256) private _reserveTokenId;
@@ -451,13 +453,38 @@ contract ExpandedNFT is
       @param tokenIDs A list of tokenId to reserve                                                                           
       @dev Reserve an edition for a wallet
      */
-    function reserve (address[] calldata wallets, uint256[] calldata tokenIDs) 
-        external onlyOwner {  
+    function reserve (address[] calldata wallets, uint256[] calldata tokenIDs)  external onlyOwner {  
+        require(wallets.length == tokenIDs.length, "Lists length must match");
+
         for (uint256 i = 0; i < wallets.length; i++) {
-            _reserveAddress[_reserveCount] = wallets[i]; 
-            _reserveTokenId[_reserveCount] = tokenIDs[i];                
-            _reserveCount++;
+            _reservations[tokenIDs[i]] = wallets[i];
         }
+    }
+
+    /**
+      @param tokenIDs A list of tokenId to unreserve                                                                           
+      @dev Unreserve an edition for a wallet
+     */
+    function unreserve (uint256[] calldata tokenIDs) external onlyOwner {  
+        for (uint256 i = 0; i < tokenIDs.length; i++) {
+            _reservations[tokenIDs[i]] = address(0);
+        }
+    }
+
+    /**
+      @param tokenID the tokenId to check                                                                           
+      @dev Unreserve an edition for a wallet
+     */
+    function isReserved (uint256 tokenID) external view returns (bool) {  
+        return _reservations[tokenID] != address(0);
+    }
+
+    /**
+      @param tokenID the tokenId to check                                                                           
+      @dev Unreserve an edition for a wallet
+     */
+    function whoReserved (uint256 tokenID) external view returns (address) {  
+        return _reservations[tokenID];
     }
 
     /**
