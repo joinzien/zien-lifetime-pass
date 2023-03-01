@@ -12,7 +12,7 @@ import {
   ExpandedNFT,
 } from "../typechain";
 
-describe("AllowedMinters", () => {
+describe("Allow List", () => {
   let signer: SignerWithAddress;
   let signerAddress: string;
   let dynamicSketch: DropCreator;
