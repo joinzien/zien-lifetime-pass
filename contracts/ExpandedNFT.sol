@@ -109,6 +109,12 @@ contract ExpandedNFT is
 
         // Mint counts for each address
         mapping(address => uint256) mintCounts;                               
+
+        // Free Mints
+        mapping(address =>  uint256) freeMints;
+
+        // Reservation list
+        mapping(uint256 => address) reservations;
     }
 
     // metadata
@@ -125,9 +131,7 @@ contract ExpandedNFT is
 
     uint256 private _loadedMetadata;
 
-    // reservation list
-    mapping(uint256 => address) private _reservations;
-
+    // Reservation list
     uint256 private _reserveCount;
     mapping(uint256 => address) private _reserveAddress;
     mapping(uint256 => uint256) private _reserveTokenId;
@@ -457,7 +461,7 @@ contract ExpandedNFT is
         require(wallets.length == tokenIDs.length, "Lists length must match");
 
         for (uint256 i = 0; i < wallets.length; i++) {
-            _reservations[tokenIDs[i]] = wallets[i];
+            _pricing.reservations[tokenIDs[i]] = wallets[i];
         }
     }
 
@@ -467,7 +471,7 @@ contract ExpandedNFT is
      */
     function unreserve (uint256[] calldata tokenIDs) external onlyOwner {  
         for (uint256 i = 0; i < tokenIDs.length; i++) {
-            _reservations[tokenIDs[i]] = address(0);
+            _pricing.reservations[tokenIDs[i]] = address(0);
         }
     }
 
@@ -476,7 +480,7 @@ contract ExpandedNFT is
       @dev Unreserve an edition for a wallet
      */
     function isReserved (uint256 tokenID) external view returns (bool) {  
-        return _reservations[tokenID] != address(0);
+        return _pricing.reservations[tokenID] != address(0);
     }
 
     /**
@@ -484,7 +488,24 @@ contract ExpandedNFT is
       @dev Unreserve an edition for a wallet
      */
     function whoReserved (uint256 tokenID) external view returns (address) {  
-        return _reservations[tokenID];
+        return _pricing.reservations[tokenID];
+    }
+
+    /**
+      @param wallet The address of the wallet
+      @param freeMintLimit How many free mints should the wallet get                                                                           
+      @dev Set the number of freemints for a wallet
+     */
+    function setFreeMints (address wallet, uint256 freeMintLimit)  external onlyOwner {  
+        _pricing.freeMints[wallet] = freeMintLimit;
+    }
+
+    /**
+      @param wallet The address of the wallet                                                                       
+      @dev Check the number of fre mints a wallet has
+     */
+    function numberOfFreeMints (address wallet) external view returns (uint256) {  
+        return _pricing.freeMints[wallet];
     }
 
     /**
