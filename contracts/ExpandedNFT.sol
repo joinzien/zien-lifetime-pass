@@ -125,7 +125,10 @@ contract ExpandedNFT is
 
     uint256 private _loadedMetadata;
 
-    // reservation list
+    // Free Mints
+    mapping(address =>  uint256) private _freeMints;
+
+    // Reservation list
     mapping(uint256 => address) private _reservations;
 
     uint256 private _reserveCount;
@@ -485,6 +488,23 @@ contract ExpandedNFT is
      */
     function whoReserved (uint256 tokenID) external view returns (address) {  
         return _reservations[tokenID];
+    }
+
+    /**
+      @param wallet The address of the wallet
+      @param freeMintLimit How many free mints should the wallet get                                                                           
+      @dev Set the number of freemints for a wallet
+     */
+    function setFreeMints (address wallet, uint256 freeMintLimit)  external onlyOwner {  
+        _freeMints[wallet] = freeMintLimit;
+    }
+
+    /**
+      @param wallet The address of the wallet                                                                       
+      @dev Check the number of fre mints a wallet has
+     */
+    function numberOfFreeMints (address wallet) external view returns (uint256) {  
+        return _freeMints[wallet];
     }
 
     /**
