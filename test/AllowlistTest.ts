@@ -86,7 +86,21 @@ describe("Allow List", () => {
     // Add a wallet to the allow list
     await minterContract.setAllowListMinters(1, [artistAddress], [true])
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(true);
+    expect(await minterContract.getAllowListCount()).to.be.equal(1);
   });
+
+  it("Add a wallet twice to the allow list", async () => {
+    expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
+
+    // Add a wallet to the allow list
+    await minterContract.setAllowListMinters(1, [artistAddress], [true])
+    expect(await minterContract.allowListed(artistAddress)).to.be.equal(true);
+    expect(await minterContract.getAllowListCount()).to.be.equal(1);
+
+    await minterContract.setAllowListMinters(1, [artistAddress], [true])
+    expect(await minterContract.allowListed(artistAddress)).to.be.equal(true);
+    expect(await minterContract.getAllowListCount()).to.be.equal(1);
+  });  
 
   it("Remove a wallet to the allow list", async () => {
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
@@ -94,10 +108,31 @@ describe("Allow List", () => {
     // Add a wallet to the allow list
     await minterContract.setAllowListMinters(1, [artistAddress], [true])
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(true);
+    expect(await minterContract.getAllowListCount()).to.be.equal(1);    
 
     // Remove a wallet to the allow list
     await minterContract.setAllowListMinters(1, [artistAddress], [false])
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
+    expect(await minterContract.getAllowListCount()).to.be.equal(0);
   });
+
+  it("Remove a wallet more than once", async () => {
+    expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
+
+    // Add a wallet to the allow list
+    await minterContract.setAllowListMinters(1, [artistAddress], [true])
+    expect(await minterContract.allowListed(artistAddress)).to.be.equal(true);
+    expect(await minterContract.getAllowListCount()).to.be.equal(1);    
+
+    // Remove a wallet to the allow list
+    await minterContract.setAllowListMinters(1, [artistAddress], [false])
+    expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
+    expect(await minterContract.getAllowListCount()).to.be.equal(0);
+
+    // Remove a wallet to the allow list
+    await minterContract.setAllowListMinters(1, [artistAddress], [false])
+    expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
+    expect(await minterContract.getAllowListCount()).to.be.equal(0);
+  });  
 
 });
