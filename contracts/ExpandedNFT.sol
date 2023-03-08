@@ -104,6 +104,9 @@ contract ExpandedNFT is
         // Allow list Addresses allowed to mint edition
         mapping(address => bool) allowListMinters;
 
+        // The number on the allow list
+        uint256 allowListCount;
+
         // Who can currently mint
         WhoCanMint whoCanMint;
 
@@ -220,6 +223,11 @@ contract ExpandedNFT is
     function getAllowListMintLimit() public view returns (uint256) {
         return _pricing.allowListMintLimit;
     }
+
+    /// @dev returns the number on the allow list
+    function getAllowListCount() public view returns (uint256) {
+        return _pricing.allowListCount;
+    }    
 
     /// @dev returns the general mint limit
     function getGeneralMintLimit() public view returns (uint256) {
@@ -704,6 +712,14 @@ contract ExpandedNFT is
      */
     function setAllowListMinters(uint256 count, address[] calldata minter, bool[] calldata allowed) public onlyOwner {
         for (uint256 i = 0; i < count; i++) {
+            if (_pricing.allowListMinters[minter[i]] != allowed[i]) {
+                if (allowed[i] == true) {
+                    _pricing.allowListCount++;    
+                } else {
+                    _pricing.allowListCount--; 
+                }
+            }
+
             _pricing.allowListMinters[minter[i]] = allowed[i];
         }
     }
