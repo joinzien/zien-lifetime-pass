@@ -333,10 +333,6 @@ contract ExpandedNFT is
 
         require(_claimCount + recipients.length <= dropSize, "Over drop size");
 
-        if (_pricing.whoCanMint == WhoCanMint.ALLOWLIST) {
-            return _allowListMintEditions(recipients);
-        }
-
         return _mintEditions(recipients);
     }  
 
