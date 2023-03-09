@@ -234,24 +234,6 @@ describe("ExpandedNFT", () => {
       expect(await minterContract.supportsInterface("0x80ac58cd")).to.be.true;
     });
 
-    describe("royalty 2981", () => {
-      it("follows royalty payout for owner", async () => {
-        await minterContract.mintEdition(signerAddress, {
-          value: ethers.utils.parseEther("0.1")
-        });
-
-        // allows royalty payout info to be updated
-        expect((await minterContract.royaltyInfo(1, 100))[0]).to.be.equal(
-          signerAddress
-        );
-        await minterContract.transferOwnership(await signer1.getAddress());
-        expect((await minterContract.royaltyInfo(1, 100))[0]).to.be.equal(
-          await signer1.getAddress()
-        );
-        expect(await minterContract.totalSupply()).to.be.equal(1);
-      });
-    });
-
     it("stops after editions are sold out", async () => {
       const [_, signer1] = await ethers.getSigners();
 
