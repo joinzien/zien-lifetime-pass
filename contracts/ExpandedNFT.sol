@@ -115,11 +115,6 @@ contract ExpandedNFT is
 
     uint256 private _loadedMetadata;
 
-    // Reservation list
-    uint256 private _reserveCount;
-    mapping(uint256 => address) private _reserveAddress;
-    mapping(uint256 => uint256) private _reserveTokenId;
-
     mapping(uint256 => bool) private _tokenClaimed; 
     uint256 private _claimCount; 
     uint256 private _currentIndex;
@@ -335,58 +330,6 @@ contract ExpandedNFT is
 
         return _mintEditions(recipients);
     }  
-
-    /**
-      @dev Private function to mint without any access checks.
-           Called by the public edition minting functions.
-     */
-    function _allowListMintEditions(address[] memory recipients)
-        internal
-        returns (uint256)
-    {
-        address currentMinter = msg.sender;
-
-        uint256 unclaimed = 0;
-        uint256 firstUnclaimed = _reserveCount;
-
-        for (uint256 r = 0; r < _reserveCount; r++) {
-            if (_reserveAddress[r] == currentMinter) {
-                uint256 id = _reserveTokenId[r];
-
-                if (_tokenClaimed[id] != true) {
-                    if (r < firstUnclaimed) {
-                       firstUnclaimed = r; 
-                    }
-
-                    unclaimed++;
-                }
-            }
-        }
-
-        require(unclaimed >= recipients.length, "Can not mint all editions");
-
-        uint256 idToMint = 1;
-
-        uint256 reservationCounter = firstUnclaimed;
-        for (uint256 i = 0; i < recipients.length; i++) {
-            while (_reserveAddress[reservationCounter] != currentMinter) {
-                reservationCounter++;
-            }  
-
-            idToMint = _reserveTokenId[reservationCounter];
-
-            _mint(recipients[i], idToMint);
-
-            _perTokenMetadata[idToMint].editionState = ExpandedNFTStates.MINTED;
-            _tokenClaimed[idToMint] = true;
-            _pricing.mintCounts[currentMinter]++;
-            _claimCount++;
-
-            reservationCounter++;
-        }
-
-        return idToMint;            
-    }    
 
     /**
       @dev Private function to mint without any access checks.
