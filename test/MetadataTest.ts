@@ -12,7 +12,7 @@ import {
   ExpandedNFT
 } from "../typechain";
 
-describe("LoadMetadata", () => {
+describe("Metadata", () => {
   let signer: SignerWithAddress;
   let signerAddress: string;
 
