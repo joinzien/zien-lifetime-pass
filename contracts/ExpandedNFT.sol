@@ -60,6 +60,9 @@ contract ExpandedNFT is
     struct PerToken { 
         ExpandedNFTStates editionState;
 
+        // Who reserved this
+        address reservedBy;
+
         // Redemption price in _paymentTokenERC20
         uint256 editionFee; 
 
@@ -99,9 +102,6 @@ contract ExpandedNFT is
 
         // Free Mints
         mapping(address =>  uint256) freeMints;
-
-        // Reservation list
-        mapping(uint256 => address) reservations;
     }
 
     // Artists wallet address
@@ -400,7 +400,7 @@ contract ExpandedNFT is
         require(wallets.length == tokenIDs.length, "Lists length must match");
 
         for (uint256 i = 0; i < wallets.length; i++) {
-            _pricing.reservations[tokenIDs[i]] = wallets[i];
+            _perTokenMetadata[tokenIDs[i]].reservedBy = wallets[i];
         }
     }
 
@@ -410,7 +410,7 @@ contract ExpandedNFT is
      */
     function unreserve (uint256[] calldata tokenIDs) external onlyOwner {  
         for (uint256 i = 0; i < tokenIDs.length; i++) {
-            _pricing.reservations[tokenIDs[i]] = address(0);
+            _perTokenMetadata[tokenIDs[i]].reservedBy = address(0);
         }
     }
 
@@ -419,7 +419,7 @@ contract ExpandedNFT is
       @dev Unreserve an edition for a wallet
      */
     function isReserved (uint256 tokenID) external view returns (bool) {  
-        return _pricing.reservations[tokenID] != address(0);
+        return _perTokenMetadata[tokenID].reservedBy != address(0);
     }
 
     /**
@@ -427,7 +427,7 @@ contract ExpandedNFT is
       @dev Unreserve an edition for a wallet
      */
     function whoReserved (uint256 tokenID) external view returns (address) {  
-        return _pricing.reservations[tokenID];
+        return _perTokenMetadata[tokenID].reservedBy;
     }
 
     /**
