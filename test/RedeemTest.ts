@@ -80,25 +80,13 @@ describe("Redeem", () => {
       TestCash.address
     )) as TestCash;
 
-
-    await minterContract.loadMetadataChunk( 
-      1, 10,     
-      ["This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all",
-        "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all", "This is a testing token for all"],
-      ["https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
-        "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
-        "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
-        "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
-        "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy"],
-      ["0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "0x0000000000000000000000000000000000000000000000000000000000000000"],
-      ["", "", "", "", "", "", "", "", "", ""],
-      ["0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "0x0000000000000000000000000000000000000000000000000000000000000000"]
+    await minterContract.loadMetadataChunk(
+      1, 10,
+      ["http://example.com/token/01", "http://example.com/token/02", 
+       "http://example.com/token/03", "http://example.com/token/04", 
+       "http://example.com/token/05", "http://example.com/token/06", 
+       "http://example.com/token/07", "http://example.com/token/08", 
+       "http://example.com/token/09", "http://example.com/token/10"]
     );
 
     await minterContract.setPricing(10, 500, 10, 10, 1, 1);
@@ -142,17 +130,8 @@ describe("Redeem", () => {
 
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(4); 
 
-    const description = "Redeemed version of the description";
-
-    const animationUrl = "http://redeemed.com/animation.mp4";
-    const animationHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
-    const imageUrl = "";
-    const imageHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
-    const conditionReportUrl = "http://condiitionreport.com/report.pdf";
-    const conditionReportHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
-    await minterContract.productionComplete(1, description, animationUrl, animationHash, imageUrl, imageHash, conditionReportUrl, conditionReportHash);
+    const redeemedUrl = "http://example.com/redempted/token04/";
+    await minterContract.productionComplete(1, redeemedUrl);
 
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(5); 
 
@@ -245,17 +224,8 @@ describe("Redeem", () => {
 
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(4); 
 
-    const description = "Redeemed version of the description";
-
-    const animationUrl = "http://redeemed.com/animation.mp4";
-    const animationHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
-    const imageUrl = "";
-    const imageHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
-    const conditionReportUrl = "http://condiitionreport.com/report.pdf";
-    const conditionReportHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
-    await minterContract.productionComplete(1, description, animationUrl, animationHash, imageUrl, imageHash, conditionReportUrl, conditionReportHash);
+    const redeemedUrl = "http://example.com/redempted/token04/";
+    await minterContract.productionComplete(1, redeemedUrl);
 
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(5); 
 
@@ -284,31 +254,19 @@ describe("Redeem", () => {
 
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(4); 
 
-    const description = "Redeemed version of the description";
-
-    const animationUrl = "http://redeemed.com/animation.mp4";
-    const animationHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
-    const imageUrl = "";
-    const imageHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
-    const conditionReportUrl = "http://condiitionreport.com/report.pdf";
-    const conditionReportHash = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
-    await minterContract.productionComplete(1, description, animationUrl, animationHash, imageUrl, imageHash, conditionReportUrl, conditionReportHash);
+    const redeemedUrl = "http://example.com/redempted/token04/";
+    await minterContract.productionComplete(1, redeemedUrl);
 
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(5); 
 
-    const startURIs = await minterContract.connect(user).getURIs(1);
     const startTokenURI = await minterContract.connect(user).tokenURI(1);
 
     await minterContract.connect(user).acceptDelivery(1);
 
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(6); 
 
-    const endURIs = await minterContract.connect(user).getURIs(1);
     const endTokenURI = await minterContract.connect(user).tokenURI(1);
     
-    expect(startURIs).to.not.equal(endURIs);
     expect(startTokenURI).to.not.equal(endTokenURI);    
   });  
 

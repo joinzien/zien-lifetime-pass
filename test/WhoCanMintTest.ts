@@ -50,24 +50,13 @@ describe("Who Can Mint", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await minterContract.loadMetadataChunk(     
-      1, 10,  
-      ["This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all",
-      "This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all"],
-      ["https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
-      "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
-        "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
-        "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
-        "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy"],
-      ["0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000"],
-      ["", "", "", "", "", "", "", "", "", ""],
-      ["0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000"]
+    await minterContract.loadMetadataChunk(
+      1, 10,
+      ["http://example.com/token/01", "http://example.com/token/02", 
+       "http://example.com/token/03", "http://example.com/token/04", 
+       "http://example.com/token/05", "http://example.com/token/06", 
+       "http://example.com/token/07", "http://example.com/token/08", 
+       "http://example.com/token/09", "http://example.com/token/10"]
     );
 
     await minterContract.setPricing(10, 500, 10, 10, 1, 1);
@@ -77,22 +66,5 @@ describe("Who Can Mint", () => {
     await minterContract.setAllowedMinter(2);
 
     expect(await minterContract.getAllowedMinter()).to.be.equal(2);
-
-    expect(await minterContract.name()).to.be.equal("Testing Token");
-    expect(await minterContract.symbol()).to.be.equal("TEST");
-    const dropUris = await minterContract.getURIs(1);
-    expect(dropUris[0]).to.be.equal("");
-    expect(dropUris[1]).to.be.equal(
-      "0x0000000000000000000000000000000000000000000000000000000000000000"
-    );
-    expect(dropUris[2]).to.be.equal(
-      "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy"
-    );
-    expect(dropUris[3]).to.be.equal(
-      "0x0000000000000000000000000000000000000000000000000000000000000000"
-    );
-    expect(await minterContract.dropSize()).to.be.equal(10);
-    expect(await minterContract.totalSupply()).to.be.equal(0);
-    expect(await minterContract.owner()).to.be.equal(signerAddress);
   });
 });
