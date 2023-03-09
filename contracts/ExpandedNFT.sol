@@ -273,9 +273,6 @@ contract ExpandedNFT is
      */
 
     function purchase() external payable returns (uint256) {
-        uint256 currentPrice = price();
-        emit EditionSold(currentPrice, msg.sender);
-
         address[] memory toMint = new address[](1);
         toMint[0] = msg.sender;
 
@@ -416,6 +413,9 @@ contract ExpandedNFT is
             _tokenClaimed[_currentIndex] = true;
             _pricing.mintCounts[currentMinter]++;
             _claimCount++;
+
+            uint256 currentPrice = price();
+            emit EditionSold(currentPrice, msg.sender);
 
             emit MetadataUpdate(_currentIndex);
         }

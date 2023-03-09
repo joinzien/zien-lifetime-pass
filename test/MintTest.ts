@@ -126,6 +126,11 @@ describe("Mint", () => {
     await expect(minterContract.connect(user).mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.be.revertedWith("Needs to be an allowed minter");
   });
 
+  it("Can mint when mint is open to everyone", async () => {
+    await minterContract.setAllowedMinter(2);
+
+    await expect(minterContract.connect(user).mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.emit(minterContract, "EditionSold");
+  });
 
   it("General mint limit", async () => {
     expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
