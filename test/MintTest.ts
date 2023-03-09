@@ -81,6 +81,17 @@ describe("Mint", () => {
     expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);  
   });
 
+  it("Mint via mintEdition", async () => {
+    await minterContract.setAllowedMinter(2);
+
+    await minterContract.mintEdition(signerAddress, { value: ethers.utils.parseEther("0.1") });
+ 
+    expect(await minterContract.totalSupply()).to.be.equal(1);
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);  
+  });
+
   it("General mint limit", async () => {
     expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
     expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
