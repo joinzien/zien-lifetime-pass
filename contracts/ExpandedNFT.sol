@@ -301,7 +301,22 @@ contract ExpandedNFT is
         external payable override returns (uint256)
     {
         return _mintEditionsBody(recipients);
-    }   
+    } 
+
+     /**
+      @param to address to send the newly minted edition to
+      @param count how many editions to mint      
+      @dev This mints one edition to the given address by an allowed minter on the edition instance.
+     */
+    function mintMulipleEditions(address to, uint256 count) external payable returns (uint256) {
+        address[] memory toMint = new address[](count);
+
+        for (uint256 r = 0; r < count; r++) {
+            toMint[r] = to;
+        }
+
+        return _mintEditionsBody(toMint);        
+    }      
 
     /**
       @param recipients list of addresses to send the newly minted editions to
