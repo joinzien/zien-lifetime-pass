@@ -15,16 +15,22 @@ import {
 describe("ArtistWallet", () => {
   let signer: SignerWithAddress;
   let signerAddress: string;
+  
+  let artist: SignerWithAddress;
+  let artistAddress: string;
+  
+  let newArtist: SignerWithAddress;
+  let newArtistAddress: string;
+
   let dynamicSketch: DropCreator;
+  let minterContract: ExpandedNFT;
 
   beforeEach(async () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
       "ExpandedNFT",
     ]);
-    const dynamicMintableAddress = (
-      await deployments.get("ExpandedNFT")
-    ).address;
+
     dynamicSketch = (await ethers.getContractAt(
       "DropCreator",
       DropCreator.address
@@ -32,15 +38,13 @@ describe("ArtistWallet", () => {
 
     signer = (await ethers.getSigners())[0];
     signerAddress = await signer.getAddress();
-  });
 
-  it("makes a new drop", async () => {
-    const artist = (await ethers.getSigners())[1];
-    const artistAddress = await artist.getAddress();
+    artist = (await ethers.getSigners())[1];
+    artistAddress = await artist.getAddress();
 
-    const newArtist = (await ethers.getSigners())[2];
-    const newArtistAddress = await newArtist.getAddress();
-
+    newArtist = (await ethers.getSigners())[2];
+    newArtistAddress = await newArtist.getAddress();
+    
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -48,54 +52,36 @@ describe("ArtistWallet", () => {
       10)
 
     const dropResult = await dynamicSketch.getDropAtId(0);
-    const minterContract = (await ethers.getContractAt(
+    minterContract = (await ethers.getContractAt(
       "ExpandedNFT",
       dropResult
     )) as ExpandedNFT;
 
-    await minterContract.loadMetadataChunk(  
-      1, 10, 
-      ["This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all",
-      "This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all","This is a testing token for all"],
-      ["https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
-      "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
-        "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
-        "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy",
-        "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy", "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy"],
-      ["0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000"],
-      ["", "", "", "", "", "", "", "", "", ""],
-      ["0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000"]
+    await minterContract.loadMetadataChunk(
+      1, 10,
+      ["http://example.com/token/01", "http://example.com/token/02", 
+       "http://example.com/token/03", "http://example.com/token/04", 
+       "http://example.com/token/05", "http://example.com/token/06", 
+       "http://example.com/token/07", "http://example.com/token/08", 
+       "http://example.com/token/09", "http://example.com/token/10"]
     );
 
-    minterContract.setPricing(10, 500, 10, 10, 1, 1);
+    minterContract.setPricing(10, 500, 10, 10, 1, 1);    
+  });
 
+  it("The artist wallet address is returned", async () => {
+    expect(await minterContract.getArtistWallet()).to.be.equal(artistAddress);
+  });
+
+  it("Update the artist wallet", async () => {
     expect(await minterContract.getArtistWallet()).to.be.equal(artistAddress);
 
     minterContract.setArtistWallet(newArtistAddress);
     
     expect(await minterContract.getArtistWallet()).to.be.equal(newArtistAddress);
-
-    expect(await minterContract.name()).to.be.equal("Testing Token");
-    expect(await minterContract.symbol()).to.be.equal("TEST");
-    const dropUris = await minterContract.getURIs(1);
-    expect(dropUris[0]).to.be.equal("");
-    expect(dropUris[1]).to.be.equal(
-      "0x0000000000000000000000000000000000000000000000000000000000000000"
-    );
-    expect(dropUris[2]).to.be.equal(
-      "https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy"
-    );
-    expect(dropUris[3]).to.be.equal(
-      "0x0000000000000000000000000000000000000000000000000000000000000000"
-    );
-    expect(await minterContract.dropSize()).to.be.equal(10);
-    expect(await minterContract.totalSupply()).to.be.equal(0); 
-    expect(await minterContract.owner()).to.be.equal(signerAddress);
   });
+
+  it("Only the owner can update the artist address", async () => {   
+    await expect(minterContract.connect(newArtist).setArtistWallet(newArtistAddress)).to.be.revertedWith("Ownable: caller is not the owner");
+  });  
 });
