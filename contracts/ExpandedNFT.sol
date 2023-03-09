@@ -28,7 +28,7 @@ contract ExpandedNFT is
     IERC2981Upgradeable,
     OwnableUpgradeable
 {
-    enum WhoCanMint{ ONLY_OWNER, ALLOWLIST, ANYONE }
+    enum WhoCanMint{ NOT_FOR_SALE, ALLOWLIST, ANYONE }
 
     enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, PRODUCTION_COMPLETE, REDEEMED }
     
@@ -134,7 +134,7 @@ contract ExpandedNFT is
 
     // Global constructor for factory
     constructor() {
-        _pricing.whoCanMint = WhoCanMint.ONLY_OWNER;
+        _pricing.whoCanMint = WhoCanMint.NOT_FOR_SALE;
 
         _disableInitializers();
     }
@@ -273,9 +273,6 @@ contract ExpandedNFT is
      */
 
     function purchase() external payable returns (uint256) {
-        uint256 currentPrice = price();
-        emit EditionSold(currentPrice, msg.sender);
-
         address[] memory toMint = new address[](1);
         toMint[0] = msg.sender;
 
@@ -326,7 +323,6 @@ contract ExpandedNFT is
         internal returns (uint256)
     {
         require(_loadedMetadata >= dropSize, "Not all metadata loaded");
-
         require(_isAllowedToMint(), "Needs to be an allowed minter");
 
         uint256 currentPrice = price();
@@ -336,10 +332,6 @@ contract ExpandedNFT is
         require((_pricing.mintCounts[msg.sender] + recipients.length - 1) < _currentMintLimit(), "Exceeded mint limit");
 
         require(_claimCount + recipients.length <= dropSize, "Over drop size");
-
-        if (_pricing.whoCanMint == WhoCanMint.ALLOWLIST) {
-            return _allowListMintEditions(recipients);
-        }
 
         return _mintEditions(recipients);
     }  
@@ -417,6 +409,9 @@ contract ExpandedNFT is
             _tokenClaimed[_currentIndex] = true;
             _pricing.mintCounts[currentMinter]++;
             _claimCount++;
+
+            uint256 currentPrice = price();
+            emit EditionSold(currentPrice, msg.sender);
 
             emit MetadataUpdate(_currentIndex);
         }
@@ -607,10 +602,6 @@ contract ExpandedNFT is
             }            
         }
 
-        if (owner() == msg.sender) {
-            return true;
-        }
-
         return false;
     }
 
@@ -684,7 +675,7 @@ contract ExpandedNFT is
       @dev Sets the types of users who is allowed to mint.
      */
     function setAllowedMinter(WhoCanMint minters) public onlyOwner {
-        require(((minters >= WhoCanMint.ONLY_OWNER) && (minters <= WhoCanMint.ANYONE)), "Needs to be a valid minter type");
+        require(((minters >= WhoCanMint.NOT_FOR_SALE) && (minters <= WhoCanMint.ANYONE)), "Needs to be a valid minter type");
 
         _pricing.whoCanMint = minters;
         emit WhoCanMintChanged(minters);
