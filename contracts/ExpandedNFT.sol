@@ -45,6 +45,18 @@ contract ExpandedNFT is
     event ProductionComplete(uint256 tokenId);
     event DeliveryAccepted(uint256 tokenId);
 
+    /// @title EIP-721 Metadata Update Extension
+
+    /// @dev This event emits when the metadata of a token is changed.
+    /// So that the third-party platforms such as NFT market could
+    /// timely update the images and related attributes of the NFT.
+    event MetadataUpdate(uint256 _tokenId);
+
+    /// @dev This event emits when the metadata of a range of tokens is changed.
+    /// So that the third-party platforms such as NFT market could
+    /// timely update the images and related attributes of the NFTs.    
+    event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId); 
+
     struct PerToken { 
         ExpandedNFTStates editionState;
 
@@ -390,6 +402,8 @@ contract ExpandedNFT is
             _tokenClaimed[_currentIndex] = true;
             _pricing.mintCounts[currentMinter]++;
             _claimCount++;
+
+            emit MetadataUpdate(_currentIndex);
         }
 
         return _currentIndex;        
@@ -715,6 +729,8 @@ contract ExpandedNFT is
                 _perTokenMetadata[index].metadataLoaded = true;
                _loadedMetadata++; 
             }
+
+            emit MetadataUpdate(index);
         }
     }
 
@@ -734,6 +750,8 @@ contract ExpandedNFT is
         require(tokenID <= dropSize, "tokenID <= drop size");
 
         _perTokenMetadata[tokenID].redeemedMetadataUrl = _redeemedMetadataUrl;
+
+        emit MetadataUpdate(tokenID);
     }
 
     /// Returns the number of editions allowed to mint
@@ -830,6 +848,7 @@ contract ExpandedNFT is
         _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.REDEEMED;
 
         emit OfferRejected(tokenId);
+        emit MetadataUpdate(tokenId);
     }
 
     /**
