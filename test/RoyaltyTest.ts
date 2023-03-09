@@ -85,4 +85,12 @@ describe("Royalty", () => {
     );
     expect(await minterContract.totalSupply()).to.be.equal(1);
   });
+
+  it("Get royalty BPS", async () => {
+    expect((await minterContract.getRoyaltyBPS())).to.be.equal(10);
+  });  
+
+  it("Get split BPS", async () => {
+    expect((await minterContract.getSplitBPS())).to.be.equal(500);
+  });    
 });
