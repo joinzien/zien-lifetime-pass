@@ -606,10 +606,6 @@ contract ExpandedNFT is
             }            
         }
 
-        if (owner() == msg.sender) {
-            return true;
-        }
-
         return false;
     }
 

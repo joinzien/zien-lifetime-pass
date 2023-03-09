@@ -73,7 +73,7 @@ describe("Mint", () => {
   it("Mint via purchase", async () => {
     await minterContract.setAllowedMinter(2);
 
-    await minterContract.purchase({ value: ethers.utils.parseEther("0.1") });
+    expect(await minterContract.purchase({ value: ethers.utils.parseEther("0.1") })).to.emit(minterContract, "EditionSold");
  
     expect(await minterContract.totalSupply()).to.be.equal(1);
     expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
@@ -84,7 +84,7 @@ describe("Mint", () => {
   it("Mint via mintEdition", async () => {
     await minterContract.setAllowedMinter(2);
 
-    await minterContract.mintEdition(signerAddress, { value: ethers.utils.parseEther("0.1") });
+    expect(await minterContract.mintEdition(signerAddress, { value: ethers.utils.parseEther("0.1") })).to.emit(minterContract, "EditionSold");
  
     expect(await minterContract.totalSupply()).to.be.equal(1);
     expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
@@ -95,7 +95,7 @@ describe("Mint", () => {
   it("Mint via mintEditions", async () => {
     await minterContract.setAllowedMinter(2);
 
-    await minterContract.mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") });
+    expect(await minterContract.mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.emit(minterContract, "EditionSold");
  
     expect(await minterContract.totalSupply()).to.be.equal(1);
     expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
@@ -106,7 +106,7 @@ describe("Mint", () => {
   it("Mint via mintMultipleEditions", async () => {
     await minterContract.setAllowedMinter(2);
 
-    await minterContract.mintMulipleEditions(signerAddress, 1, { value: ethers.utils.parseEther("0.1") });
+    expect(await minterContract.mintMulipleEditions(signerAddress, 1, { value: ethers.utils.parseEther("0.1") })).to.emit(minterContract, "EditionSold");
  
     expect(await minterContract.totalSupply()).to.be.equal(1);
     expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
@@ -117,8 +117,15 @@ describe("Mint", () => {
   it("Can not mint while the drop is not for sale", async () => {
     await minterContract.setAllowedMinter(0);
 
-    await expect(minterContract.mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.be.revertedWith("Not for sale");
+    await expect(minterContract.connect(user).mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.be.revertedWith("Needs to be an allowed minter");
   });
+
+  it("Can not mint when not on the allow list", async () => {
+    await minterContract.setAllowedMinter(1);
+
+    await expect(minterContract.connect(user).mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.be.revertedWith("Needs to be an allowed minter");
+  });
+
 
   it("General mint limit", async () => {
     expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
@@ -127,7 +134,7 @@ describe("Mint", () => {
     
     expect(await minterContract.canMint(signerAddress)).to.be.equal(false);  
 
-    await expect(minterContract.purchase()).to.be.revertedWith("Not for sale");
+    await expect(minterContract.purchase()).to.be.revertedWith("Needs to be an allowed minter");
     
     expect(
       await minterContract.setSalePrice(ethers.utils.parseEther("0.2"))
