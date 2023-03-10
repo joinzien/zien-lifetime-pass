@@ -222,12 +222,6 @@ contract ExpandedNFT is
         return (currentMintLimit > 0);   
     }
 
-
-    /// @dev returns who can mint
-    function getWhoCanMint() public view returns (uint256) {
-        return uint256(_pricing.whoCanMint);
-    }
-
     /// @dev returns if the address is on the allow list
     function allowListed(address wallet) public view returns (bool) {
         return _pricing.allowListMinters[wallet];
