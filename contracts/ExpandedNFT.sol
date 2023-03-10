@@ -30,7 +30,7 @@ contract ExpandedNFT is
 {
     enum WhoCanMint{ NOT_FOR_SALE, ALLOWLIST, ANYONE }
 
-    enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, PRODUCTION_COMPLETE, REDEEMED }
+    enum ExpandedNFTStates{ UNMINTED, RESERVED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, PRODUCTION_COMPLETE, REDEEMED }
     
     event PriceChanged(uint256 amount);
     event EditionSold(uint256 price, address owner);
@@ -58,7 +58,10 @@ contract ExpandedNFT is
     event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId); 
 
     struct PerToken { 
-        ExpandedNFTStates editionState;
+        ExpandedNFTStates state;
+
+        // Who reserved this
+        address reservedBy;
 
         // Redemption price in _paymentTokenERC20
         uint256 editionFee; 
@@ -99,9 +102,6 @@ contract ExpandedNFT is
 
         // Free Mints
         mapping(address =>  uint256) freeMints;
-
-        // Reservation list
-        mapping(uint256 => address) reservations;
     }
 
     // Artists wallet address
@@ -114,11 +114,6 @@ contract ExpandedNFT is
     uint256 public dropSize;
 
     uint256 private _loadedMetadata;
-
-    // Reservation list
-    uint256 private _reserveCount;
-    mapping(uint256 => address) private _reserveAddress;
-    mapping(uint256 => uint256) private _reserveTokenId;
 
     mapping(uint256 => bool) private _tokenClaimed; 
     uint256 private _claimCount; 
@@ -227,12 +222,6 @@ contract ExpandedNFT is
         return (currentMintLimit > 0);   
     }
 
-
-    /// @dev returns who can mint
-    function getWhoCanMint() public view returns (uint256) {
-        return uint256(_pricing.whoCanMint);
-    }
-
     /// @dev returns if the address is on the allow list
     function allowListed(address wallet) public view returns (bool) {
         return _pricing.allowListMinters[wallet];
@@ -259,7 +248,7 @@ contract ExpandedNFT is
         require(tokenId > 0, "tokenID > 0");
         require(tokenId <= dropSize, "tokenID <= drop size");
 
-        return uint256(_perTokenMetadata[tokenId].editionState);
+        return uint256(_perTokenMetadata[tokenId].state);
     }
 
     /**
@@ -340,58 +329,6 @@ contract ExpandedNFT is
       @dev Private function to mint without any access checks.
            Called by the public edition minting functions.
      */
-    function _allowListMintEditions(address[] memory recipients)
-        internal
-        returns (uint256)
-    {
-        address currentMinter = msg.sender;
-
-        uint256 unclaimed = 0;
-        uint256 firstUnclaimed = _reserveCount;
-
-        for (uint256 r = 0; r < _reserveCount; r++) {
-            if (_reserveAddress[r] == currentMinter) {
-                uint256 id = _reserveTokenId[r];
-
-                if (_tokenClaimed[id] != true) {
-                    if (r < firstUnclaimed) {
-                       firstUnclaimed = r; 
-                    }
-
-                    unclaimed++;
-                }
-            }
-        }
-
-        require(unclaimed >= recipients.length, "Can not mint all editions");
-
-        uint256 idToMint = 1;
-
-        uint256 reservationCounter = firstUnclaimed;
-        for (uint256 i = 0; i < recipients.length; i++) {
-            while (_reserveAddress[reservationCounter] != currentMinter) {
-                reservationCounter++;
-            }  
-
-            idToMint = _reserveTokenId[reservationCounter];
-
-            _mint(recipients[i], idToMint);
-
-            _perTokenMetadata[idToMint].editionState = ExpandedNFTStates.MINTED;
-            _tokenClaimed[idToMint] = true;
-            _pricing.mintCounts[currentMinter]++;
-            _claimCount++;
-
-            reservationCounter++;
-        }
-
-        return idToMint;            
-    }    
-
-    /**
-      @dev Private function to mint without any access checks.
-           Called by the public edition minting functions.
-     */
     function _mintEditions(address[] memory recipients)
         internal
         returns (uint256)
@@ -405,7 +342,7 @@ contract ExpandedNFT is
 
             _mint(recipients[i], _currentIndex);
 
-            _perTokenMetadata[_currentIndex].editionState = ExpandedNFTStates.MINTED;
+            _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
             _tokenClaimed[_currentIndex] = true;
             _pricing.mintCounts[currentMinter]++;
             _claimCount++;
@@ -457,7 +394,10 @@ contract ExpandedNFT is
         require(wallets.length == tokenIDs.length, "Lists length must match");
 
         for (uint256 i = 0; i < wallets.length; i++) {
-            _pricing.reservations[tokenIDs[i]] = wallets[i];
+            require(_perTokenMetadata[tokenIDs[i]].state == ExpandedNFTStates.UNMINTED, "Needs to be unminted");
+
+            _perTokenMetadata[tokenIDs[i]].reservedBy = wallets[i];
+            _perTokenMetadata[tokenIDs[i]].state = ExpandedNFTStates.RESERVED;
         }
     }
 
@@ -467,7 +407,10 @@ contract ExpandedNFT is
      */
     function unreserve (uint256[] calldata tokenIDs) external onlyOwner {  
         for (uint256 i = 0; i < tokenIDs.length; i++) {
-            _pricing.reservations[tokenIDs[i]] = address(0);
+            require(_perTokenMetadata[tokenIDs[i]].state == ExpandedNFTStates.RESERVED, "Not reserved");
+
+            _perTokenMetadata[tokenIDs[i]].reservedBy = address(0);
+            _perTokenMetadata[tokenIDs[i]].state = ExpandedNFTStates.UNMINTED;
         }
     }
 
@@ -476,7 +419,7 @@ contract ExpandedNFT is
       @dev Unreserve an edition for a wallet
      */
     function isReserved (uint256 tokenID) external view returns (bool) {  
-        return _pricing.reservations[tokenID] != address(0);
+        return _perTokenMetadata[tokenID].reservedBy != address(0);
     }
 
     /**
@@ -484,7 +427,7 @@ contract ExpandedNFT is
       @dev Unreserve an edition for a wallet
      */
     function whoReserved (uint256 tokenID) external view returns (address) {  
-        return _pricing.reservations[tokenID];
+        return _perTokenMetadata[tokenID].reservedBy;
     }
 
     /**
@@ -572,17 +515,21 @@ contract ExpandedNFT is
     function withdraw() external onlyOwner {
         uint256 currentBalance = address(this).balance;
         if (currentBalance > 0) {
-            uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
-            uint256 artistFee = currentBalance - platformFee;
+            if (_artistWallet != address(0x0)) {
+                uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
+                uint256 artistFee = currentBalance - platformFee;
 
-            AddressUpgradeable.sendValue(payable(owner()), platformFee);
-            AddressUpgradeable.sendValue(payable(_artistWallet), artistFee);
+                AddressUpgradeable.sendValue(payable(owner()), platformFee);
+                AddressUpgradeable.sendValue(payable(_artistWallet), artistFee);            
+            } else {
+                AddressUpgradeable.sendValue(payable(owner()), currentBalance);
+            } 
         }
 
         if (address(_paymentTokenERC20) != address(0x0)) {
             uint256 currentBalanceERC20 = _paymentTokenERC20.balanceOf(address(this));
             if (currentBalanceERC20 > 0) {
-                _paymentTokenERC20.transfer(owner(), currentBalanceERC20);
+                _paymentTokenERC20.transfer(owner(), currentBalanceERC20);       
             }
         }
     }
@@ -778,9 +725,9 @@ contract ExpandedNFT is
         require(_exists(tokenId), "No token");
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
 
-        require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.MINTED), "You currently can not redeem");
+        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.MINTED), "You currently can not redeem");
 
-        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.REDEEM_STARTED;
+        _perTokenMetadata[tokenId].state = ExpandedNFTStates.REDEEM_STARTED;
         emit RedeemStarted(tokenId, _msgSender());
     }
 
@@ -788,17 +735,17 @@ contract ExpandedNFT is
         require(_exists(tokenId), "No token");
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
 
-        require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEM_STARTED), "You currently can not redeem");
+        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.REDEEM_STARTED), "You currently can not redeem");
 
-        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.MINTED;
+        _perTokenMetadata[tokenId].state = ExpandedNFTStates.MINTED;
         emit RedeemAborted(tokenId, _msgSender());
     }
 
     function setOfferTerms(uint256 tokenId, uint256 fee) public onlyOwner {
         require(_exists(tokenId), "No token");        
-        require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEM_STARTED), "Wrong state");
+        require((_perTokenMetadata[tokenId].state== ExpandedNFTStates.REDEEM_STARTED), "Wrong state");
 
-        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.SET_OFFER_TERMS;
+        _perTokenMetadata[tokenId].state = ExpandedNFTStates.SET_OFFER_TERMS;
         _perTokenMetadata[tokenId].editionFee = fee;
 
         emit OfferTermsSet(tokenId);
@@ -808,9 +755,9 @@ contract ExpandedNFT is
         require(_exists(tokenId), "No token");        
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
 
-        require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.SET_OFFER_TERMS), "You currently can not redeem");
+        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.SET_OFFER_TERMS), "You currently can not redeem");
 
-        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.MINTED;
+        _perTokenMetadata[tokenId].state = ExpandedNFTStates.MINTED;
 
         emit OfferRejected(tokenId);
     }
@@ -819,7 +766,7 @@ contract ExpandedNFT is
         require(_exists(tokenId), "No token");        
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
 
-        require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.SET_OFFER_TERMS), "You currently can not redeem");
+        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.SET_OFFER_TERMS), "You currently can not redeem");
 
         require(paymentAmount >= _perTokenMetadata[tokenId].editionFee, "Wrong price");
         require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "Insufficient allowance");
@@ -827,7 +774,7 @@ contract ExpandedNFT is
         bool success = _paymentTokenERC20.transferFrom(_msgSender(), address(this), _perTokenMetadata[tokenId].editionFee);
         require(success, "Could not transfer token");
 
-        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.ACCEPTED_OFFER; 
+        _perTokenMetadata[tokenId].state = ExpandedNFTStates.ACCEPTED_OFFER; 
 
         emit OfferAccepted(tokenId);
     }
@@ -837,10 +784,10 @@ contract ExpandedNFT is
         string memory _redeemedMetadataUrl              
     ) public onlyOwner {
         require(_exists(tokenId), "No token");        
-        require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.ACCEPTED_OFFER), "You currently can not redeem");
+        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.ACCEPTED_OFFER), "You currently can not redeem");
 
         _perTokenMetadata[tokenId].redeemedMetadataUrl = _redeemedMetadataUrl;
-        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.PRODUCTION_COMPLETE;
+        _perTokenMetadata[tokenId].state = ExpandedNFTStates.PRODUCTION_COMPLETE;
 
         emit ProductionComplete(tokenId);
     }
@@ -849,9 +796,9 @@ contract ExpandedNFT is
         require(_exists(tokenId), "No token");        
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
 
-        require((_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.PRODUCTION_COMPLETE), "You currently can not redeem");
+        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.PRODUCTION_COMPLETE), "You currently can not redeem");
 
-        _perTokenMetadata[tokenId].editionState = ExpandedNFTStates.REDEEMED;
+        _perTokenMetadata[tokenId].state = ExpandedNFTStates.REDEEMED;
 
         emit OfferRejected(tokenId);
         emit MetadataUpdate(tokenId);
@@ -886,7 +833,7 @@ contract ExpandedNFT is
     {
         require(_exists(tokenId), "No token");
 
-        if (_perTokenMetadata[tokenId].editionState == ExpandedNFTStates.REDEEMED) {
+        if (_perTokenMetadata[tokenId].state == ExpandedNFTStates.REDEEMED) {
             return (_perTokenMetadata[tokenId].redeemedMetadataUrl);
         }
 

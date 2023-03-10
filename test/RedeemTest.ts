@@ -13,6 +13,17 @@ import {
   TestCash,
 } from "../typechain";
 
+enum ExpandedNFTState {
+  UNMINTED, 
+  RESERVED, 
+  MINTED, 
+  REDEEM_STARTED, 
+  SET_OFFER_TERMS, 
+  ACCEPTED_OFFER, 
+  PRODUCTION_COMPLETE, 
+  REDEEMED
+}
+
 describe("Redeem", () => {
   const editionCost = 1000000000;
 
@@ -113,157 +124,157 @@ describe("Redeem", () => {
   });
 
   it("Redeem an edition", async () => {
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1);  
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.MINTED);  
 
     await minterContract.connect(user).redeem(1);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(2); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEM_STARTED); 
 
     await minterContract.setOfferTerms(1, editionCost);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(3); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.SET_OFFER_TERMS); 
 
     await paymentToken.connect(user).approve(minterContract.address, 0);
     await paymentToken.connect(user).approve(minterContract.address, editionCost);
 
     await minterContract.connect(user).acceptOfferTerms(1, editionCost);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(4); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.ACCEPTED_OFFER); 
 
     const redeemedUrl = "http://example.com/redempted/token04/";
     await minterContract.productionComplete(1, redeemedUrl);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(5); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.PRODUCTION_COMPLETE); 
 
     await minterContract.connect(user).acceptDelivery(1);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(6); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEMED); 
   });
 
   it("Abort the redemption", async () => {
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.MINTED); 
 
     await minterContract.connect(user).redeem(1);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(2); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEM_STARTED); 
 
     await minterContract.connect(user).abortRedemption(1);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1);    
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.MINTED);    
   });
 
   it("Send wrong payment amount", async () => {
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.MINTED); 
 
     await minterContract.connect(user).redeem(1);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(2); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEM_STARTED); 
 
     await minterContract.setOfferTerms(1, editionCost);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(3); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.SET_OFFER_TERMS); 
 
     await paymentToken.connect(user).approve(minterContract.address, 0);
     await paymentToken.connect(user).approve(minterContract.address, editionCost);
 
     await expect(minterContract.connect(user).acceptOfferTerms(1, 0)).to.be.revertedWith( "Wrong price");  
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(3);    
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.SET_OFFER_TERMS);    
   });
 
   it("Approve wrong payment amount", async () => {
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.MINTED); 
 
     await minterContract.connect(user).redeem(1);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(2); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEM_STARTED); 
 
     await minterContract.setOfferTerms(1, editionCost);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(3); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.SET_OFFER_TERMS); 
 
     await paymentToken.connect(user).approve(minterContract.address, 0);
     await paymentToken.connect(user).approve(minterContract.address, editionCost/2);
 
     await expect(minterContract.connect(user).acceptOfferTerms(1, editionCost)).to.be.revertedWith( "Insufficient allowance");  
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(3);     
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.SET_OFFER_TERMS);     
   });
 
   it("Reject the offer terms", async () => {
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.MINTED); 
 
     await minterContract.connect(user).redeem(1);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(2); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEM_STARTED); 
 
     await minterContract.setOfferTerms(1, editionCost);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(3); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.SET_OFFER_TERMS); 
 
     await minterContract.connect(user).rejectOfferTerms(1);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1);    
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.MINTED);    
   });
 
   it("Redeem an edition more than once", async () => {
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.MINTED); 
 
     await minterContract.connect(user).redeem(1);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(2); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEM_STARTED); 
 
     await minterContract.setOfferTerms(1, editionCost);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(3); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.SET_OFFER_TERMS); 
 
     await paymentToken.connect(user).approve(minterContract.address, 0);
     await paymentToken.connect(user).approve(minterContract.address, editionCost);
 
     await minterContract.connect(user).acceptOfferTerms(1, editionCost);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(4); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.ACCEPTED_OFFER); 
 
     const redeemedUrl = "http://example.com/redempted/token04/";
     await minterContract.productionComplete(1, redeemedUrl);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(5); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.PRODUCTION_COMPLETE); 
 
     await minterContract.connect(user).acceptDelivery(1);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(6); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEMED); 
 
     await expect(minterContract.connect(user).redeem(1)).to.be.revertedWith("You currently can not redeem");
   });  
 
   it("URLs and meta data should change when redeemed", async () => {
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(1); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.MINTED); 
 
     await minterContract.connect(user).redeem(1);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(2); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEM_STARTED); 
 
     await minterContract.setOfferTerms(1, editionCost);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(3); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.SET_OFFER_TERMS); 
 
     await paymentToken.connect(user).approve(minterContract.address, 0);
     await paymentToken.connect(user).approve(minterContract.address, editionCost);
 
     await minterContract.connect(user).acceptOfferTerms(1, editionCost);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(4); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.ACCEPTED_OFFER); 
 
     const redeemedUrl = "http://example.com/redempted/token04/";
     await minterContract.productionComplete(1, redeemedUrl);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(5); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.PRODUCTION_COMPLETE); 
 
     const startTokenURI = await minterContract.connect(user).tokenURI(1);
 
     await minterContract.connect(user).acceptDelivery(1);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(6); 
+    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEMED); 
 
     const endTokenURI = await minterContract.connect(user).tokenURI(1);
     

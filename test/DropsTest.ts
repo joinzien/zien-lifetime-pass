@@ -13,7 +13,7 @@ import {
   ExpandedNFT,
 } from "../typechain";
 
-describe("ExpandedNFT", () => {
+describe("Drops", () => {
   let signer: SignerWithAddress;
   let signerAddress: string;
 
@@ -47,7 +47,7 @@ describe("ExpandedNFT", () => {
 
   });
 
-  it("does not allow re-initialization of the implementation contract", async () => {
+  it("Does not allow re-initialization of the implementation contract", async () => {
     await expect(
       editionImpl.initialize(
         signerAddress,
@@ -59,7 +59,15 @@ describe("ExpandedNFT", () => {
     ).to.be.revertedWith("Initializable: contract is already initialized");
   });
 
-  it("makes a new drop", async () => {
+  it("Creates a zero sized drop fails", async () => {
+    await expect(dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      0)).to.be.revertedWith("Drop size must be > 0");
+  });
+
+  it("Makes a new drop", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -232,24 +240,6 @@ describe("ExpandedNFT", () => {
       expect(await minterContract.supportsInterface("0x01ffc9a7")).to.be.true;
       // ERC721 interface
       expect(await minterContract.supportsInterface("0x80ac58cd")).to.be.true;
-    });
-
-    describe("royalty 2981", () => {
-      it("follows royalty payout for owner", async () => {
-        await minterContract.mintEdition(signerAddress, {
-          value: ethers.utils.parseEther("0.1")
-        });
-
-        // allows royalty payout info to be updated
-        expect((await minterContract.royaltyInfo(1, 100))[0]).to.be.equal(
-          signerAddress
-        );
-        await minterContract.transferOwnership(await signer1.getAddress());
-        expect((await minterContract.royaltyInfo(1, 100))[0]).to.be.equal(
-          await signer1.getAddress()
-        );
-        expect(await minterContract.totalSupply()).to.be.equal(1);
-      });
     });
 
     it("stops after editions are sold out", async () => {

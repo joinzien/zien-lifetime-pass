@@ -19,9 +19,6 @@ describe("Payment Token", () => {
 
   let artist: SignerWithAddress;
   let artistAddress: string;   
-  
-  let user: SignerWithAddress;
-  let userAddress: string;   
 
   let dynamicSketch: DropCreator;
 
@@ -30,10 +27,6 @@ describe("Payment Token", () => {
       "DropCreator",
       "ExpandedNFT"
     ]);
-
-    const dynamicMintableAddress = (
-      await deployments.get("ExpandedNFT")
-    ).address;
 
     dynamicSketch = (await ethers.getContractAt(
       "DropCreator",
@@ -68,10 +61,6 @@ describe("Payment Token", () => {
        "http://example.com/token/07", "http://example.com/token/08", 
        "http://example.com/token/09", "http://example.com/token/10"]
     );
-
-    const dynamicPaymentTokenAddress = (
-      await deployments.get("TestCash")
-    ).address;
 
     const { TestCash } = await deployments.fixture([
       "TestCash"

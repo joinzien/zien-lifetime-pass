@@ -22,9 +22,7 @@ describe("Who Can Mint", () => {
       "DropCreator",
       "ExpandedNFT",
     ]);
-    const dynamicMintableAddress = (
-      await deployments.get("ExpandedNFT")
-    ).address;
+
     dynamicSketch = (await ethers.getContractAt(
       "DropCreator",
       DropCreator.address
@@ -36,7 +34,7 @@ describe("Who Can Mint", () => {
 
   it("makes a new drop", async () => {
     const artist = (await ethers.getSigners())[1];
-    const artistAddress = await signer.getAddress();
+    const artistAddress = await artist.getAddress();
 
     await dynamicSketch.createDrop(
       artistAddress,
