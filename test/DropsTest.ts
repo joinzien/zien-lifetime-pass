@@ -47,7 +47,7 @@ describe("Drops", () => {
 
   });
 
-  it("does not allow re-initialization of the implementation contract", async () => {
+  it("Does not allow re-initialization of the implementation contract", async () => {
     await expect(
       editionImpl.initialize(
         signerAddress,
@@ -59,7 +59,15 @@ describe("Drops", () => {
     ).to.be.revertedWith("Initializable: contract is already initialized");
   });
 
-  it("makes a new drop", async () => {
+  it("Creates a zero sized drop fails", async () => {
+    await expect(dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      0)).to.be.revertedWith("Drop size must be > 0");
+  });
+
+  it("Makes a new drop", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
