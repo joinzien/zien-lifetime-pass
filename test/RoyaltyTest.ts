@@ -79,10 +79,29 @@ describe("Royalty", () => {
     expect((await minterContract.royaltyInfo(1, 100))[0]).to.be.equal(
       signerAddress
     );
+
     await minterContract.transferOwnership(await signer1.getAddress());
+    
     expect((await minterContract.royaltyInfo(1, 100))[0]).to.be.equal(
       await signer1.getAddress()
     );
+    expect(await minterContract.totalSupply()).to.be.equal(1);
+  });
+
+  it("No owner is handled", async () => {
+    await minterContract.mintEdition(signerAddress, {
+      value: ethers.utils.parseEther("0.1")
+    });
+
+    // allows royalty payout info to be updated
+    expect((await minterContract.royaltyInfo(1, 100))[0]).to.be.equal(
+      signerAddress
+    );
+
+    await minterContract.renounceOwnership();
+
+    const nullAddress = "0x0000000000000000000000000000000000000000";
+    expect((await minterContract.royaltyInfo(1, 100))[0]).to.be.equal(nullAddress);
     expect(await minterContract.totalSupply()).to.be.equal(1);
   });
 
