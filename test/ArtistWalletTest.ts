@@ -76,7 +76,7 @@ describe("ArtistWallet", () => {
   it("Update the artist wallet", async () => {
     expect(await minterContract.getArtistWallet()).to.be.equal(artistAddress);
 
-    minterContract.setArtistWallet(newArtistAddress);
+    await minterContract.setArtistWallet(newArtistAddress);
     
     expect(await minterContract.getArtistWallet()).to.be.equal(newArtistAddress);
   });

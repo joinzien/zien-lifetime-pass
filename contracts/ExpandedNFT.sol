@@ -515,17 +515,21 @@ contract ExpandedNFT is
     function withdraw() external onlyOwner {
         uint256 currentBalance = address(this).balance;
         if (currentBalance > 0) {
-            uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
-            uint256 artistFee = currentBalance - platformFee;
+            if (_artistWallet != address(0x0)) {
+                uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
+                uint256 artistFee = currentBalance - platformFee;
 
-            AddressUpgradeable.sendValue(payable(owner()), platformFee);
-            AddressUpgradeable.sendValue(payable(_artistWallet), artistFee);
+                AddressUpgradeable.sendValue(payable(owner()), platformFee);
+                AddressUpgradeable.sendValue(payable(_artistWallet), artistFee);            
+            } else {
+                AddressUpgradeable.sendValue(payable(owner()), currentBalance);
+            } 
         }
 
         if (address(_paymentTokenERC20) != address(0x0)) {
             uint256 currentBalanceERC20 = _paymentTokenERC20.balanceOf(address(this));
             if (currentBalanceERC20 > 0) {
-                _paymentTokenERC20.transfer(owner(), currentBalanceERC20);
+                _paymentTokenERC20.transfer(owner(), currentBalanceERC20);       
             }
         }
     }
