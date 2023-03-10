@@ -13,7 +13,7 @@ import {
   ExpandedNFT,
 } from "../typechain";
 
-describe("ExpandedNFT", () => {
+describe("Drops", () => {
   let signer: SignerWithAddress;
   let signerAddress: string;
 
