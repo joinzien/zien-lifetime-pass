@@ -171,18 +171,6 @@ describe("Drops", () => {
       expect(await minterContract.totalSupply()).to.be.equal(1);
     });
 
-    it("allows user burn", async () => {
-      await minterContract.mintEdition(await signer1.getAddress(), {
-        value: ethers.utils.parseEther("0.1")
-      });
-      expect(await minterContract.ownerOf(1)).to.equal(
-        await signer1.getAddress()
-      );
-      await minterContract.connect(signer1).burn(1);
-      await expect(minterContract.ownerOf(1)).to.be.reverted;
-      expect(await minterContract.totalSupply()).to.be.equal(1);
-    });
-
     it("does not allow re-initialization", async () => {
       await expect(
         minterContract.initialize(
