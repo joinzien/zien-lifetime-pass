@@ -322,17 +322,6 @@ contract ExpandedNFT is
         require(currentPrice > 0, "Not for sale");
         require(msg.value == (currentPrice * recipients.length), "Wrong price");
 
-        return _mintEditions(recipients);
-    }  
-
-    /**
-      @dev Private function to mint without any access checks.
-           Called by the public edition minting functions.
-     */
-    function _mintEditions(address[] memory recipients)
-        internal
-        returns (uint256)
-    {
         address currentMinter = msg.sender;
        
         for (uint256 i = 0; i < recipients.length; i++) {
@@ -347,14 +336,12 @@ contract ExpandedNFT is
             _pricing.mintCounts[currentMinter]++;
             _claimCount++;
 
-            uint256 currentPrice = price();
             emit EditionSold(currentPrice, msg.sender);
-
             emit MetadataUpdate(_currentIndex);
         }
 
         return _currentIndex;        
-    }    
+    }  
 
     /**
       @param _royaltyBPS BPS of the royalty set on the contract. Can be 0 for no royalty.
