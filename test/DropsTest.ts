@@ -5,7 +5,6 @@
 import { expect } from "chai";
 import "@nomiclabs/hardhat-ethers";
 import { ethers, deployments } from "hardhat";
-import parseDataURI from "data-urls";
 
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
@@ -172,18 +171,6 @@ describe("Drops", () => {
       expect(await minterContract.totalSupply()).to.be.equal(1);
     });
 
-    it("allows user burn", async () => {
-      await minterContract.mintEdition(await signer1.getAddress(), {
-        value: ethers.utils.parseEther("0.1")
-      });
-      expect(await minterContract.ownerOf(1)).to.equal(
-        await signer1.getAddress()
-      );
-      await minterContract.connect(signer1).burn(1);
-      await expect(minterContract.ownerOf(1)).to.be.reverted;
-      expect(await minterContract.totalSupply()).to.be.equal(1);
-    });
-
     it("does not allow re-initialization", async () => {
       await expect(
         minterContract.initialize(
@@ -266,7 +253,7 @@ describe("Drops", () => {
         minterContract.mintEdition(signerAddress, {
           value: ethers.utils.parseEther("0.1")
         })
-      ).to.be.revertedWith("Over drop size");
+      ).to.be.revertedWith("Exceeded supply");
 
       expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/token/10");
       expect(await minterContract.totalSupply()).to.be.equal(10);

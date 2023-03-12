@@ -20,16 +20,12 @@ describe("Pricing", () => {
   let artistAddress: string;
   let minterContract: ExpandedNFT;
 
-  const nullAddress = "0x0000000000000000000000000000000000000000";
-
   beforeEach(async () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
       "ExpandedNFT",
     ]);
-    const dynamicMintableAddress = (
-      await deployments.get("ExpandedNFT")
-    ).address;
+
     dynamicSketch = (await ethers.getContractAt(
       "DropCreator",
       DropCreator.address
@@ -76,6 +72,10 @@ describe("Pricing", () => {
     expect(await minterContract.getAllowListPrice()).to.be.equal(20);
   });
 
+  it("Try to change allow list price not as the owner", async () => {
+    await expect(minterContract.connect(artist).setAllowListSalePrice(20)).to.be.revertedWith("Ownable: caller is not the owner"); 
+  });
+
   it("Can change all the prices", async () => {
     expect(await minterContract.getAllowListPrice()).to.be.equal(10);
     expect(await minterContract.salePrice()).to.be.equal(10);
@@ -86,6 +86,17 @@ describe("Pricing", () => {
     expect(await minterContract.salePrice()).to.be.equal(15);    
   });
 
+  it("Try to change all prices not as the owner", async () => {
+    await expect(minterContract.connect(artist).setSalePrices(20, 15)).to.be.revertedWith("Ownable: caller is not the owner");  
+  });  
+
+  it("Try to change pricing not as the owner", async () => {
+    await expect(minterContract.connect(artist).setPricing(10, 500, 10, 10, 1, 1)).to.be.revertedWith("Ownable: caller is not the owner");  
+  });  
+
+  it("Try to change sale price not as the owner", async () => {
+    await expect(minterContract.connect(artist).setSalePrice(10)).to.be.revertedWith("Ownable: caller is not the owner");  
+  });  
 
   it("Not for sale price", async () => {
     await minterContract.setAllowedMinter(0);

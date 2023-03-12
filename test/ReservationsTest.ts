@@ -79,6 +79,15 @@ describe("Reservations", () => {
     expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
   });
 
+  it("Try to make a reservation of an already reserved ID", async () => {
+    await minterContract.reserve([artistAddress], [1]);
+
+    expect(await minterContract.isReserved(1)).to.be.equal(true);
+    expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
+
+    await expect(minterContract.reserve([artistAddress], [1])).to.be.revertedWith("Needs to be unminted");
+  });
+
   it("Only the owner can unreservations", async () => {
     await expect(minterContract.connect(artist).unreserve([1])).to.be.revertedWith("Ownable: caller is not the owner");
   });
@@ -95,4 +104,17 @@ describe("Reservations", () => {
     expect(await minterContract.whoReserved(1)).to.be.equal(nullAddress);      
   });
 
+  it("Unreservation an edition that isn't reserved", async () => {
+    await minterContract.reserve([artistAddress], [1]);
+
+    expect(await minterContract.isReserved(1)).to.be.equal(true);
+    expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
+    expect(await minterContract.isReserved(2)).to.be.equal(false);
+
+    await expect(minterContract.unreserve([2])).to.be.revertedWith("Not reserved");
+
+    expect(await minterContract.isReserved(1)).to.be.equal(true);
+    expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress); 
+    expect(await minterContract.isReserved(2)).to.be.equal(false);    
+  });
 });

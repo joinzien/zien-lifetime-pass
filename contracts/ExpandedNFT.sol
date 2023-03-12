@@ -312,15 +312,15 @@ contract ExpandedNFT is
         internal returns (uint256)
     {
         require(_loadedMetadata >= dropSize, "Not all metadata loaded");
+
         require(_isAllowedToMint(), "Needs to be an allowed minter");
+
+        require(recipients.length <= numberCanMint(), "Exceeded supply");
+        require((_pricing.mintCounts[msg.sender] + recipients.length) <= _currentMintLimit(), "Exceeded mint limit");
 
         uint256 currentPrice = price();
         require(currentPrice > 0, "Not for sale");
         require(msg.value == (currentPrice * recipients.length), "Wrong price");
-
-        require((_pricing.mintCounts[msg.sender] + recipients.length - 1) < _currentMintLimit(), "Exceeded mint limit");
-
-        require(_claimCount + recipients.length <= dropSize, "Over drop size");
 
         return _mintEditions(recipients);
     }  
@@ -462,8 +462,7 @@ contract ExpandedNFT is
     }
 
     /**
-      @param _salePrice if sale price is 0 sale is stopped, otherwise that amount 
-                       of ETH is needed to start the sale.
+      @param _salePrice The amount of ETH is needed to start the sale.
       @dev This sets a simple ETH sales price
            Setting a sales price allows users to mint the drop until it sells out.
            For more granular sales, use an external sales contract.
@@ -478,8 +477,7 @@ contract ExpandedNFT is
     }
 
     /**
-      @param _salePrice if sale price is 0 sale is stopped, otherwise that amount 
-                       of ETH is needed to start the sale.
+      @param _salePrice The amount of ETH is needed to start the sale.
       @dev This sets the allow list ETH sales price
            Setting a sales price allows users to mint the drop until it sells out.
            For more granular sales, use an external sales contract.
@@ -622,8 +620,6 @@ contract ExpandedNFT is
       @dev Sets the types of users who is allowed to mint.
      */
     function setAllowedMinter(WhoCanMint minters) public onlyOwner {
-        require(((minters >= WhoCanMint.NOT_FOR_SALE) && (minters <= WhoCanMint.ANYONE)), "Needs to be a valid minter type");
-
         _pricing.whoCanMint = minters;
         emit WhoCanMintChanged(minters);
     }
