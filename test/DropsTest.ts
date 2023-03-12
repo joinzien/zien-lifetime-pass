@@ -266,7 +266,7 @@ describe("Drops", () => {
         minterContract.mintEdition(signerAddress, {
           value: ethers.utils.parseEther("0.1")
         })
-      ).to.be.revertedWith("Over drop size");
+      ).to.be.revertedWith("Exceeded supply");
 
       expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/token/10");
       expect(await minterContract.totalSupply()).to.be.equal(10);

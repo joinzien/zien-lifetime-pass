@@ -312,15 +312,15 @@ contract ExpandedNFT is
         internal returns (uint256)
     {
         require(_loadedMetadata >= dropSize, "Not all metadata loaded");
+
         require(_isAllowedToMint(), "Needs to be an allowed minter");
+
+        require(recipients.length <= numberCanMint(), "Exceeded supply");
+        require((_pricing.mintCounts[msg.sender] + recipients.length) <= _currentMintLimit(), "Exceeded mint limit");
 
         uint256 currentPrice = price();
         require(currentPrice > 0, "Not for sale");
         require(msg.value == (currentPrice * recipients.length), "Wrong price");
-
-        require((_pricing.mintCounts[msg.sender] + recipients.length - 1) < _currentMintLimit(), "Exceeded mint limit");
-
-        require(_claimCount + recipients.length <= dropSize, "Over drop size");
 
         return _mintEditions(recipients);
     }  
