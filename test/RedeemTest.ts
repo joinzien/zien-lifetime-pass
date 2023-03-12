@@ -151,6 +151,22 @@ describe("Redeem", () => {
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEMED); 
   });
 
+  it("Redeem an invalid edition", async () => {
+    await expect(minterContract.connect(user).redeem(0)).to.be.revertedWith("No token"); 
+  });
+
+  it("Redeem an invalid edition", async () => {
+    await expect(minterContract.connect(user).redeem(11)).to.be.revertedWith("No token"); 
+  });  
+
+  it("Check the redeemed state an invalid edition. < 1", async () => {
+    await expect(minterContract.connect(user).redeemedState(0)).to.be.revertedWith("tokenID > 0"); 
+  });
+
+  it("Check the redeemed state an invalid edition. > drop size", async () => {
+    await expect(minterContract.connect(user).redeemedState(11)).to.be.revertedWith("tokenID <= drop size"); 
+  });  
+
   it("Abort the redemption", async () => {
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.MINTED); 
 
