@@ -462,8 +462,7 @@ contract ExpandedNFT is
     }
 
     /**
-      @param _salePrice if sale price is 0 sale is stopped, otherwise that amount 
-                       of ETH is needed to start the sale.
+      @param _salePrice The amount of ETH is needed to start the sale.
       @dev This sets a simple ETH sales price
            Setting a sales price allows users to mint the drop until it sells out.
            For more granular sales, use an external sales contract.
@@ -478,8 +477,7 @@ contract ExpandedNFT is
     }
 
     /**
-      @param _salePrice if sale price is 0 sale is stopped, otherwise that amount 
-                       of ETH is needed to start the sale.
+      @param _salePrice The amount of ETH is needed to start the sale.
       @dev This sets the allow list ETH sales price
            Setting a sales price allows users to mint the drop until it sells out.
            For more granular sales, use an external sales contract.
