@@ -262,6 +262,29 @@ describe("Metadata", () => {
     expect(metadataLoaded).to.be.equal(false);
   });
 
+  it("Try to load mismatched metadata", async () => {
+    await dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      10);
+
+    const dropResult = await dynamicSketch.getDropAtId(0);
+    minterContract = (await ethers.getContractAt(
+      "ExpandedNFT",
+      dropResult
+    )) as ExpandedNFT;
+
+    await expect(minterContract.loadMetadataChunk(
+      1, 5,
+      ["http://example.com/token/01", "http://example.com/token/02",
+        "http://example.com/token/03", "http://example.com/token/04",
+        "http://example.com/token/05", "http://example.com/token/06",
+        "http://example.com/token/07", "http://example.com/token/08",
+        "http://example.com/token/09", "http://example.com/token/10"]
+    )).to.be.revertedWith("Data size mismatch");
+  }); 
+
   it("Load redeemed metadata, not as the owner", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
@@ -333,4 +356,20 @@ describe("Metadata", () => {
       1, "https://example.com/redeemed/0001"
     );
   });
+
+  it("Get the metadata for a unknown tokenID", async () => {
+    await dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      10);
+
+    const dropResult = await dynamicSketch.getDropAtId(0);
+    minterContract = (await ethers.getContractAt(
+      "ExpandedNFT",
+      dropResult
+    )) as ExpandedNFT;
+
+    await expect(minterContract.tokenURI(0)).to.be.revertedWith("No token");
+  });  
 });
