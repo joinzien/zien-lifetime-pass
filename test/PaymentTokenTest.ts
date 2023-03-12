@@ -40,6 +40,42 @@ describe("Payment Token", () => {
     artistAddress = await artist.getAddress(); 
   });
 
+  it("Try to change pricing not as the owner", async () => {
+    await dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      10);
+
+    const dropResult = await dynamicSketch.getDropAtId(0);
+    const minterContract = (await ethers.getContractAt(
+      "ExpandedNFT",
+      dropResult
+    )) as ExpandedNFT;
+      
+    await minterContract.loadMetadataChunk(
+      1, 10,
+      ["http://example.com/token/01", "http://example.com/token/02", 
+       "http://example.com/token/03", "http://example.com/token/04", 
+       "http://example.com/token/05", "http://example.com/token/06", 
+       "http://example.com/token/07", "http://example.com/token/08", 
+       "http://example.com/token/09", "http://example.com/token/10"]
+    );
+
+    const { TestCash } = await deployments.fixture([
+      "TestCash"
+    ]);
+
+    const paymentToken = (await ethers.getContractAt(
+      "TestCash",
+      TestCash.address
+    )) as TestCash;    
+
+    expect(await minterContract.getPaymentToken()).to.be.equal("0x0000000000000000000000000000000000000000");  
+
+    await expect(minterContract.connect(artist).setPaymentToken(paymentToken.address)).to.be.revertedWith("Ownable: caller is not the owner");  
+  });  
+
   it("update the purchase token", async () => {
     await dynamicSketch.createDrop(
       artistAddress,

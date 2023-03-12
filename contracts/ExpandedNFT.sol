@@ -620,8 +620,6 @@ contract ExpandedNFT is
       @dev Sets the types of users who is allowed to mint.
      */
     function setAllowedMinter(WhoCanMint minters) public onlyOwner {
-        require(((minters >= WhoCanMint.NOT_FOR_SALE) && (minters <= WhoCanMint.ANYONE)), "Needs to be a valid minter type");
-
         _pricing.whoCanMint = minters;
         emit WhoCanMintChanged(minters);
     }
