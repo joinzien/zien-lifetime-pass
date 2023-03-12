@@ -204,14 +204,14 @@ describe("Redeem", () => {
   });
 
   it("Set offer terms not as the owner", async () => {
-    await expect(minterContract.connect(user).setOfferTerms(1,10)).to.be.reverted; 
+    await expect(minterContract.connect(user).setOfferTerms(1,10)).to.be.revertedWith("Ownable: caller is not the owner");
   });  
 
   it("Set offer terms with an invalid ID", async () => {
     await expect(minterContract.setOfferTerms(2, 10)).to.be.revertedWith("No token"); 
   });
 
-  it("Set offer terms with an invalid ID", async () => {
+  it("Set offer terms in the wrong state", async () => {
     await expect(minterContract.setOfferTerms(1, 10)).to.be.revertedWith("Wrong state"); 
   });
 
@@ -226,6 +226,42 @@ describe("Redeem", () => {
   it("Reject offer terms in the incorrect state", async () => {
     await expect(minterContract.connect(user).rejectOfferTerms(1)).to.be.revertedWith("You currently can not redeem"); 
   });  
+
+  it("Accept offer terms with an invalid ID", async () => {
+    await expect(minterContract.connect(user).acceptOfferTerms(2,10)).to.be.reverted; 
+  });   
+
+  it("Accept offer terms with an invalid ID", async () => {
+    await expect(minterContract.connect(artist).acceptOfferTerms(1,10)).to.be.revertedWith("Not approved"); 
+  });  
+
+  it("Accept offer terms in the wrong state", async () => {
+    await expect(minterContract.connect(user).acceptOfferTerms(1,10)).to.be.revertedWith("You currently can not redeem"); 
+  });  
+
+  it("Production complete not as the owner", async () => {
+    await expect(minterContract.connect(user).productionComplete(1, "")).to.be.revertedWith("Ownable: caller is not the owner"); 
+  });    
+
+  it("Production complete with an invalid ID", async () => {
+    await expect(minterContract.productionComplete(2, "")).to.be.revertedWith("No token"); 
+  });
+
+  it("Production complete  in the wrong state", async () => {
+    await expect(minterContract.productionComplete(1, "")).to.be.revertedWith("You currently can not redeem"); 
+  });
+
+  it("Accept delivery not as the owner", async () => {
+    await expect(minterContract.connect(artist).acceptDelivery(2)).to.be.reverted; 
+  });  
+
+  it("Accept delivery not as the owner", async () => {
+    await expect(minterContract.connect(artist).acceptDelivery(1)).to.be.revertedWith("Not approved"); 
+  }); 
+
+  it("Accept delivery in the incorrect state", async () => {
+    await expect(minterContract.connect(user).acceptDelivery(1)).to.be.revertedWith("You currently can not redeem"); 
+  });    
 
   it("Send wrong payment amount", async () => {
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.MINTED); 
