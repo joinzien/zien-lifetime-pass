@@ -5,7 +5,6 @@
 import { expect } from "chai";
 import "@nomiclabs/hardhat-ethers";
 import { ethers, deployments } from "hardhat";
-import parseDataURI from "data-urls";
 
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
