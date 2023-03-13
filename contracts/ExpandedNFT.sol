@@ -112,17 +112,19 @@ contract ExpandedNFT is
 
     // Total size of the drop that can be minted
     uint256 public dropSize;
+    uint256 private _claimCount; 
+
+    // Pricing
+    Pricing private _pricing;
+    uint256 public salePrice;
+
+    // Reservations
+    mapping(address => uint256)  private _resevationCount;
+    mapping(address => uint256[]) private _resevations;   
 
     uint256 private _loadedMetadata;
 
-    mapping(uint256 => bool) private _tokenClaimed; 
-    uint256 private _claimCount; 
     uint256 private _currentIndex;
-
-    Pricing private _pricing;
-
-    // Price for general sales
-    uint256 public salePrice;
 
     // ERC20 interface for the payment token
     IERC20Upgradeable private _paymentTokenERC20;
@@ -241,6 +243,12 @@ contract ExpandedNFT is
         return 0;       
     }
 
+    function redemptionPrice(uint256 tokenId) public view returns (uint256) {
+        require(_exists(tokenId), "No token");        
+
+        return _perTokenMetadata[tokenId].editionFee;
+    }    
+
     /**
       @dev returns the current state of the provided token
      */
@@ -317,7 +325,7 @@ contract ExpandedNFT is
             if (msg.value > 0) {
                 return (false);
             }
-            
+
             return (true);
         }
 
@@ -346,31 +354,44 @@ contract ExpandedNFT is
 
         require(_paymentAmountCorrect(recipients.length), "Wrong price");
 
-        address currentMinter = msg.sender;
-        uint256 currentPrice = price(); 
+        uint256 currentToken;
 
         for (uint256 i = 0; i < recipients.length; i++) {
-            while (_tokenClaimed[_currentIndex] == true) {
-                _currentIndex++;
-            }  
+            if (_resevationCount[msg.sender] > 0) {
+                uint256 index = 0;
+                while (_resevations[msg.sender][index] == 0) {
+                    index++;
+                }  
 
-            _mint(recipients[i], _currentIndex);
+                currentToken = _resevations[msg.sender][index];
+
+                _resevations[msg.sender][index] = 0;  
+                _resevationCount[msg.sender]--;
+                _perTokenMetadata[currentToken].reservedBy = address(0);
+            } else {
+                while (_perTokenMetadata[_currentIndex].state != ExpandedNFTStates.UNMINTED) {
+                    _currentIndex++;
+                }  
+
+                currentToken = _currentIndex;
+            }
+
+            _mint(recipients[i], currentToken);
 
             uint256 freeMintCount = _pricing.freeMints[msg.sender];
             if (freeMintCount > 0) {
-                 _pricing.freeMints[msg.sender] = freeMintCount - 1;
+                _pricing.freeMints[msg.sender] = freeMintCount - 1;
             }
 
-            _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
-            _tokenClaimed[_currentIndex] = true;
-            _pricing.mintCounts[currentMinter]++;
+            _perTokenMetadata[currentToken].state = ExpandedNFTStates.MINTED;
+            _pricing.mintCounts[msg.sender]++;
             _claimCount++;
 
-            emit EditionSold(currentPrice, msg.sender);
-            emit MetadataUpdate(_currentIndex);
+            emit EditionSold(price(), msg.sender);
+            emit MetadataUpdate(currentToken);            
         }
 
-        return _currentIndex;        
+        return currentToken;        
     }  
 
     /**
@@ -415,6 +436,8 @@ contract ExpandedNFT is
 
             _perTokenMetadata[tokenIDs[i]].reservedBy = wallets[i];
             _perTokenMetadata[tokenIDs[i]].state = ExpandedNFTStates.RESERVED;
+            _resevationCount[wallets[i]]++;
+            _resevations[wallets[i]].push(tokenIDs[i]); 
         }
     }
 
@@ -426,6 +449,15 @@ contract ExpandedNFT is
         for (uint256 i = 0; i < tokenIDs.length; i++) {
             require(_perTokenMetadata[tokenIDs[i]].state == ExpandedNFTStates.RESERVED, "Not reserved");
 
+            address wallet = _perTokenMetadata[tokenIDs[i]].reservedBy;
+            uint256 index = 0;
+            while (_resevations[wallet][index] != tokenIDs[i]) {
+                index++;
+            }
+
+            _resevations[wallet][index] = 0;  
+
+            _resevationCount[_perTokenMetadata[tokenIDs[i]].reservedBy]--;
             _perTokenMetadata[tokenIDs[i]].reservedBy = address(0);
             _perTokenMetadata[tokenIDs[i]].state = ExpandedNFTStates.UNMINTED;
         }
@@ -441,11 +473,27 @@ contract ExpandedNFT is
 
     /**
       @param tokenID the tokenId to check                                                                           
-      @dev Unreserve an edition for a wallet
+      @dev who reserved the provided ID
      */
     function whoReserved (uint256 tokenID) external view returns (address) {  
         return _perTokenMetadata[tokenID].reservedBy;
     }
+ 
+    /**
+      @param wallet The wallet being checked                                                                          
+      @dev returns the number of reservations for this wallet
+    */
+    function getReservationsCount(address wallet) public view returns (uint256) {           
+        return _resevationCount[wallet];   
+    }
+
+    /**
+      @param wallet The wallet being checked                                                                          
+      @dev returns the IDs reserved by the wallet
+    */
+    function getReservationsList(address wallet) public view returns (uint256[] memory) {           
+        return _resevations[wallet];   
+    }   
 
     /**
       @param wallet The address of the wallet
