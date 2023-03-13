@@ -73,19 +73,29 @@ describe("Reservations", () => {
   });
 
   it("Make a reservation", async () => {
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(0);  
+
     await minterContract.reserve([artistAddress], [1]);
 
     expect(await minterContract.isReserved(1)).to.be.equal(true);
     expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1);  
   });
 
   it("Try to make a reservation of an already reserved ID", async () => {
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(0); 
+
     await minterContract.reserve([artistAddress], [1]);
 
     expect(await minterContract.isReserved(1)).to.be.equal(true);
     expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1);     
 
     await expect(minterContract.reserve([artistAddress], [1])).to.be.revertedWith("Needs to be unminted");
+
+    expect(await minterContract.isReserved(1)).to.be.equal(true);
+    expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1);      
   });
 
   it("Only the owner can unreservations", async () => {
@@ -93,28 +103,36 @@ describe("Reservations", () => {
   });
 
   it("Unreservation an edition", async () => {
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(0); 
+
     await minterContract.reserve([artistAddress], [1]);
 
     expect(await minterContract.isReserved(1)).to.be.equal(true);
     expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1); 
 
     await minterContract.unreserve([1]);
 
     expect(await minterContract.isReserved(1)).to.be.equal(false);
-    expect(await minterContract.whoReserved(1)).to.be.equal(nullAddress);      
+    expect(await minterContract.whoReserved(1)).to.be.equal(nullAddress);
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(0);         
   });
 
   it("Unreservation an edition that isn't reserved", async () => {
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(0); 
+
     await minterContract.reserve([artistAddress], [1]);
 
     expect(await minterContract.isReserved(1)).to.be.equal(true);
     expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
     expect(await minterContract.isReserved(2)).to.be.equal(false);
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1); 
 
     await expect(minterContract.unreserve([2])).to.be.revertedWith("Not reserved");
 
     expect(await minterContract.isReserved(1)).to.be.equal(true);
     expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress); 
     expect(await minterContract.isReserved(2)).to.be.equal(false);    
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1);     
   });
 });

@@ -114,14 +114,17 @@ contract ExpandedNFT is
     uint256 public dropSize;
     uint256 private _claimCount; 
 
+    // Pricing
+    Pricing private _pricing;
+    uint256 public salePrice;
+
+    // Reservations
+    mapping(address => uint256)  private _resevationCount;
+    mapping(address => address[]) private _resevations;   
+
     uint256 private _loadedMetadata;
 
     uint256 private _currentIndex;
-
-    Pricing private _pricing;
-
-    // Price for general sales
-    uint256 public salePrice;
 
     // ERC20 interface for the payment token
     IERC20Upgradeable private _paymentTokenERC20;
@@ -213,6 +216,11 @@ contract ExpandedNFT is
         }
             
         return (currentMintLimit - _pricing.mintCounts[wallet]);   
+    }
+
+    /// @dev returns the number of reservations for this wallet
+    function getReservationsCount(address wallet) public view returns (uint256) {           
+        return _resevationCount[wallet];   
     }
 
     /// @dev returns  if the address can mint
@@ -419,6 +427,7 @@ contract ExpandedNFT is
 
             _perTokenMetadata[tokenIDs[i]].reservedBy = wallets[i];
             _perTokenMetadata[tokenIDs[i]].state = ExpandedNFTStates.RESERVED;
+            _resevationCount[wallets[i]]++;
         }
     }
 
@@ -430,6 +439,7 @@ contract ExpandedNFT is
         for (uint256 i = 0; i < tokenIDs.length; i++) {
             require(_perTokenMetadata[tokenIDs[i]].state == ExpandedNFTStates.RESERVED, "Not reserved");
 
+            _resevationCount[_perTokenMetadata[tokenIDs[i]].reservedBy]--;
             _perTokenMetadata[tokenIDs[i]].reservedBy = address(0);
             _perTokenMetadata[tokenIDs[i]].state = ExpandedNFTStates.UNMINTED;
         }
