@@ -354,30 +354,44 @@ contract ExpandedNFT is
 
         require(_paymentAmountCorrect(recipients.length), "Wrong price");
 
-        address currentMinter = msg.sender;
-        uint256 currentPrice = price(); 
+        uint256 currentToken;
 
         for (uint256 i = 0; i < recipients.length; i++) {
-            while (_perTokenMetadata[_currentIndex].state != ExpandedNFTStates.UNMINTED) {
-                _currentIndex++;
-            }  
+            if (_resevationCount[msg.sender] > 0) {
+                uint256 index = 0;
+                while (_resevations[msg.sender][index] == 0) {
+                    index++;
+                }  
 
-            _mint(recipients[i], _currentIndex);
+                currentToken = _resevations[msg.sender][index];
+
+                _resevations[msg.sender][index] = 0;  
+                _resevationCount[msg.sender]--;
+                _perTokenMetadata[currentToken].reservedBy = address(0);
+            } else {
+                while (_perTokenMetadata[_currentIndex].state != ExpandedNFTStates.UNMINTED) {
+                    _currentIndex++;
+                }  
+
+                currentToken = _currentIndex;
+            }
+
+            _mint(recipients[i], currentToken);
 
             uint256 freeMintCount = _pricing.freeMints[msg.sender];
             if (freeMintCount > 0) {
-                 _pricing.freeMints[msg.sender] = freeMintCount - 1;
+                _pricing.freeMints[msg.sender] = freeMintCount - 1;
             }
 
-            _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
-            _pricing.mintCounts[currentMinter]++;
+            _perTokenMetadata[currentToken].state = ExpandedNFTStates.MINTED;
+            _pricing.mintCounts[msg.sender]++;
             _claimCount++;
 
-            emit EditionSold(currentPrice, msg.sender);
-            emit MetadataUpdate(_currentIndex);
+            emit EditionSold(price(), msg.sender);
+            emit MetadataUpdate(currentToken);            
         }
 
-        return _currentIndex;        
+        return currentToken;        
     }  
 
     /**
