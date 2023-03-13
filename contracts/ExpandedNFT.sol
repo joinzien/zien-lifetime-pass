@@ -311,8 +311,23 @@ contract ExpandedNFT is
     function _paymentAmountCorrect(uint256 numberToBeMinted)
         internal returns (bool)
     {
-        uint256 currentPrice = price();
-        return (msg.value == (currentPrice * numberToBeMinted));
+        uint256 freeMintCount = _pricing.freeMints[msg.sender];
+
+        if (numberToBeMinted <= freeMintCount) {
+            if (msg.value > 0) {
+                return (false);
+            }
+            
+            return (true);
+        }
+
+        uint256 remainingToMint = numberToBeMinted - freeMintCount;
+
+        if (msg.value == (price() * remainingToMint)) {
+            return (true);
+        }
+
+        return (false);
     }
 
     /**
@@ -333,13 +348,18 @@ contract ExpandedNFT is
 
         address currentMinter = msg.sender;
         uint256 currentPrice = price(); 
-              
+
         for (uint256 i = 0; i < recipients.length; i++) {
             while (_tokenClaimed[_currentIndex] == true) {
                 _currentIndex++;
             }  
 
             _mint(recipients[i], _currentIndex);
+
+            uint256 freeMintCount = _pricing.freeMints[msg.sender];
+            if (freeMintCount > 0) {
+                 _pricing.freeMints[msg.sender] = freeMintCount - 1;
+            }
 
             _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
             _tokenClaimed[_currentIndex] = true;
