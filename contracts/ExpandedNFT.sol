@@ -305,6 +305,17 @@ contract ExpandedNFT is
     }      
 
     /**
+      @param numberToBeMinted Hopw many IDs trying to be minted    
+      @dev This mints multiple editions to the given list of addresses.
+     */
+    function _paymentAmountCorrect(uint256 numberToBeMinted)
+        internal returns (bool)
+    {
+        uint256 currentPrice = price();
+        return (msg.value == (currentPrice * numberToBeMinted));
+    }
+
+    /**
       @param recipients list of addresses to send the newly minted editions to
       @dev This mints multiple editions to the given list of addresses.
      */
@@ -318,11 +329,11 @@ contract ExpandedNFT is
         require(recipients.length <= numberCanMint(), "Exceeded supply");
         require((_pricing.mintCounts[msg.sender] + recipients.length) <= _currentMintLimit(), "Exceeded mint limit");
 
-        uint256 currentPrice = price();
-        require(msg.value == (currentPrice * recipients.length), "Wrong price");
+        require(_paymentAmountCorrect(recipients.length), "Wrong price");
 
         address currentMinter = msg.sender;
-       
+        uint256 currentPrice = price(); 
+              
         for (uint256 i = 0; i < recipients.length; i++) {
             while (_tokenClaimed[_currentIndex] == true) {
                 _currentIndex++;
