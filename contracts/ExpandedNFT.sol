@@ -305,6 +305,32 @@ contract ExpandedNFT is
     }      
 
     /**
+      @param numberToBeMinted Hopw many IDs trying to be minted    
+      @dev This mints multiple editions to the given list of addresses.
+     */
+    function _paymentAmountCorrect(uint256 numberToBeMinted)
+        internal returns (bool)
+    {
+        uint256 freeMintCount = _pricing.freeMints[msg.sender];
+
+        if (numberToBeMinted <= freeMintCount) {
+            if (msg.value > 0) {
+                return (false);
+            }
+            
+            return (true);
+        }
+
+        uint256 remainingToMint = numberToBeMinted - freeMintCount;
+
+        if (msg.value == (price() * remainingToMint)) {
+            return (true);
+        }
+
+        return (false);
+    }
+
+    /**
       @param recipients list of addresses to send the newly minted editions to
       @dev This mints multiple editions to the given list of addresses.
      */
@@ -318,23 +344,11 @@ contract ExpandedNFT is
         require(recipients.length <= numberCanMint(), "Exceeded supply");
         require((_pricing.mintCounts[msg.sender] + recipients.length) <= _currentMintLimit(), "Exceeded mint limit");
 
-        uint256 currentPrice = price();
-        require(currentPrice > 0, "Not for sale");
-        require(msg.value == (currentPrice * recipients.length), "Wrong price");
+        require(_paymentAmountCorrect(recipients.length), "Wrong price");
 
-        return _mintEditions(recipients);
-    }  
-
-    /**
-      @dev Private function to mint without any access checks.
-           Called by the public edition minting functions.
-     */
-    function _mintEditions(address[] memory recipients)
-        internal
-        returns (uint256)
-    {
         address currentMinter = msg.sender;
-       
+        uint256 currentPrice = price(); 
+
         for (uint256 i = 0; i < recipients.length; i++) {
             while (_tokenClaimed[_currentIndex] == true) {
                 _currentIndex++;
@@ -342,19 +356,22 @@ contract ExpandedNFT is
 
             _mint(recipients[i], _currentIndex);
 
+            uint256 freeMintCount = _pricing.freeMints[msg.sender];
+            if (freeMintCount > 0) {
+                 _pricing.freeMints[msg.sender] = freeMintCount - 1;
+            }
+
             _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
             _tokenClaimed[_currentIndex] = true;
             _pricing.mintCounts[currentMinter]++;
             _claimCount++;
 
-            uint256 currentPrice = price();
             emit EditionSold(currentPrice, msg.sender);
-
             emit MetadataUpdate(_currentIndex);
         }
 
         return _currentIndex;        
-    }    
+    }  
 
     /**
       @param _royaltyBPS BPS of the royalty set on the contract. Can be 0 for no royalty.

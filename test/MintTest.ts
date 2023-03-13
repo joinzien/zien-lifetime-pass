@@ -30,7 +30,7 @@ describe("Mint", () => {
     signerAddress = await signer.getAddress();
 
     artist = (await ethers.getSigners())[1];
-    artistAddress = await signer.getAddress();   
+    artistAddress = await artist.getAddress();   
     
     user = (await ethers.getSigners())[2];
     userAddress = await user.getAddress();
@@ -114,6 +114,101 @@ describe("Mint", () => {
     expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);  
   });
 
+  it("Can mint zero cost", async () => {
+    const mintCost = ethers.utils.parseEther("0.0");
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 2, 1);   
+    await minterContract.setAllowedMinter(2);
+
+    expect(await minterContract.purchase({ value: mintCost })).to.emit(minterContract, "EditionSold");
+ 
+    expect(await minterContract.totalSupply()).to.be.equal(1);
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);  
+  });
+
+  it("Free minter does not need any payment", async () => {
+    await minterContract.setAllowedMinter(2);
+
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(0);
+  
+    await minterContract.setFreeMints(signerAddress, 1);
+
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(1);
+
+    const mintCost = ethers.utils.parseEther("0.0");
+    expect(await minterContract.purchase({ value: mintCost })).to.emit(minterContract, "EditionSold");
+    expect(await minterContract.totalSupply()).to.be.equal(1);
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0); 
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(0);   
+  });
+
+  it("Free minter does not need any payment, if payment provided fail", async () => {
+    await minterContract.setAllowedMinter(2);
+
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(0);
+  
+    await minterContract.setFreeMints(signerAddress, 1);
+
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(1);
+
+    const mintCost = ethers.utils.parseEther("0.1");
+    await expect(minterContract.mintEditions([signerAddress], { value: mintCost })).to.be.revertedWith("Wrong price");
+
+    expect(await minterContract.totalSupply()).to.be.equal(0);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(1); 
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(1);   
+  });
+
+  it("Minter only has payment", async () => {
+    await minterContract.setAllowedMinter(2);
+
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(0);
+
+    const mintCost = ethers.utils.parseEther("0.1");
+    expect(await minterContract.purchase({ value: mintCost })).to.emit(minterContract, "EditionSold");
+    expect(await minterContract.totalSupply()).to.be.equal(1);
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0); 
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(0);   
+  });
+
+  it("Minter only has payment, does not match the mint price", async () => {
+    await minterContract.setAllowedMinter(2);
+
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(0);
+
+    await expect(minterContract.mintEditions([signerAddress], { value: ethers.utils.parseEther("0.01") })).to.be.revertedWith("Wrong price");
+
+    expect(await minterContract.totalSupply()).to.be.equal(0);
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(1); 
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(0);   
+  });
+
+  it("Mix free mint and payment", async () => {
+    const mintCost = ethers.utils.parseEther("0.1");
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 2, 2);  
+    await minterContract.setAllowedMinter(2);
+
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(0);
+  
+    await minterContract.setFreeMints(signerAddress, 1);
+
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(1);
+
+    expect(await minterContract.mintMulipleEditions(signerAddress, 2, { value: mintCost })).to.emit(minterContract, "EditionSold");
+    expect(await minterContract.totalSupply()).to.be.equal(2);
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(2);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0); 
+    expect(await minterContract.numberOfFreeMints(signerAddress)).to.be.equal(0);   
+  });  
+
   it("General public can not mint while the drop is not for sale", async () => {
     await minterContract.setAllowedMinter(0);
 
@@ -172,7 +267,7 @@ describe("Mint", () => {
     await expect(minterContract.mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.emit(minterContract, "EditionSold");
   });  
 
-  it("The owner  can mint when mint is open to everyone", async () => {
+  it("The owner can mint when mint is open to everyone", async () => {
     await minterContract.setAllowedMinter(2);
 
     await expect(minterContract.mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.emit(minterContract, "EditionSold");

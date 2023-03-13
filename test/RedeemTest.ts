@@ -219,7 +219,7 @@ describe("Redeem", () => {
     await expect(minterContract.connect(artist).rejectOfferTerms(2)).to.be.reverted; 
   });  
 
-  it("Reject offer terms not as the owner", async () => {
+  it("Reject offer terms in the wrong state", async () => {
     await expect(minterContract.connect(artist).rejectOfferTerms(1)).to.be.revertedWith("Not approved"); 
   }); 
 
@@ -231,7 +231,7 @@ describe("Redeem", () => {
     await expect(minterContract.connect(user).acceptOfferTerms(2,10)).to.be.reverted; 
   });   
 
-  it("Accept offer terms with an invalid ID", async () => {
+  it("Accept offer terms not as the owner", async () => {
     await expect(minterContract.connect(artist).acceptOfferTerms(1,10)).to.be.revertedWith("Not approved"); 
   });  
 
@@ -247,11 +247,11 @@ describe("Redeem", () => {
     await expect(minterContract.productionComplete(2, "")).to.be.revertedWith("No token"); 
   });
 
-  it("Production complete  in the wrong state", async () => {
+  it("Production complete in the wrong state", async () => {
     await expect(minterContract.productionComplete(1, "")).to.be.revertedWith("You currently can not redeem"); 
   });
 
-  it("Accept delivery not as the owner", async () => {
+  it("Accept delivery with an invalid ID", async () => {
     await expect(minterContract.connect(artist).acceptDelivery(2)).to.be.reverted; 
   });  
 
