@@ -79,7 +79,9 @@ describe("Reservations", () => {
 
     expect(await minterContract.isReserved(1)).to.be.equal(true);
     expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
-    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1);  
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1); 
+    expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([1].toString());    
+    
   });
 
   it("Try to make a reservation of an already reserved ID", async () => {
@@ -90,12 +92,34 @@ describe("Reservations", () => {
     expect(await minterContract.isReserved(1)).to.be.equal(true);
     expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
     expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1);     
+    expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([1].toString()); 
 
     await expect(minterContract.reserve([artistAddress], [1])).to.be.revertedWith("Needs to be unminted");
 
     expect(await minterContract.isReserved(1)).to.be.equal(true);
     expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
     expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1);      
+    expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([1].toString()); 
+  });
+
+  it("Make multiple reservations", async () => {
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(0);  
+
+    await minterContract.reserve([artistAddress], [1]);
+
+    expect(await minterContract.isReserved(1)).to.be.equal(true);
+    expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1); 
+    expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([1].toString());    
+
+ 
+    await minterContract.reserve([signerAddress], [3]);
+
+    expect(await minterContract.isReserved(3)).to.be.equal(true);
+    expect(await minterContract.whoReserved(3)).to.be.equal(signerAddress);  
+    expect(await minterContract.getReservationsCount(signerAddress)).to.be.equal(1); 
+    expect((await minterContract.getReservationsList(signerAddress)).toString()).to.be.equal([3].toString());       
+    
   });
 
   it("Only the owner can unreservations", async () => {
@@ -110,12 +134,14 @@ describe("Reservations", () => {
     expect(await minterContract.isReserved(1)).to.be.equal(true);
     expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
     expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1); 
+    expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([1].toString()); 
 
     await minterContract.unreserve([1]);
 
     expect(await minterContract.isReserved(1)).to.be.equal(false);
     expect(await minterContract.whoReserved(1)).to.be.equal(nullAddress);
-    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(0);         
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(0);
+    expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([0].toString());          
   });
 
   it("Unreservation an edition that isn't reserved", async () => {
@@ -127,12 +153,14 @@ describe("Reservations", () => {
     expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress);  
     expect(await minterContract.isReserved(2)).to.be.equal(false);
     expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1); 
+    expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([1].toString()); 
 
     await expect(minterContract.unreserve([2])).to.be.revertedWith("Not reserved");
 
     expect(await minterContract.isReserved(1)).to.be.equal(true);
     expect(await minterContract.whoReserved(1)).to.be.equal(artistAddress); 
     expect(await minterContract.isReserved(2)).to.be.equal(false);    
-    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1);     
+    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1);
+    expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([1].toString());      
   });
 });

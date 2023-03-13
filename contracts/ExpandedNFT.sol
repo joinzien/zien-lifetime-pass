@@ -120,7 +120,7 @@ contract ExpandedNFT is
 
     // Reservations
     mapping(address => uint256)  private _resevationCount;
-    mapping(address => address[]) private _resevations;   
+    mapping(address => uint256[]) private _resevations;   
 
     uint256 private _loadedMetadata;
 
@@ -216,11 +216,6 @@ contract ExpandedNFT is
         }
             
         return (currentMintLimit - _pricing.mintCounts[wallet]);   
-    }
-
-    /// @dev returns the number of reservations for this wallet
-    function getReservationsCount(address wallet) public view returns (uint256) {           
-        return _resevationCount[wallet];   
     }
 
     /// @dev returns  if the address can mint
@@ -428,6 +423,7 @@ contract ExpandedNFT is
             _perTokenMetadata[tokenIDs[i]].reservedBy = wallets[i];
             _perTokenMetadata[tokenIDs[i]].state = ExpandedNFTStates.RESERVED;
             _resevationCount[wallets[i]]++;
+            _resevations[wallets[i]].push(tokenIDs[i]); 
         }
     }
 
@@ -438,6 +434,14 @@ contract ExpandedNFT is
     function unreserve (uint256[] calldata tokenIDs) external onlyOwner {  
         for (uint256 i = 0; i < tokenIDs.length; i++) {
             require(_perTokenMetadata[tokenIDs[i]].state == ExpandedNFTStates.RESERVED, "Not reserved");
+
+            address wallet = _perTokenMetadata[tokenIDs[i]].reservedBy;
+            uint256 index = 0;
+            while (_resevations[wallet][index] != tokenIDs[i]) {
+                index++;
+            }
+
+            _resevations[wallet][index] = 0;  
 
             _resevationCount[_perTokenMetadata[tokenIDs[i]].reservedBy]--;
             _perTokenMetadata[tokenIDs[i]].reservedBy = address(0);
@@ -455,11 +459,27 @@ contract ExpandedNFT is
 
     /**
       @param tokenID the tokenId to check                                                                           
-      @dev Unreserve an edition for a wallet
+      @dev who reserved the provided ID
      */
     function whoReserved (uint256 tokenID) external view returns (address) {  
         return _perTokenMetadata[tokenID].reservedBy;
     }
+ 
+    /**
+      @param wallet The wallet being checked                                                                          
+      @dev returns the number of reservations for this wallet
+    */
+    function getReservationsCount(address wallet) public view returns (uint256) {           
+        return _resevationCount[wallet];   
+    }
+
+    /**
+      @param wallet The wallet being checked                                                                          
+      @dev returns the IDs reserved by the wallet
+    */
+    function getReservationsList(address wallet) public view returns (uint256[] memory) {           
+        return _resevations[wallet];   
+    }   
 
     /**
       @param wallet The address of the wallet
