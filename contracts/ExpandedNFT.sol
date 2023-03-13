@@ -339,6 +339,43 @@ contract ExpandedNFT is
     }
 
     /**
+      @dev This mints multiple editions to the given list of addresses.
+     */
+    function _getNextReservation()
+        internal returns (uint256)
+    {
+        uint256 index = 0;
+        while (_resevations[msg.sender][index] == 0) {
+            index++;
+        }  
+
+        uint256 currentToken = _resevations[msg.sender][index];
+
+        _resevations[msg.sender][index] = 0;  
+        _resevationCount[msg.sender]--;
+        _perTokenMetadata[currentToken].reservedBy = address(0);        
+        
+        return  currentToken;
+    }
+
+    /**
+      @dev This mints multiple editions to the given list of addresses.
+     */
+    function _selectAvailableId()
+        internal returns (uint256)
+    {
+        uint256 index = _currentIndex;
+
+        while (_perTokenMetadata[index].state != ExpandedNFTStates.UNMINTED) {
+            index++;
+        } 
+
+        _currentIndex = index;
+
+        return  index;
+    }
+
+    /**
       @param recipients list of addresses to send the newly minted editions to
       @dev This mints multiple editions to the given list of addresses.
      */
@@ -358,22 +395,9 @@ contract ExpandedNFT is
 
         for (uint256 i = 0; i < recipients.length; i++) {
             if (_resevationCount[msg.sender] > 0) {
-                uint256 index = 0;
-                while (_resevations[msg.sender][index] == 0) {
-                    index++;
-                }  
-
-                currentToken = _resevations[msg.sender][index];
-
-                _resevations[msg.sender][index] = 0;  
-                _resevationCount[msg.sender]--;
-                _perTokenMetadata[currentToken].reservedBy = address(0);
+                currentToken = _getNextReservation();
             } else {
-                while (_perTokenMetadata[_currentIndex].state != ExpandedNFTStates.UNMINTED) {
-                    _currentIndex++;
-                }  
-
-                currentToken = _currentIndex;
+                currentToken = _selectAvailableId();
             }
 
             _mint(recipients[i], currentToken);
