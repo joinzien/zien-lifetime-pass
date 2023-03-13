@@ -260,6 +260,9 @@ describe("Metadata", () => {
 
     const metadataLoaded = await minterContract.metadataloaded();
     expect(metadataLoaded).to.be.equal(false);
+
+    const mintCost = ethers.utils.parseEther("0.1");
+    await expect(minterContract.mintEditions([signerAddress], { value: mintCost })).to.be.revertedWith("Not all metadata loaded");
   });
 
   it("Try to load mismatched metadata", async () => {
