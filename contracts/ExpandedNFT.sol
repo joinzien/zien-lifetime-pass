@@ -319,7 +319,6 @@ contract ExpandedNFT is
         require((_pricing.mintCounts[msg.sender] + recipients.length) <= _currentMintLimit(), "Exceeded mint limit");
 
         uint256 currentPrice = price();
-        require(currentPrice > 0, "Not for sale");
         require(msg.value == (currentPrice * recipients.length), "Wrong price");
 
         address currentMinter = msg.sender;

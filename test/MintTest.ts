@@ -114,6 +114,19 @@ describe("Mint", () => {
     expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);  
   });
 
+  it("Can mint zero cost", async () => {
+    const mintCost = ethers.utils.parseEther("0.9");
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 2, 1);   
+    await minterContract.setAllowedMinter(2);
+
+    expect(await minterContract.purchase({ value: mintCost })).to.emit(minterContract, "EditionSold");
+ 
+    expect(await minterContract.totalSupply()).to.be.equal(1);
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
+    expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(0);  
+  });
+
   it("General public can not mint while the drop is not for sale", async () => {
     await minterContract.setAllowedMinter(0);
 
