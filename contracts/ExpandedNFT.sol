@@ -112,10 +112,9 @@ contract ExpandedNFT is
 
     // Total size of the drop that can be minted
     uint256 public dropSize;
+    uint256 private _claimCount; 
 
     uint256 private _loadedMetadata;
-
-    uint256 private _claimCount; 
 
     uint256 private _currentIndex;
 
