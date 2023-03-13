@@ -115,8 +115,8 @@ contract ExpandedNFT is
 
     uint256 private _loadedMetadata;
 
-    mapping(uint256 => bool) private _tokenClaimed; 
     uint256 private _claimCount; 
+
     uint256 private _currentIndex;
 
     Pricing private _pricing;
@@ -317,7 +317,7 @@ contract ExpandedNFT is
             if (msg.value > 0) {
                 return (false);
             }
-            
+
             return (true);
         }
 
@@ -350,7 +350,7 @@ contract ExpandedNFT is
         uint256 currentPrice = price(); 
 
         for (uint256 i = 0; i < recipients.length; i++) {
-            while (_tokenClaimed[_currentIndex] == true) {
+            while (_perTokenMetadata[_currentIndex].state != ExpandedNFTStates.UNMINTED) {
                 _currentIndex++;
             }  
 
@@ -362,7 +362,6 @@ contract ExpandedNFT is
             }
 
             _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
-            _tokenClaimed[_currentIndex] = true;
             _pricing.mintCounts[currentMinter]++;
             _claimCount++;
 
