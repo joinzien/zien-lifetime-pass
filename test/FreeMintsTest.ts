@@ -20,16 +20,12 @@ describe("Free Mints", () => {
   let artistAddress: string;
   let minterContract: ExpandedNFT;
 
-  const nullAddress = "0x0000000000000000000000000000000000000000";
-
   beforeEach(async () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
       "ExpandedNFT",
     ]);
-    const dynamicMintableAddress = (
-      await deployments.get("ExpandedNFT")
-    ).address;
+
     dynamicSketch = (await ethers.getContractAt(
       "DropCreator",
       DropCreator.address
@@ -43,7 +39,7 @@ describe("Free Mints", () => {
 
     await dynamicSketch.createDrop(
       artistAddress, "Testing Token",
-      "TEST", 10);
+      "TEST", 10, true);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(

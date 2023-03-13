@@ -37,7 +37,8 @@ contract DropCreator {
         address _artistWallet,
         string memory _name,
         string memory _symbol,
-        uint256 _dropSize
+        uint256 _dropSize,
+        bool randomMint
     ) external returns (uint256) {
         require(_dropSize > 0, "Drop size must be > 0");
 
@@ -51,7 +52,8 @@ contract DropCreator {
             _artistWallet,
             _name,
             _symbol,
-            _dropSize
+            _dropSize,
+            randomMint
         );
 
         uint256 newId = _atContract.current();        

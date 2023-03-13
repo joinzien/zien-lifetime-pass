@@ -74,7 +74,7 @@ describe("Redeem", () => {
       artistAddress,
       "Testing Token",
       "TEST",
-      10);
+      10, true);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(

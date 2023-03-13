@@ -141,7 +141,8 @@ contract ExpandedNFT is
       @param artistWallet wallet address for thr User that created the drop
       @param _name Name of drop, used in the title as "$NAME NUMBER/TOTAL"
       @param _symbol Symbol of the new token contract
-      @param _dropSize Number of editions that can be minted in total.    
+      @param _dropSize Number of editions that can be minted in total. 
+      @param randomMint Mint in an random order   
       @dev Function to create a new drop. Can only be called by the allowed creator
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
@@ -151,7 +152,8 @@ contract ExpandedNFT is
         address artistWallet,
         string memory _name,
         string memory _symbol,
-        uint256 _dropSize
+        uint256 _dropSize,
+        bool randomMint
     ) public initializer {
         require(_dropSize > 0, "Drop size must be > 0");
 

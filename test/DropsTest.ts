@@ -53,7 +53,8 @@ describe("Drops", () => {
         artistAddress,
         "test name",
         "SYM",
-        12
+        12,
+        true
       )
     ).to.be.revertedWith("Initializable: contract is already initialized");
   });
@@ -63,7 +64,8 @@ describe("Drops", () => {
       artistAddress,
       "Testing Token",
       "TEST",
-      0)).to.be.revertedWith("Drop size must be > 0");
+      0, 
+      true)).to.be.revertedWith("Drop size must be > 0");
   });
 
   it("Makes a new drop", async () => {
@@ -72,6 +74,7 @@ describe("Drops", () => {
       "Testing Token",
       "TEST",
       10, // 1% royalty since BPS  
+      true
     );
 
     const dropResult = await dynamicSketch.getDropAtId(0);
@@ -107,7 +110,8 @@ describe("Drops", () => {
         artistAddress,
         "Testing Token",
         "TEST",
-        10);
+        10,
+        true);
 
       const dropResult = await dynamicSketch.getDropAtId(0);
       minterContract = (await ethers.getContractAt(
@@ -156,7 +160,8 @@ describe("Drops", () => {
         artistAddress,
         "Testing Token",
         "TEST",
-        0
+        0,
+        true
       )).to.be.reverted;
       expect(await minterContract.totalSupply()).to.be.equal(0);
     });
@@ -178,7 +183,8 @@ describe("Drops", () => {
           artistAddress,
           "test name",
           "SYM",
-          12)
+          12,
+          true)
       ).to.be.revertedWith("Initializable: contract is already initialized");
       await minterContract.mintEdition(await signer1.getAddress(), {
         value: ethers.utils.parseEther("0.1")
