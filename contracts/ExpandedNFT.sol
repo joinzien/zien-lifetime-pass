@@ -369,8 +369,7 @@ contract ExpandedNFT is
         internal returns (uint256)
     {
         if (_randomMint) {
-            uint randNonce = 184765367;
-            uint random = uint(keccak256(abi.encodePacked(block.timestamp,msg.sender,randNonce))) % dropSize;
+            uint256 random = uint(keccak256(abi.encodePacked(block.timestamp,msg.sender,block.prevrandao,gasleft()))) % dropSize;
             uint256 index = 1 + random;
 
             while (_perTokenMetadata[index].state != ExpandedNFTStates.UNMINTED) {
