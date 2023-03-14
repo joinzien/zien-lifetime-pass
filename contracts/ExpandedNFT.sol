@@ -124,6 +124,7 @@ contract ExpandedNFT is
 
     uint256 private _loadedMetadata;
 
+    bool private _randomMint;
     uint256 private _currentIndex;
 
     // ERC20 interface for the payment token
@@ -169,6 +170,7 @@ contract ExpandedNFT is
         // Set edition id start to be 1 not 0
         _claimCount = 0; 
         _currentIndex = 1;
+        _randomMint = randomMint;
 
         // Set the metadata
         _loadedMetadata = 0; 
@@ -366,6 +368,25 @@ contract ExpandedNFT is
     function _selectAvailableId()
         internal returns (uint256)
     {
+        if (_randomMint) {
+            uint randNonce = 184765367;
+            uint modulus = dropSize - 1;
+            uint random = uint(keccak256(abi.encodePacked(block.timestamp,msg.sender,randNonce))) % modulus;
+            uint256 index = 1 + random;
+            require(index > 0, "out of bounds");
+            require (index <= dropSize, "out of bounds");
+
+            while (_perTokenMetadata[index].state != ExpandedNFTStates.UNMINTED) {
+                index++;
+
+                if (index > dropSize)  {
+                    index = 1;
+                }
+            } 
+
+            return  index;
+        }
+
         uint256 index = _currentIndex;
 
         while (_perTokenMetadata[index].state != ExpandedNFTStates.UNMINTED) {

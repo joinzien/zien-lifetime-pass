@@ -12,7 +12,7 @@ import {
   ExpandedNFT,
 } from "../typechain";
 
-describe("Mint", () => {
+describe("Mint randomly", () => {
   let signer: SignerWithAddress;
   let signerAddress: string;
 
@@ -327,39 +327,10 @@ describe("Mint", () => {
     await expect(minterContract.connect(user).mintEdition(userAddress, {
       value: ethers.utils.parseEther("0.1")
     }))
-      .to.emit(minterContract, "Transfer")
-      .withArgs(
-        "0x0000000000000000000000000000000000000000",
-        userAddress,
-        1
-      );
+      .to.emit(minterContract, "Transfer");
       
     expect(await minterContract.totalSupply()).to.be.equal(1);
   });
-  
-  it("Reserved IDs are minted first", async () => {
-    const mintCost = ethers.utils.parseEther("0.1");
-    await minterContract.setPricing(10, 500, mintCost, mintCost, 2, 2);   
-
-    await minterContract.setAllowedMinter(2);
-    await minterContract.reserve([artistAddress], [10]);   
-    
-    expect(await minterContract.isReserved(10)).to.be.equal(true);
-    expect(await minterContract.whoReserved(10)).to.be.equal(artistAddress);  
-    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1); 
-    expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([10].toString());     
-
-    expect(await minterContract.connect(artist).mintMulipleEditions(artistAddress, 2, { value: ethers.utils.parseEther("0.2") })).to.emit(minterContract, "EditionSold");
- 
-    expect(await minterContract.totalSupply()).to.be.equal(2);
-    expect(await minterContract.ownerOf(1)).to.be.equal(artistAddress);
-    expect(await minterContract.ownerOf(10)).to.be.equal(artistAddress);          
-    expect(await minterContract.getMintLimit(artistAddress)).to.be.equal(0);  
-    expect(await minterContract.isReserved(10)).to.be.equal(false);
-    expect(await minterContract.whoReserved(10)).to.be.equal(nullAddress);  
-    expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(0); 
-    expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([0].toString());       
-  }); 
   
   it("Can reserved multiple IDs", async () => {
     const mintCost = ethers.utils.parseEther("0.1");
@@ -383,7 +354,7 @@ describe("Mint", () => {
     expect(await minterContract.whoReserved(10)).to.be.equal(nullAddress);  
     expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(0); 
     expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([0, 0].toString());       
-  });  
+  }); 
   
   it("Only the reserving wallet can mint a reserved edition", async () => {
     const mintCost = ethers.utils.parseEther("0.1");
@@ -401,9 +372,7 @@ describe("Mint", () => {
 
     expect(await minterContract.mintMulipleEditions(signerAddress, 2, { value: ethers.utils.parseEther("0.2") })).to.emit(minterContract, "EditionSold");
  
-    expect(await minterContract.totalSupply()).to.be.equal(2);
-    expect(await minterContract.ownerOf(3)).to.be.equal(signerAddress);
-    expect(await minterContract.ownerOf(4)).to.be.equal(signerAddress);          
+    expect(await minterContract.totalSupply()).to.be.equal(2);       
     expect(await minterContract.getMintLimit(artistAddress)).to.be.equal(3); 
     expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(1);     
     expect(await minterContract.isReserved(1)).to.be.equal(true);

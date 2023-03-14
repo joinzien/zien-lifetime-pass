@@ -111,7 +111,7 @@ describe("Drops", () => {
         "Testing Token",
         "TEST",
         10,
-        true);
+        false);
 
       const dropResult = await dynamicSketch.getDropAtId(0);
       minterContract = (await ethers.getContractAt(
