@@ -97,11 +97,10 @@ describe("Drops", () => {
     expect(await minterContract.name()).to.be.equal("Testing Token");
     expect(await minterContract.symbol()).to.be.equal("TEST");
     expect(await minterContract.dropSize()).to.be.equal(10);
-
-    // TODO(iain): check bps
     expect(await minterContract.owner()).to.be.equal(signerAddress);
   });
-  describe("with a drop", () => {
+
+  describe("with an in order drop", () => {
     let signer1: SignerWithAddress;
     let minterContract: ExpandedNFT;
     beforeEach(async () => {
@@ -261,8 +260,143 @@ describe("Drops", () => {
         })
       ).to.be.revertedWith("Exceeded supply");
 
-      expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/token/10");
+      expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/01");      
+      expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/token/02");      
+      expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/token/03");      
+      expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/token/04");    
+      expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/token/05");      
+      expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/token/06");      
+      expect(await minterContract.tokenURI(7)).to.be.equal("http://example.com/token/07");      
+      expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/token/08");
+      expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/token/09");      
+      expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/token/10");  
       expect(await minterContract.totalSupply()).to.be.equal(10);
     });
   });
+
+  describe("with a random drop", () => {
+    let signer1: SignerWithAddress;
+    let minterContract: ExpandedNFT;
+    beforeEach(async () => {
+      signer1 = (await ethers.getSigners())[1];
+      await dynamicSketch.createDrop(
+        artistAddress,
+        "Testing Token",
+        "TEST",
+        10,
+        true);
+
+      const dropResult = await dynamicSketch.getDropAtId(0);
+      minterContract = (await ethers.getContractAt(
+        "ExpandedNFT",
+        dropResult
+      )) as ExpandedNFT;
+
+      const mintCost = ethers.utils.parseEther("0.1");      
+
+      await minterContract.loadMetadataChunk(
+        1, 10,
+        ["http://example.com/token/01", "http://example.com/token/02", 
+         "http://example.com/token/03", "http://example.com/token/04", 
+         "http://example.com/token/05", "http://example.com/token/06", 
+         "http://example.com/token/07", "http://example.com/token/08", 
+         "http://example.com/token/09", "http://example.com/token/10"]
+      );
+
+      await minterContract.setPricing(10, 500, mintCost, mintCost, 15, 15);
+      await minterContract.setAllowedMinter(2);
+    });
+
+    it("creates a new drop", async () => {
+      expect(await signer1.getBalance()).to.eq(
+        ethers.utils.parseEther("10000")
+      );
+
+      // Mint first edition
+      await expect(minterContract.mintEdition(signerAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
+        .to.emit(minterContract, "Transfer");
+
+      expect(await minterContract.totalSupply()).to.be.equal(1);
+    });
+
+    it("creates an unbounded drop", async () => {
+      // no limit for drop size
+      await expect(dynamicSketch.createDrop(
+        artistAddress,
+        "Testing Token",
+        "TEST",
+        0,
+        true
+      )).to.be.reverted;
+      expect(await minterContract.totalSupply()).to.be.equal(0);
+    });
+
+    it("creates an authenticated edition", async () => {
+      await minterContract.mintEdition(await signer1.getAddress(), {
+        value: ethers.utils.parseEther("0.1")
+      });
+      expect(await minterContract.totalSupply()).to.be.equal(1);
+    });
+
+    it("does not allow re-initialization", async () => {
+      await expect(
+        minterContract.initialize(
+          signerAddress,
+          artistAddress,
+          "test name",
+          "SYM",
+          12,
+          true)
+      ).to.be.revertedWith("Initializable: contract is already initialized");
+      await minterContract.mintEdition(await signer1.getAddress(), {
+        value: ethers.utils.parseEther("0.1")
+      });
+      expect(await minterContract.totalSupply()).to.be.equal(1);
+    });
+
+    it("returns interfaces correctly", async () => {
+      // ERC2891 interface
+      expect(await minterContract.supportsInterface("0x2a55205a")).to.be.true;
+      // ERC165 interface
+      expect(await minterContract.supportsInterface("0x01ffc9a7")).to.be.true;
+      // ERC721 interface
+      expect(await minterContract.supportsInterface("0x80ac58cd")).to.be.true;
+    });
+
+    it("stops after editions are sold out", async () => {
+      const [_, signer1] = await ethers.getSigners();
+
+      expect(await minterContract.numberCanMint()).to.be.equal(10);
+
+      // Mint first edition
+      for (let i = 1; i <= 10; i++) {
+        await expect(minterContract.mintEdition(await signer1.getAddress(), {
+          value: ethers.utils.parseEther("0.1")
+        }))
+          .to.emit(minterContract, "Transfer");
+      }
+
+      expect(await minterContract.numberCanMint()).to.be.equal(0);
+
+      await expect(
+        minterContract.mintEdition(signerAddress, {
+          value: ethers.utils.parseEther("0.1")
+        })
+      ).to.be.revertedWith("Exceeded supply");
+
+      expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/01");      
+      expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/token/02");      
+      expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/token/03");      
+      expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/token/04");    
+      expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/token/05");      
+      expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/token/06");      
+      expect(await minterContract.tokenURI(7)).to.be.equal("http://example.com/token/07");      
+      expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/token/08");
+      expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/token/09");      
+      expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/token/10");      
+      expect(await minterContract.totalSupply()).to.be.equal(10);
+    });
+  });  
 });
