@@ -370,11 +370,8 @@ contract ExpandedNFT is
     {
         if (_randomMint) {
             uint randNonce = 184765367;
-            uint modulus = dropSize - 1;
-            uint random = uint(keccak256(abi.encodePacked(block.timestamp,msg.sender,randNonce))) % modulus;
+            uint random = uint(keccak256(abi.encodePacked(block.timestamp,msg.sender,randNonce))) % dropSize;
             uint256 index = 1 + random;
-            require(index > 0, "out of bounds");
-            require (index <= dropSize, "out of bounds");
 
             while (_perTokenMetadata[index].state != ExpandedNFTStates.UNMINTED) {
                 index++;
