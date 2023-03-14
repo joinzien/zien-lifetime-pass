@@ -41,7 +41,7 @@ describe("Allow List", () => {
 
     await dynamicSketch.createDrop(
       artistAddress, "Testing Token",
-      "TEST", 10);
+      "TEST", 10, true);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(

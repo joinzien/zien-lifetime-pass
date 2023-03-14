@@ -49,7 +49,8 @@ describe("Burn", () => {
       artistAddress,
       "Testing Token",
       "TEST",
-      10);
+      10,
+      false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);   
     minterContract = (await ethers.getContractAt(

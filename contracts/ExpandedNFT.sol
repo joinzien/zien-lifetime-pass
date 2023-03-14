@@ -124,6 +124,7 @@ contract ExpandedNFT is
 
     uint256 private _loadedMetadata;
 
+    bool private _randomMint;
     uint256 private _currentIndex;
 
     // ERC20 interface for the payment token
@@ -141,7 +142,8 @@ contract ExpandedNFT is
       @param artistWallet wallet address for thr User that created the drop
       @param _name Name of drop, used in the title as "$NAME NUMBER/TOTAL"
       @param _symbol Symbol of the new token contract
-      @param _dropSize Number of editions that can be minted in total.    
+      @param _dropSize Number of editions that can be minted in total. 
+      @param randomMint Mint in an random order   
       @dev Function to create a new drop. Can only be called by the allowed creator
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
@@ -151,7 +153,8 @@ contract ExpandedNFT is
         address artistWallet,
         string memory _name,
         string memory _symbol,
-        uint256 _dropSize
+        uint256 _dropSize,
+        bool randomMint
     ) public initializer {
         require(_dropSize > 0, "Drop size must be > 0");
 
@@ -167,6 +170,7 @@ contract ExpandedNFT is
         // Set edition id start to be 1 not 0
         _claimCount = 0; 
         _currentIndex = 1;
+        _randomMint = randomMint;
 
         // Set the metadata
         _loadedMetadata = 0; 
@@ -339,6 +343,58 @@ contract ExpandedNFT is
     }
 
     /**
+      @dev This mints multiple editions to the given list of addresses.
+     */
+    function _getNextReservation()
+        internal returns (uint256)
+    {
+        uint256 index = 0;
+        while (_resevations[msg.sender][index] == 0) {
+            index++;
+        }  
+
+        uint256 currentToken = _resevations[msg.sender][index];
+
+        _resevations[msg.sender][index] = 0;  
+        _resevationCount[msg.sender]--;
+        _perTokenMetadata[currentToken].reservedBy = address(0);        
+        
+        return  currentToken;
+    }
+
+    /**
+      @dev This mints multiple editions to the given list of addresses.
+     */
+    function _selectAvailableId()
+        internal returns (uint256)
+    {
+        if (_randomMint) {
+            uint256 random = uint(keccak256(abi.encodePacked(block.timestamp,msg.sender,block.prevrandao,gasleft()))) % dropSize;
+            uint256 index = 1 + random;
+
+            while (_perTokenMetadata[index].state != ExpandedNFTStates.UNMINTED) {
+                index++;
+
+                if (index > dropSize)  {
+                    index = 1;
+                }
+            } 
+
+            return  index;
+        }
+
+        uint256 index = _currentIndex;
+
+        while (_perTokenMetadata[index].state != ExpandedNFTStates.UNMINTED) {
+            index++;
+        } 
+
+        _currentIndex = index;
+
+        return  index;
+    }
+
+    /**
       @param recipients list of addresses to send the newly minted editions to
       @dev This mints multiple editions to the given list of addresses.
      */
@@ -358,22 +414,9 @@ contract ExpandedNFT is
 
         for (uint256 i = 0; i < recipients.length; i++) {
             if (_resevationCount[msg.sender] > 0) {
-                uint256 index = 0;
-                while (_resevations[msg.sender][index] == 0) {
-                    index++;
-                }  
-
-                currentToken = _resevations[msg.sender][index];
-
-                _resevations[msg.sender][index] = 0;  
-                _resevationCount[msg.sender]--;
-                _perTokenMetadata[currentToken].reservedBy = address(0);
+                currentToken = _getNextReservation();
             } else {
-                while (_perTokenMetadata[_currentIndex].state != ExpandedNFTStates.UNMINTED) {
-                    _currentIndex++;
-                }  
-
-                currentToken = _currentIndex;
+                currentToken = _selectAvailableId();
             }
 
             _mint(recipients[i], currentToken);

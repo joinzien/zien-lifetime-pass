@@ -27,9 +27,7 @@ describe("Reservations", () => {
       "DropCreator",
       "ExpandedNFT",
     ]);
-    const dynamicMintableAddress = (
-      await deployments.get("ExpandedNFT")
-    ).address;
+
     dynamicSketch = (await ethers.getContractAt(
       "DropCreator",
       DropCreator.address
@@ -43,7 +41,7 @@ describe("Reservations", () => {
 
     await dynamicSketch.createDrop(
       artistAddress, "Testing Token",
-      "TEST", 10);
+      "TEST", 10, true);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
