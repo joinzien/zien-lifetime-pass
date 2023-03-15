@@ -26,8 +26,8 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 
 ### Mainnet
 
-- DropCreator [0xe93103a0a9aa6a7e7605e8b1f2d6e6445fe2769f](https://etherscan.io/address/0xe93103a0a9aa6a7e7605e8b1f2d6e6445fe2769f)
-- ExpandedNFT [0xcdd58aea1642494c7d9578912c34b0bfd88a73c9](https://etherscan.io/address/0xcdd58aea1642494c7d9578912c34b0bfd88a73c9)
+- DropCreator [0x7A606F1d0B92d6db999b380Ba230226E9d42446b](https://etherscan.io/address/0x7A606F1d0B92d6db999b380Ba230226E9d42446b)
+- ExpandedNFT [0xC5f2fBc70aAA868c4E8D6029e549a4b5965b569e](https://etherscan.io/address/0xC5f2fBc70aAA868c4E8D6029e549a4b5965b569e)
 
 ### Goerli
 
