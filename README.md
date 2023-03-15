@@ -28,11 +28,9 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 
 - DropCreator [0xe93103a0a9aa6a7e7605e8b1f2d6e6445fe2769f](https://etherscan.io/address/0xe93103a0a9aa6a7e7605e8b1f2d6e6445fe2769f)
 - ExpandedNFT [0xcdd58aea1642494c7d9578912c34b0bfd88a73c9](https://etherscan.io/address/0xcdd58aea1642494c7d9578912c34b0bfd88a73c9)
-- SharedNFTLogic [0x6883e3b3aea73cbeccbfa6a11c3a617c2f92c574](https://etherscan.io/address/0x6883e3b3aea73cbeccbfa6a11c3a617c2f92c574)
 
 ### Goerli
 
-- DropCreator [0xeff21941a8964f7132a31b970c838fb30674cbde](https://goerli.etherscan.io/address/0xeff21941a8964f7132a31b970c838fb30674cbde)
-- ExpandedNFT [0x8f31e6a4f322668d3764850aa27dbf65172f2543](https://goerli.etherscan.io/address/0x8f31e6a4f322668d3764850aa27dbf65172f2543)
-- SharedNFTLogic [0xecd59f3933649cf892402428723086e79829d2d7](https://goerli.etherscan.io/address/0xecd59f3933649cf892402428723086e79829d2d7)
-- TestCash [0x9e4e27b8d9643d2405c24328869641e310da310f](https://goerli.etherscan.io/address/0x9e4e27b8d9643d2405c24328869641e310da310f)
+- DropCreator [0xCD4801c694Bc3754DcB2918574554d52B3D559ab](https://goerli.etherscan.io/address/0xCD4801c694Bc3754DcB2918574554d52B3D559ab)
+- ExpandedNFT [0x78c13e0ED1191f67a63EEE24c4646011b1E14061](https://goerli.etherscan.io/address/0x78c13e0ED1191f67a63EEE24c4646011b1E14061)
+- TestCash [0xA824EaC0F6962ce4dC31D6Cfc4BCC2732ABD45Fa](https://goerli.etherscan.io/address/0xA824EaC0F6962ce4dC31D6Cfc4BCC2732ABD45Faf)
