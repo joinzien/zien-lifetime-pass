@@ -82,7 +82,7 @@ describe("Mint a large drop", () => {
     const mintSize = 20;
     
     for (let i=0; i < dropSize/mintSize; i++) {
-      expect(await minterContract.mintMulipleEditions(signerAddress, mintSize, { value: ethers.utils.parseEther("2.0") })).to.emit(minterContract, "EditionSold");
+      expect(await minterContract.mintMultipleEditions(signerAddress, mintSize, { value: ethers.utils.parseEther("2.0") })).to.emit(minterContract, "EditionSold");
     }
  
     expect(await minterContract.totalSupply()).to.be.equal(2000);

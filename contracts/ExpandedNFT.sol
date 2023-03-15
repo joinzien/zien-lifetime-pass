@@ -306,7 +306,7 @@ contract ExpandedNFT is
       @param count how many editions to mint      
       @dev This mints one edition to the given address by an allowed minter on the edition instance.
      */
-    function mintMulipleEditions(address to, uint256 count) external payable returns (uint256) {
+    function mintMultipleEditions(address to, uint256 count) external payable returns (uint256) {
         address[] memory toMint = new address[](count);
 
         for (uint256 r = 0; r < count; r++) {
@@ -370,17 +370,17 @@ contract ExpandedNFT is
     {
         if (_randomMint) {
             uint256 random = uint(keccak256(abi.encodePacked(block.timestamp,msg.sender,block.prevrandao,gasleft()))) % dropSize;
-            uint256 index = 1 + random;
+            uint256 randomIndex = 1 + random;
 
-            while (_perTokenMetadata[index].state != ExpandedNFTStates.UNMINTED) {
-                index++;
+            while (_perTokenMetadata[randomIndex].state != ExpandedNFTStates.UNMINTED) {
+                randomIndex++;
 
-                if (index > dropSize)  {
-                    index = 1;
+                if (randomIndex > dropSize)  {
+                    randomIndex = 1;
                 }
             } 
 
-            return  index;
+            return randomIndex;
         }
 
         uint256 index = _currentIndex;
