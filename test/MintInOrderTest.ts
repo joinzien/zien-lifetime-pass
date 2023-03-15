@@ -111,7 +111,7 @@ describe("Mint in order", () => {
       expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(1); 
       expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([10].toString());     
   
-      expect(await minterContract.connect(artist).mintMulipleEditions(artistAddress, 2, { value: ethers.utils.parseEther("0.2") })).to.emit(minterContract, "EditionSold");
+      expect(await minterContract.connect(artist).mintMultipleEditions(artistAddress, 2, { value: ethers.utils.parseEther("0.2") })).to.emit(minterContract, "EditionSold");
    
       expect(await minterContract.totalSupply()).to.be.equal(2);
       expect(await minterContract.ownerOf(1)).to.be.equal(artistAddress);
@@ -137,7 +137,7 @@ describe("Mint in order", () => {
       expect(await minterContract.getReservationsCount(artistAddress)).to.be.equal(2); 
       expect((await minterContract.getReservationsList(artistAddress)).toString()).to.be.equal([1, 2].toString());     
   
-      expect(await minterContract.mintMulipleEditions(signerAddress, 2, { value: ethers.utils.parseEther("0.2") })).to.emit(minterContract, "EditionSold");
+      expect(await minterContract.mintMultipleEditions(signerAddress, 2, { value: ethers.utils.parseEther("0.2") })).to.emit(minterContract, "EditionSold");
    
       expect(await minterContract.totalSupply()).to.be.equal(2);
       expect(await minterContract.ownerOf(3)).to.be.equal(signerAddress);
