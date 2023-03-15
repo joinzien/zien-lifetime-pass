@@ -16,3 +16,4 @@ coverage.json
 coverage
 
 deployments/goerli/solcInputs/
+deployments/mainnet/solcInputs/
