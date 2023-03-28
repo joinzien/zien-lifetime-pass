@@ -51,6 +51,7 @@ describe("Mint in order", () => {
         artistAddress,
         "Testing Token",
         "TEST",
+        "http://example.com/token/",
         10, false);
   
       const dropResult = await dynamicSketch.getDropAtId(0);   

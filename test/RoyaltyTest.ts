@@ -47,6 +47,7 @@ describe("Royalty", () => {
       artistAddress,
       "Testing Token",
       "TEST",
+      "http://example.com/token/",
       10, true);
 
     const dropResult = await dynamicSketch.getDropAtId(0);

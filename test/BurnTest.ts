@@ -49,6 +49,7 @@ describe("Burn", () => {
       artistAddress,
       "Testing Token",
       "TEST",
+      "http://example.com/token/",
       10,
       false);
 

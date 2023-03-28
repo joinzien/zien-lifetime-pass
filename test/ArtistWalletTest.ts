@@ -49,6 +49,7 @@ describe("ArtistWallet", () => {
       artistAddress,
       "Testing Token",
       "TEST",
+      "http://example.com/token/",
       10,
       true)
 

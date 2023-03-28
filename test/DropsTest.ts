@@ -53,6 +53,7 @@ describe("Drops", () => {
         artistAddress,
         "test name",
         "SYM",
+        "http://example.com/token/",
         12,
         true
       )
@@ -64,6 +65,7 @@ describe("Drops", () => {
       artistAddress,
       "Testing Token",
       "TEST",
+      "http://example.com/token/",
       0, 
       true)).to.be.revertedWith("Drop size must be > 0");
   });
@@ -73,6 +75,7 @@ describe("Drops", () => {
       artistAddress,
       "Testing Token",
       "TEST",
+      "http://example.com/token/",
       10, // 1% royalty since BPS  
       true
     );
@@ -109,6 +112,7 @@ describe("Drops", () => {
         artistAddress,
         "Testing Token",
         "TEST",
+        "http://example.com/token/",
         10,
         false);
 
@@ -159,6 +163,7 @@ describe("Drops", () => {
         artistAddress,
         "Testing Token",
         "TEST",
+        "http://example.com/token/",
         0,
         true
       )).to.be.reverted;
@@ -182,6 +187,7 @@ describe("Drops", () => {
           artistAddress,
           "test name",
           "SYM",
+          "http://example.com/token/",
           12,
           true)
       ).to.be.revertedWith("Initializable: contract is already initialized");
@@ -283,6 +289,7 @@ describe("Drops", () => {
         artistAddress,
         "Testing Token",
         "TEST",
+        "http://example.com/token/",
         10,
         true);
 
@@ -327,6 +334,7 @@ describe("Drops", () => {
         artistAddress,
         "Testing Token",
         "TEST",
+        "http://example.com/token/",
         0,
         true
       )).to.be.reverted;
@@ -347,6 +355,7 @@ describe("Drops", () => {
           artistAddress,
           "test name",
           "SYM",
+          "http://example.com/token/",
           12,
           true)
       ).to.be.revertedWith("Initializable: contract is already initialized");
