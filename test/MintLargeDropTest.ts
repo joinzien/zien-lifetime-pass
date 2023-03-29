@@ -51,6 +51,7 @@ describe("Mint a large drop", () => {
       artistAddress,
       "Testing Token",
       "TEST",
+      "http://example.com/token/",
       dropSize, true);
 
     const dropResult = await dynamicSketch.getDropAtId(0);   
@@ -58,17 +59,6 @@ describe("Mint a large drop", () => {
       "ExpandedNFT",
       dropResult
     )) as ExpandedNFT;
-      
-    for (let i=0; i < dropSize/10; i++) {
-      await minterContract.loadMetadataChunk(
-        1+ i*10, 10,
-        ["http://example.com/token/01", "http://example.com/token/02", 
-         "http://example.com/token/03", "http://example.com/token/04", 
-         "http://example.com/token/05", "http://example.com/token/06", 
-         "http://example.com/token/07", "http://example.com/token/08", 
-         "http://example.com/token/09", "http://example.com/token/10"]
-      );
-    }
 
     const mintCost = ethers.utils.parseEther("0.1");
     await minterContract.setPricing(10, 500, mintCost, mintCost, dropSize, dropSize);   
@@ -78,13 +68,13 @@ describe("Mint a large drop", () => {
   it("Mint via mintMultipleEditions", async () => {
     await minterContract.setAllowedMinter(2);
 
-    const dropSize = 2000;
+    const dropSize = 1000;
     const mintSize = 20;
     
     for (let i=0; i < dropSize/mintSize; i++) {
       expect(await minterContract.mintMultipleEditions(signerAddress, mintSize, { value: ethers.utils.parseEther("2.0") })).to.emit(minterContract, "EditionSold");
     }
  
-    expect(await minterContract.totalSupply()).to.be.equal(2000);
+    expect(await minterContract.totalSupply()).to.be.equal(dropSize);
   });
 });

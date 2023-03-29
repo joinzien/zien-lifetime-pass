@@ -33,10 +33,15 @@ contract DropCreator {
     /// @param _artistWallet User that created the drop
     /// @param _name Name of the drop contract
     /// @param _symbol Symbol of the drop contract
+    /// @param _baseDir The base directory fo the metadata
+    /// @param _dropSize The number of editions in the drop
+    /// @param randomMint Should editions be minted at random
+
     function createDrop(
         address _artistWallet,
         string memory _name,
         string memory _symbol,
+        string memory _baseDir,
         uint256 _dropSize,
         bool randomMint
     ) external returns (uint256) {
@@ -52,6 +57,7 @@ contract DropCreator {
             _artistWallet,
             _name,
             _symbol,
+            _baseDir,
             _dropSize,
             randomMint
         );
