@@ -218,6 +218,45 @@ describe("Metadata", () => {
     );
   });
 
+  it("Override the metadata ", async () => {
+    await dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      "http://example.com/token/",
+      10, false);
+
+    const dropResult = await dynamicSketch.getDropAtId(0);
+    minterContract = (await ethers.getContractAt(
+      "ExpandedNFT",
+      dropResult
+    )) as ExpandedNFT;
+
+    const mintCost = ethers.utils.parseEther("0.1");
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 2, 1);   
+    await minterContract.setAllowedMinter(2);
+
+    // Mint as the general public
+    await expect(minterContract.mintEdition(signerAddress, {
+      value: ethers.utils.parseEther("0.1")
+    }))
+      .to.emit(minterContract, "Transfer")
+      .withArgs(
+        "0x0000000000000000000000000000000000000000",
+        signerAddress,
+        1
+      );
+
+    expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/1.json");   
+
+    await minterContract.updateMetadata(
+      1, 1,
+      ["http://example.com/edition/1.json"]
+    );
+
+    expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/edition/1.json");       
+  });
+
   it("Overlapping metadata chunks", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
