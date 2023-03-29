@@ -143,6 +143,48 @@ describe("Metadata", () => {
     );
   });
 
+  it("Update the base directory", async () => {
+    await dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      "http://example.com/token/",
+      10, true);
+
+    const dropResult = await dynamicSketch.getDropAtId(0);
+    minterContract = (await ethers.getContractAt(
+      "ExpandedNFT",
+      dropResult
+    )) as ExpandedNFT;
+
+    expect(await minterContract.baseDir()).to.be.equal("http://example.com/token/");
+
+    await minterContract.updateBaseDir("http://example.com/edition/");
+
+    expect(await minterContract.baseDir()).to.be.equal("http://example.com/edition/");
+  });
+
+  it("Try updating the base directory not as the owner", async () => {
+    await dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      "http://example.com/token/",
+      10, true);
+
+    const dropResult = await dynamicSketch.getDropAtId(0);
+    minterContract = (await ethers.getContractAt(
+      "ExpandedNFT",
+      dropResult
+    )) as ExpandedNFT;
+
+    expect(await minterContract.baseDir()).to.be.equal("http://example.com/token/");
+
+    await expect(minterContract.connect(artist).updateBaseDir("http://example.com/edition/")).to.be.revertedWith("Ownable: caller is not the owner");
+
+    expect(await minterContract.baseDir()).to.be.equal("http://example.com/token/");
+  });
+
   it("Update multiple metadata chunks", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
@@ -240,7 +282,7 @@ describe("Metadata", () => {
         "http://example.com/token/07", "http://example.com/token/08",
         "http://example.com/token/09", "http://example.com/token/10"]
     )).to.be.revertedWith("Data size mismatch");
-  }); 
+  });
 
   it("Update redeemed metadata, not as the owner", async () => {
     await dynamicSketch.createDrop(
@@ -333,5 +375,5 @@ describe("Metadata", () => {
     )) as ExpandedNFT;
 
     await expect(minterContract.tokenURI(0)).to.be.revertedWith("No token");
-  });  
+  });
 });

@@ -141,7 +141,7 @@ contract ExpandedNFT is
       @param artistWallet wallet address for thr User that created the drop
       @param _name Name of drop, used in the title as "$NAME NUMBER/TOTAL"
       @param _symbol Symbol of the new token contract
-      @param baseDir The base directory fo the metadata
+      @param baseDirectory The base directory fo the metadata
       @param _dropSize Number of editions that can be minted in total. 
       @param randomMint Mint in an random order   
       @dev Function to create a new drop. Can only be called by the allowed creator
@@ -153,7 +153,7 @@ contract ExpandedNFT is
         address artistWallet,
         string memory _name,
         string memory _symbol,
-        string memory baseDir,
+        string memory baseDirectory,
         uint256 _dropSize,
         bool randomMint
     ) public initializer {
@@ -166,7 +166,7 @@ contract ExpandedNFT is
         transferOwnership(_owner);
 
         _artistWallet = artistWallet;
-        _baseDir = baseDir;
+        _baseDir = baseDirectory;
         dropSize = _dropSize;
 
         // Set edition id start to be 1 not 0
@@ -175,6 +175,11 @@ contract ExpandedNFT is
         _randomMint = randomMint;
     }
 
+    /// @dev returns the base directory string
+    function baseDir() public view returns (string memory) {
+        return _baseDir;
+    }
+    
     /// @dev returns the number of minted tokens within the drop
     function totalSupply() public view returns (uint256) {
         return _claimCount;
@@ -530,6 +535,14 @@ contract ExpandedNFT is
         } 
             
         return 0;       
+    }
+
+    /**
+      @param baseDirectory The base directory fo the metadata
+      @dev Update the base directory
+     */
+    function updateBaseDir(string memory baseDirectory) external onlyOwner {
+        _baseDir= baseDirectory;
     }
 
     /**
