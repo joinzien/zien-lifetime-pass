@@ -99,9 +99,6 @@ contract ExpandedNFT is
 
         // Mint counts for each address
         mapping(address => uint256) mintCounts;                               
-
-        // Free Mints
-        mapping(address =>  uint256) freeMints;
     }
 
     // Artists wallet address
@@ -323,19 +320,7 @@ contract ExpandedNFT is
     function _paymentAmountCorrect(uint256 numberToBeMinted)
         internal returns (bool)
     {
-        uint256 freeMintCount = _pricing.freeMints[msg.sender];
-
-        if (numberToBeMinted <= freeMintCount) {
-            if (msg.value > 0) {
-                return (false);
-            }
-
-            return (true);
-        }
-
-        uint256 remainingToMint = numberToBeMinted - freeMintCount;
-
-        if (msg.value == (price() * remainingToMint)) {
+        if (msg.value == (price() * numberToBeMinted)) {
             return (true);
         }
 
@@ -420,11 +405,6 @@ contract ExpandedNFT is
             }
 
             _mint(recipients[i], currentToken);
-
-            uint256 freeMintCount = _pricing.freeMints[msg.sender];
-            if (freeMintCount > 0) {
-                _pricing.freeMints[msg.sender] = freeMintCount - 1;
-            }
 
             _perTokenMetadata[currentToken].state = ExpandedNFTStates.MINTED;
             _pricing.mintCounts[msg.sender]++;
@@ -537,23 +517,6 @@ contract ExpandedNFT is
     function getReservationsList(address wallet) public view returns (uint256[] memory) {           
         return _resevations[wallet];   
     }   
-
-    /**
-      @param wallet The address of the wallet
-      @param freeMintLimit How many free mints should the wallet get                                                                           
-      @dev Set the number of freemints for a wallet
-     */
-    function setFreeMints (address wallet, uint256 freeMintLimit)  external onlyOwner {  
-        _pricing.freeMints[wallet] = freeMintLimit;
-    }
-
-    /**
-      @param wallet The address of the wallet                                                                       
-      @dev Check the number of fre mints a wallet has
-     */
-    function numberOfFreeMints (address wallet) external view returns (uint256) {  
-        return _pricing.freeMints[wallet];
-    }
 
     /**
       @dev returns the current limit on edition that 

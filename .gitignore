@@ -1,6 +1,7 @@
 artifacts
 node_modules
 cache
+yarn-error.log
 
 *.private.json
 ./networks.private.json
