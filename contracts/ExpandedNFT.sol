@@ -13,6 +13,7 @@ import {IERC2981Upgradeable, IERC165Upgradeable} from "@openzeppelin/contracts-u
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {StringsUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 
 import {IExpandedNFT} from "./IExpandedNFT.sol";
 /**
@@ -28,6 +29,8 @@ contract ExpandedNFT is
     IERC2981Upgradeable,
     OwnableUpgradeable
 {
+    using StringsUpgradeable for uint256;
+
     enum WhoCanMint{ NOT_FOR_SALE, ALLOWLIST, ANYONE }
 
     enum ExpandedNFTStates{ UNMINTED, RESERVED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, PRODUCTION_COMPLETE, REDEEMED }
@@ -67,7 +70,6 @@ contract ExpandedNFT is
         uint256 editionFee; 
 
         // Metadata
-        bool metadataLoaded;
         string mintedMetadataUrl;
         string redeemedMetadataUrl;
     }
@@ -115,11 +117,11 @@ contract ExpandedNFT is
     Pricing private _pricing;
     uint256 public salePrice;
 
+    string private _baseDir;
+
     // Reservations
     mapping(address => uint256)  private _resevationCount;
     mapping(address => uint256[]) private _resevations;   
-
-    uint256 private _loadedMetadata;
 
     bool private _randomMint;
     uint256 private _currentIndex;
@@ -139,7 +141,7 @@ contract ExpandedNFT is
       @param artistWallet wallet address for thr User that created the drop
       @param _name Name of drop, used in the title as "$NAME NUMBER/TOTAL"
       @param _symbol Symbol of the new token contract
-      @param _baseDir The base directory fo the metadata
+      @param baseDir The base directory fo the metadata
       @param _dropSize Number of editions that can be minted in total. 
       @param randomMint Mint in an random order   
       @dev Function to create a new drop. Can only be called by the allowed creator
@@ -151,7 +153,7 @@ contract ExpandedNFT is
         address artistWallet,
         string memory _name,
         string memory _symbol,
-        string memory _baseDir,
+        string memory baseDir,
         uint256 _dropSize,
         bool randomMint
     ) public initializer {
@@ -164,15 +166,13 @@ contract ExpandedNFT is
         transferOwnership(_owner);
 
         _artistWallet = artistWallet;
+        _baseDir = baseDir;
         dropSize = _dropSize;
 
         // Set edition id start to be 1 not 0
         _claimCount = 0; 
         _currentIndex = 1;
         _randomMint = randomMint;
-
-        // Set the metadata
-        _loadedMetadata = 0; 
     }
 
     /// @dev returns the number of minted tokens within the drop
@@ -388,8 +388,6 @@ contract ExpandedNFT is
     function _mintEditionsBody(address[] memory recipients)
         internal returns (uint256)
     {
-        require(_loadedMetadata >= dropSize, "Not all metadata loaded");
-
         require(_isAllowedToMint(), "Needs to be an allowed minter");
 
         require(recipients.length <= numberCanMint(), "Exceeded supply");
@@ -720,10 +718,6 @@ contract ExpandedNFT is
         }
     }
 
-    function metadataloaded() public view returns (bool){
-        return (_loadedMetadata >= dropSize);
-    }
-
     /**
       @param startIndex The first ID index to write the data
       @param count How many rows of data to load 
@@ -732,7 +726,7 @@ contract ExpandedNFT is
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
      */
-    function loadMetadataChunk(
+    function updateMetadata(
         uint256 startIndex,
         uint256 count,
         string[] memory _mintedMetadataUrl
@@ -747,11 +741,6 @@ contract ExpandedNFT is
             
             _perTokenMetadata[index].mintedMetadataUrl =_mintedMetadataUrl[i];
 
-            if (_perTokenMetadata[index].metadataLoaded != true) {
-                _perTokenMetadata[index].metadataLoaded = true;
-               _loadedMetadata++; 
-            }
-
             emit MetadataUpdate(index);
         }
     }
@@ -763,7 +752,7 @@ contract ExpandedNFT is
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
      */
-    function loadRedeemedMetadata(
+    function updateRedeemedMetadata(
         uint256 tokenID,
         string memory _redeemedMetadataUrl
 
@@ -904,6 +893,11 @@ contract ExpandedNFT is
 
         if (_perTokenMetadata[tokenId].state == ExpandedNFTStates.REDEEMED) {
             return (_perTokenMetadata[tokenId].redeemedMetadataUrl);
+        }
+
+        bytes memory tempEmptyStringTest = bytes(_perTokenMetadata[tokenId].mintedMetadataUrl);
+        if (tempEmptyStringTest.length == 0) {
+            return string(abi.encodePacked(_baseDir, tokenId.toString(), ".json"));
         }
 
         return (_perTokenMetadata[tokenId].mintedMetadataUrl);

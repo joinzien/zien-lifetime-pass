@@ -47,7 +47,7 @@ describe("Metadata", () => {
 
   });
 
-  it("Load metadata, not as the owner", async () => {
+  it("Update metadata, not as the owner", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -61,7 +61,7 @@ describe("Metadata", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await expect(minterContract.connect(artist).loadMetadataChunk(
+    await expect(minterContract.connect(artist).updateMetadata(
       1, 10,
       ["http://example.com/token/01", "http://example.com/token/02",
         "http://example.com/token/03", "http://example.com/token/04",
@@ -69,12 +69,9 @@ describe("Metadata", () => {
         "http://example.com/token/07", "http://example.com/token/08",
         "http://example.com/token/09", "http://example.com/token/10"]
     )).to.be.revertedWith("Ownable: caller is not the owner");
-
-    const metadataLoaded = await minterContract.metadataloaded();
-    expect(metadataLoaded).to.be.equal(false);
   });
 
-  it("Load metadata below the starting index", async () => {
+  it("Update metadata below the starting index", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -88,7 +85,7 @@ describe("Metadata", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await expect(minterContract.loadMetadataChunk(
+    await expect(minterContract.updateMetadata(
       0, 10,
       ["http://example.com/token/01", "http://example.com/token/02",
         "http://example.com/token/03", "http://example.com/token/04",
@@ -96,12 +93,9 @@ describe("Metadata", () => {
         "http://example.com/token/07", "http://example.com/token/08",
         "http://example.com/token/09", "http://example.com/token/10"]
     )).to.be.revertedWith("StartIndex > 0");
-
-    const metadataLoaded = await minterContract.metadataloaded();
-    expect(metadataLoaded).to.be.equal(false);
   });
 
-  it("Load metadata over the ending index", async () => {
+  it("Update metadata over the ending index", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -115,7 +109,7 @@ describe("Metadata", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await expect(minterContract.loadMetadataChunk(
+    await expect(minterContract.updateMetadata(
       2, 10,
       ["http://example.com/token/01", "http://example.com/token/02",
         "http://example.com/token/03", "http://example.com/token/04",
@@ -123,12 +117,9 @@ describe("Metadata", () => {
         "http://example.com/token/07", "http://example.com/token/08",
         "http://example.com/token/09", "http://example.com/token/10"]
     )).to.be.revertedWith("Data large than drop size");
-
-    const metadataLoaded = await minterContract.metadataloaded();
-    expect(metadataLoaded).to.be.equal(false);
   });
 
-  it("Load metadata", async () => {
+  it("Update metadata", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -142,7 +133,7 @@ describe("Metadata", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await minterContract.loadMetadataChunk(
+    await minterContract.updateMetadata(
       1, 10,
       ["http://example.com/token/01", "http://example.com/token/02",
         "http://example.com/token/03", "http://example.com/token/04",
@@ -150,12 +141,9 @@ describe("Metadata", () => {
         "http://example.com/token/07", "http://example.com/token/08",
         "http://example.com/token/09", "http://example.com/token/10"]
     );
-
-    const metadataLoaded = await minterContract.metadataloaded();
-    expect(metadataLoaded).to.be.equal(true);
   });
 
-  it("Load multiple metadata chunks", async () => {
+  it("Update multiple metadata chunks", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -169,7 +157,7 @@ describe("Metadata", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await minterContract.loadMetadataChunk(
+    await minterContract.updateMetadata(
       1, 10,
       ["http://example.com/token/01", "http://example.com/token/02",
         "http://example.com/token/03", "http://example.com/token/04",
@@ -178,7 +166,7 @@ describe("Metadata", () => {
         "http://example.com/token/09", "http://example.com/token/10"]
     );
 
-    await minterContract.loadMetadataChunk(
+    await minterContract.updateMetadata(
       11, 10,
       ["http://example.com/token/11", "http://example.com/token/12",
         "http://example.com/token/13", "http://example.com/token/14",
@@ -202,7 +190,7 @@ describe("Metadata", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await minterContract.loadMetadataChunk(
+    await minterContract.updateMetadata(
       1, 10,
       ["http://example.com/token/01", "http://example.com/token/02",
         "http://example.com/token/03", "http://example.com/token/04",
@@ -211,7 +199,7 @@ describe("Metadata", () => {
         "http://example.com/token/09", "http://example.com/token/10"]
     );
 
-    await minterContract.loadMetadataChunk(
+    await minterContract.updateMetadata(
       5, 10,
       ["http://example.com/token/05", "http://example.com/token/06",
         "http://example.com/token/07", "http://example.com/token/08",
@@ -220,7 +208,7 @@ describe("Metadata", () => {
         "http://example.com/token/13", "http://example.com/token/14"]
     );
 
-    await minterContract.loadMetadataChunk(
+    await minterContract.updateMetadata(
       11, 10,
       ["http://example.com/token/11", "http://example.com/token/12",
         "http://example.com/token/13", "http://example.com/token/14",
@@ -228,51 +216,9 @@ describe("Metadata", () => {
         "http://example.com/token/17", "http://example.com/token/18",
         "http://example.com/token/19", "http://example.com/token/20"]
     );
-
-    const metadataLoaded = await minterContract.metadataloaded();
-    expect(metadataLoaded).to.be.equal(true);
   });
 
-  it("Incomplete metadata loading", async () => {
-    await dynamicSketch.createDrop(
-      artistAddress,
-      "Testing Token",
-      "TEST",
-      "http://example.com/token/",
-      20, true);
-
-    const dropResult = await dynamicSketch.getDropAtId(0);
-    minterContract = (await ethers.getContractAt(
-      "ExpandedNFT",
-      dropResult
-    )) as ExpandedNFT;
-
-    await minterContract.loadMetadataChunk(
-      1, 10,
-      ["http://example.com/token/01", "http://example.com/token/02",
-        "http://example.com/token/03", "http://example.com/token/04",
-        "http://example.com/token/05", "http://example.com/token/06",
-        "http://example.com/token/07", "http://example.com/token/08",
-        "http://example.com/token/09", "http://example.com/token/10"]
-    );
-
-    await minterContract.loadMetadataChunk(
-      5, 10,
-      ["http://example.com/token/05", "http://example.com/token/06",
-        "http://example.com/token/07", "http://example.com/token/08",
-        "http://example.com/token/09", "http://example.com/token/10",
-        "http://example.com/token/11", "http://example.com/token/12",
-        "http://example.com/token/13", "http://example.com/token/14"]
-    );
-
-    const metadataLoaded = await minterContract.metadataloaded();
-    expect(metadataLoaded).to.be.equal(false);
-
-    const mintCost = ethers.utils.parseEther("0.1");
-    await expect(minterContract.mintEditions([signerAddress], { value: mintCost })).to.be.revertedWith("Not all metadata loaded");
-  });
-
-  it("Try to load mismatched metadata", async () => {
+  it("Try to update mismatched metadata", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -286,7 +232,7 @@ describe("Metadata", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await expect(minterContract.loadMetadataChunk(
+    await expect(minterContract.updateMetadata(
       1, 5,
       ["http://example.com/token/01", "http://example.com/token/02",
         "http://example.com/token/03", "http://example.com/token/04",
@@ -296,7 +242,7 @@ describe("Metadata", () => {
     )).to.be.revertedWith("Data size mismatch");
   }); 
 
-  it("Load redeemed metadata, not as the owner", async () => {
+  it("Update redeemed metadata, not as the owner", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -310,12 +256,12 @@ describe("Metadata", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await expect(minterContract.connect(artist).loadRedeemedMetadata(
+    await expect(minterContract.connect(artist).updateRedeemedMetadata(
       1, "https://example.com/redeemed/0001"
     )).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
-  it("Load redeemed metadata below the starting index", async () => {
+  it("Update redeemed metadata below the starting index", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -329,12 +275,12 @@ describe("Metadata", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await expect(minterContract.loadRedeemedMetadata(
+    await expect(minterContract.updateRedeemedMetadata(
       0, "https://example.com/redeemed/0001"
     )).to.be.revertedWith("tokenID > 0");
   });
 
-  it("Load redeemed metadata over the ending index", async () => {
+  it("Update redeemed metadata over the ending index", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -348,12 +294,12 @@ describe("Metadata", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await expect(minterContract.loadRedeemedMetadata(
+    await expect(minterContract.updateRedeemedMetadata(
       11, "https://example.com/redeemed/0001"
     )).to.be.revertedWith("tokenID <= drop size");
   });
 
-  it("Load redeemed metadata", async () => {
+  it("Update redeemed metadata", async () => {
     await dynamicSketch.createDrop(
       artistAddress,
       "Testing Token",
@@ -367,7 +313,7 @@ describe("Metadata", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await minterContract.loadRedeemedMetadata(
+    await minterContract.updateRedeemedMetadata(
       1, "https://example.com/redeemed/0001"
     );
   });

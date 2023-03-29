@@ -92,15 +92,6 @@ describe("Redeem", () => {
       TestCash.address
     )) as TestCash;
 
-    await minterContract.loadMetadataChunk(
-      1, 10,
-      ["http://example.com/token/01", "http://example.com/token/02", 
-       "http://example.com/token/03", "http://example.com/token/04", 
-       "http://example.com/token/05", "http://example.com/token/06", 
-       "http://example.com/token/07", "http://example.com/token/08", 
-       "http://example.com/token/09", "http://example.com/token/10"]
-    );
-
     await minterContract.setPricing(10, 500, 10, 10, 1, 1);
 
     expect(

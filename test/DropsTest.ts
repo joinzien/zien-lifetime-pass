@@ -86,15 +86,6 @@ describe("Drops", () => {
       dropResult
     )) as ExpandedNFT;
 
-    await minterContract.loadMetadataChunk(
-      1, 10,
-      ["http://example.com/token/01", "http://example.com/token/02", 
-       "http://example.com/token/03", "http://example.com/token/04", 
-       "http://example.com/token/05", "http://example.com/token/06", 
-       "http://example.com/token/07", "http://example.com/token/08", 
-       "http://example.com/token/09", "http://example.com/token/10"]
-    );
-
     await minterContract.setPricing(10, 500, 0, 0, 10, 10);
 
     expect(await minterContract.name()).to.be.equal("Testing Token");
@@ -124,15 +115,6 @@ describe("Drops", () => {
 
       const mintCost = ethers.utils.parseEther("0.1");      
 
-      await minterContract.loadMetadataChunk(
-        1, 10,
-        ["http://example.com/token/01", "http://example.com/token/02", 
-         "http://example.com/token/03", "http://example.com/token/04", 
-         "http://example.com/token/05", "http://example.com/token/06", 
-         "http://example.com/token/07", "http://example.com/token/08", 
-         "http://example.com/token/09", "http://example.com/token/10"]
-      );
-
       await minterContract.setPricing(10, 500, mintCost, mintCost, 15, 15);
       await minterContract.setAllowedMinter(2);
     });
@@ -153,7 +135,7 @@ describe("Drops", () => {
           1
         );
 
-      expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/01");
+      expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/1.json");
       expect(await minterContract.totalSupply()).to.be.equal(1);
     });
 
@@ -266,16 +248,16 @@ describe("Drops", () => {
         })
       ).to.be.revertedWith("Exceeded supply");
 
-      expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/01");      
-      expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/token/02");      
-      expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/token/03");      
-      expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/token/04");    
-      expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/token/05");      
-      expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/token/06");      
-      expect(await minterContract.tokenURI(7)).to.be.equal("http://example.com/token/07");      
-      expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/token/08");
-      expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/token/09");      
-      expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/token/10");  
+      expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/token/2.json");      
+      expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/token/3.json");      
+      expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/token/4.json");    
+      expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/token/5.json");      
+      expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/token/6.json");      
+      expect(await minterContract.tokenURI(7)).to.be.equal("http://example.com/token/7.json");      
+      expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/token/8.json");
+      expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/token/9.json");      
+      expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/token/10.json");  
       expect(await minterContract.totalSupply()).to.be.equal(10);
     });
   });
@@ -300,15 +282,6 @@ describe("Drops", () => {
       )) as ExpandedNFT;
 
       const mintCost = ethers.utils.parseEther("0.1");      
-
-      await minterContract.loadMetadataChunk(
-        1, 10,
-        ["http://example.com/token/01", "http://example.com/token/02", 
-         "http://example.com/token/03", "http://example.com/token/04", 
-         "http://example.com/token/05", "http://example.com/token/06", 
-         "http://example.com/token/07", "http://example.com/token/08", 
-         "http://example.com/token/09", "http://example.com/token/10"]
-      );
 
       await minterContract.setPricing(10, 500, mintCost, mintCost, 15, 15);
       await minterContract.setAllowedMinter(2);
@@ -395,16 +368,16 @@ describe("Drops", () => {
         })
       ).to.be.revertedWith("Exceeded supply");
 
-      expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/01");      
-      expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/token/02");      
-      expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/token/03");      
-      expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/token/04");    
-      expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/token/05");      
-      expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/token/06");      
-      expect(await minterContract.tokenURI(7)).to.be.equal("http://example.com/token/07");      
-      expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/token/08");
-      expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/token/09");      
-      expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/token/10");      
+      expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/token/2.json");      
+      expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/token/3.json");      
+      expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/token/4.json");    
+      expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/token/5.json");      
+      expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/token/6.json");      
+      expect(await minterContract.tokenURI(7)).to.be.equal("http://example.com/token/7.json");      
+      expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/token/8.json");
+      expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/token/9.json");      
+      expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/token/10.json");      
       expect(await minterContract.totalSupply()).to.be.equal(10);
     });
   });  
