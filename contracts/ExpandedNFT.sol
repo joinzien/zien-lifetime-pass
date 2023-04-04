@@ -92,6 +92,7 @@ contract ExpandedNFT is
 
         // Allow list Addresses allowed to mint edition
         mapping(address => bool) allowListMinters;
+        address[] allowList;   
 
         // The number on the allow list
         uint256 allowListCount;
@@ -523,6 +524,13 @@ contract ExpandedNFT is
         return _resevations[wallet];   
     }   
 
+    /**                                                                      
+      @dev returns the wallets on the allow list
+    */
+    function getAllowList() public view returns (address[] memory) {           
+        return _pricing.allowList;   
+    }   
+
     /**
       @dev returns the current limit on edition that 
            can be minted by one wallet
@@ -721,9 +729,20 @@ contract ExpandedNFT is
         for (uint256 i = 0; i < count; i++) {
             if (_pricing.allowListMinters[minter[i]] != allowed[i]) {
                 if (allowed[i] == true) {
-                    _pricing.allowListCount++;    
+                    _pricing.allowListCount++;
+
+                    _pricing.allowList.push(minter[i]);   
+
                 } else {
                     _pricing.allowListCount--; 
+
+                    uint256 index = 0;
+                    while (_pricing.allowList[index] != minter[i]) {
+                        index++;
+                    }
+
+                    _pricing.allowList[index] = address(0);  
+
                 }
             }
 
