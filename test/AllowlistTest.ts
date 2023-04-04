@@ -20,6 +20,8 @@ describe("Allow List", () => {
   let artistAddress: string;
   let minterContract: ExpandedNFT;
 
+  const nullAddress = "0x0000000000000000000000000000000000000000";
+
   beforeEach(async () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
@@ -67,6 +69,7 @@ describe("Allow List", () => {
     await minterContract.setAllowListMinters(1, [artistAddress], [true])
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(true);
     expect(await minterContract.getAllowListCount()).to.be.equal(1);
+    expect((await minterContract.getAllowList()).toString()).to.be.equal([artistAddress].toString());
   });
 
   it("Add a wallet twice to the allow list", async () => {
@@ -76,10 +79,12 @@ describe("Allow List", () => {
     await minterContract.setAllowListMinters(1, [artistAddress], [true])
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(true);
     expect(await minterContract.getAllowListCount()).to.be.equal(1);
+    expect((await minterContract.getAllowList()).toString()).to.be.equal([artistAddress].toString());
 
     await minterContract.setAllowListMinters(1, [artistAddress], [true])
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(true);
     expect(await minterContract.getAllowListCount()).to.be.equal(1);
+    expect((await minterContract.getAllowList()).toString()).to.be.equal([artistAddress].toString());
   });  
 
   it("Remove a wallet to the allow list", async () => {
@@ -89,11 +94,13 @@ describe("Allow List", () => {
     await minterContract.setAllowListMinters(1, [artistAddress], [true])
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(true);
     expect(await minterContract.getAllowListCount()).to.be.equal(1);    
+    expect((await minterContract.getAllowList()).toString()).to.be.equal([artistAddress].toString());
 
     // Remove a wallet to the allow list
     await minterContract.setAllowListMinters(1, [artistAddress], [false])
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
     expect(await minterContract.getAllowListCount()).to.be.equal(0);
+    expect((await minterContract.getAllowList()).toString()).to.be.equal([nullAddress].toString());
   });
 
   it("Remove a wallet more than once", async () => {
@@ -103,16 +110,19 @@ describe("Allow List", () => {
     await minterContract.setAllowListMinters(1, [artistAddress], [true])
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(true);
     expect(await minterContract.getAllowListCount()).to.be.equal(1);    
+    expect((await minterContract.getAllowList()).toString()).to.be.equal([artistAddress].toString());
 
     // Remove a wallet to the allow list
     await minterContract.setAllowListMinters(1, [artistAddress], [false])
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
     expect(await minterContract.getAllowListCount()).to.be.equal(0);
+    expect((await minterContract.getAllowList()).toString()).to.be.equal([nullAddress].toString());
 
     // Remove a wallet to the allow list
     await minterContract.setAllowListMinters(1, [artistAddress], [false])
     expect(await minterContract.allowListed(artistAddress)).to.be.equal(false);
     expect(await minterContract.getAllowListCount()).to.be.equal(0);
+    expect((await minterContract.getAllowList()).toString()).to.be.equal([nullAddress].toString());   
   });  
 
 });
