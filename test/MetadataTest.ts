@@ -35,10 +35,6 @@ describe("Metadata", () => {
       "ExpandedNFT",
     ]);
 
-    const dynamicMintableAddress = (
-      await deployments.get("ExpandedNFT")
-    ).address;
-
     dynamicSketch = (await ethers.getContractAt(
       "DropCreator",
       DropCreator.address
