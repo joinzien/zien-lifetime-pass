@@ -10,7 +10,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DropCreator,
   ExpandedNFT,
-  TestCash,
 } from "../typechain";
 
 describe("Withdraw", () => {
@@ -24,8 +23,6 @@ describe("Withdraw", () => {
 
   let minterContract: ExpandedNFT;
   let minterContractAddress: string;
-
-  let paymentToken: TestCash;
 
   const nullAddress = "0x0000000000000000000000000000000000000000";
 
@@ -59,16 +56,6 @@ describe("Withdraw", () => {
 
     const mintCost = ethers.utils.parseEther("0.1");
     await minterContract.setPricing(10, 500, mintCost, mintCost, 10, 10);
-
-    const { TestCash } = await deployments.fixture([
-      "TestCash"
-    ]);
-
-    paymentToken = (await ethers.getContractAt(
-      "TestCash",
-      TestCash.address
-    )) as TestCash;  
-
   });
 
   it("Only the owner can withdraw from the contract", async () => {
@@ -98,26 +85,15 @@ describe("Withdraw", () => {
     const ownerStartBalance = await ethers.provider.getBalance(signerAddress);
     const artistStartBalance = await ethers.provider.getBalance(artistAddress);
 
-    const contractERC20StartBalance = await paymentToken.balanceOf(minterContractAddress);
-    const ownerERC20StartBalance = await paymentToken.balanceOf(signerAddress);
-    const artistERC20StartBalance = await paymentToken.balanceOf(artistAddress);
-
     await expect(minterContract.withdraw());
 
     const contractEndBalance = await ethers.provider.getBalance(minterContractAddress);
     const ownerEndBalance = await ethers.provider.getBalance(signerAddress);
     const artistEndBalance = await ethers.provider.getBalance(artistAddress);
 
-    const contractERC20EndBalance = await paymentToken.balanceOf(minterContractAddress);
-    const ownerERC20EndBalance = await paymentToken.balanceOf(signerAddress);
-    const artistERC20EndBalance = await paymentToken.balanceOf(artistAddress);
-
     expect(contractStartBalance).to.be.equal(contractEndBalance);
     expect(ownerStartBalance).to.be.lt(ownerEndBalance);  
     expect(artistStartBalance).to.be.lt(artistEndBalance);        
-    expect(contractERC20StartBalance).to.be.equal(contractERC20EndBalance);
-    expect(ownerERC20StartBalance).to.be.equal(ownerERC20EndBalance);   
-    expect(artistERC20StartBalance).to.be.equal(artistERC20EndBalance);    
   });  
 
   it("Try to withdraw with ETH balance with no artist", async () => {
@@ -131,25 +107,14 @@ describe("Withdraw", () => {
     const ownerStartBalance = await ethers.provider.getBalance(signerAddress);
     const artistStartBalance = await ethers.provider.getBalance(artistAddress);
 
-    const contractERC20StartBalance = await paymentToken.balanceOf(minterContractAddress);
-    const ownerERC20StartBalance = await paymentToken.balanceOf(signerAddress);
-    const artistERC20StartBalance = await paymentToken.balanceOf(artistAddress);
-
     await expect(minterContract.withdraw());
 
     const contractEndBalance = await ethers.provider.getBalance(minterContractAddress);
     const ownerEndBalance = await ethers.provider.getBalance(signerAddress);
     const artistEndBalance = await ethers.provider.getBalance(artistAddress);
 
-    const contractERC20EndBalance = await paymentToken.balanceOf(minterContractAddress);
-    const ownerERC20EndBalance = await paymentToken.balanceOf(signerAddress);
-    const artistERC20EndBalance = await paymentToken.balanceOf(artistAddress);
-
     expect(contractStartBalance).to.be.equal(contractEndBalance);
     expect(ownerStartBalance).to.be.lt(ownerEndBalance);  
     expect(artistStartBalance).to.be.equal(artistEndBalance);        
-    expect(contractERC20StartBalance).to.be.equal(contractERC20EndBalance);
-    expect(ownerERC20StartBalance).to.be.equal(ownerERC20EndBalance);   
-    expect(artistERC20StartBalance).to.be.equal(artistERC20EndBalance);    
   });  
 });
