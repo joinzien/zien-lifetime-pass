@@ -33,18 +33,14 @@ contract ExpandedNFT is
 
     enum WhoCanMint{ NOT_FOR_SALE, ALLOWLIST, ANYONE }
 
-    enum ExpandedNFTStates{ UNMINTED, RESERVED, MINTED, REDEEM_STARTED, SET_OFFER_TERMS, ACCEPTED_OFFER, PRODUCTION_COMPLETE, REDEEMED }
+    enum ExpandedNFTStates{ UNMINTED, RESERVED, MINTED, REDEEM_STARTED, PRODUCTION_COMPLETE, REDEEMED }
     
     event PriceChanged(uint256 amount);
     event EditionSold(uint256 price, address owner);
     event WhoCanMintChanged(WhoCanMint minters);
 
     // State change events
-    event RedeemStarted(uint256 tokenId, address owner);
-    event RedeemAborted(uint256 tokenId, address owner);    
-    event OfferTermsSet(uint256 tokenId);
-    event OfferAccepted(uint256 tokenId);
-    event OfferRejected(uint256 tokenId);
+    event RedeemStarted(uint256 tokenId);
     event ProductionComplete(uint256 tokenId);
     event DeliveryAccepted(uint256 tokenId);
 
@@ -811,62 +807,13 @@ contract ExpandedNFT is
         _burn(tokenId);
     }
 
-    function redeem(uint256 tokenId) public {
-        require(_exists(tokenId), "No token");
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
-
-        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.MINTED), "You currently can not redeem");
+    function productionStart(uint256 tokenId) public onlyOwner {
+        require(_exists(tokenId), "No token");        
+        require((_perTokenMetadata[tokenId].state== ExpandedNFTStates.MINTED), "Wrong state");
 
         _perTokenMetadata[tokenId].state = ExpandedNFTStates.REDEEM_STARTED;
-        emit RedeemStarted(tokenId, _msgSender());
-    }
 
-    function abortRedemption(uint256 tokenId) public {
-        require(_exists(tokenId), "No token");
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
-
-        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.REDEEM_STARTED), "You currently can not redeem");
-
-        _perTokenMetadata[tokenId].state = ExpandedNFTStates.MINTED;
-        emit RedeemAborted(tokenId, _msgSender());
-    }
-
-    function setOfferTerms(uint256 tokenId, uint256 fee) public onlyOwner {
-        require(_exists(tokenId), "No token");        
-        require((_perTokenMetadata[tokenId].state== ExpandedNFTStates.REDEEM_STARTED), "Wrong state");
-
-        _perTokenMetadata[tokenId].state = ExpandedNFTStates.SET_OFFER_TERMS;
-        _perTokenMetadata[tokenId].editionFee = fee;
-
-        emit OfferTermsSet(tokenId);
-    }
-
-    function rejectOfferTerms(uint256 tokenId) public {
-        require(_exists(tokenId), "No token");        
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
-
-        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.SET_OFFER_TERMS), "You currently can not redeem");
-
-        _perTokenMetadata[tokenId].state = ExpandedNFTStates.MINTED;
-
-        emit OfferRejected(tokenId);
-    }
-
-    function acceptOfferTerms(uint256 tokenId, uint256 paymentAmount) external {
-        require(_exists(tokenId), "No token");        
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
-
-        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.SET_OFFER_TERMS), "You currently can not redeem");
-
-        require(paymentAmount >= _perTokenMetadata[tokenId].editionFee, "Wrong price");
-        require(_paymentTokenERC20.allowance(_msgSender(), address(this)) >= _perTokenMetadata[tokenId].editionFee, "Insufficient allowance");
-
-        bool success = _paymentTokenERC20.transferFrom(_msgSender(), address(this), _perTokenMetadata[tokenId].editionFee);
-        require(success, "Could not transfer token");
-
-        _perTokenMetadata[tokenId].state = ExpandedNFTStates.ACCEPTED_OFFER; 
-
-        emit OfferAccepted(tokenId);
+        emit RedeemStarted(tokenId);
     }
 
     function productionComplete(
@@ -874,7 +821,7 @@ contract ExpandedNFT is
         string memory _redeemedMetadataUrl              
     ) public onlyOwner {
         require(_exists(tokenId), "No token");        
-        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.ACCEPTED_OFFER), "You currently can not redeem");
+        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.REDEEM_STARTED), "You currently can not redeem");
 
         _perTokenMetadata[tokenId].redeemedMetadataUrl = _redeemedMetadataUrl;
         _perTokenMetadata[tokenId].state = ExpandedNFTStates.PRODUCTION_COMPLETE;
@@ -890,7 +837,7 @@ contract ExpandedNFT is
 
         _perTokenMetadata[tokenId].state = ExpandedNFTStates.REDEEMED;
 
-        emit OfferRejected(tokenId);
+        emit ProductionComplete(tokenId);
         emit MetadataUpdate(tokenId);
     }
 
