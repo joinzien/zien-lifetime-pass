@@ -123,9 +123,6 @@ contract ExpandedNFT is
     bool private _randomMint;
     uint256 private _currentIndex;
 
-    // ERC20 interface for the payment token
-    IERC20Upgradeable private _paymentTokenERC20;
-
     // Global constructor for factory
     constructor() {
         _pricing.whoCanMint = WhoCanMint.NOT_FOR_SALE;
@@ -611,13 +608,6 @@ contract ExpandedNFT is
                 AddressUpgradeable.sendValue(payable(owner()), currentBalance);
             } 
         }
-
-        if (address(_paymentTokenERC20) != address(0x0)) {
-            uint256 currentBalanceERC20 = _paymentTokenERC20.balanceOf(address(this));
-            if (currentBalanceERC20 > 0) {
-                _paymentTokenERC20.transfer(owner(), currentBalanceERC20);       
-            }
-        }
     }
 
     /**
@@ -669,31 +659,6 @@ contract ExpandedNFT is
         onlyOwner
     {
         _artistWallet = wallet;
-    }   
-
-    /**
-        return the payment tokens address
-     */
-    function getPaymentToken()
-        public
-        view
-        returns (address)
-    {
-        return address(_paymentTokenERC20);
-    }
-
-     /**
-        set a new payment token address
-     */
-    function setPaymentToken(address paymentToken)
-        public
-        onlyOwner
-    {
-        if (address(_paymentTokenERC20) != address(0x0)) {
-            require(_paymentTokenERC20.balanceOf(address(this)) == 0, "token must have 0 balance");
-        }
-
-        _paymentTokenERC20 = IERC20Upgradeable(paymentToken);
     }   
 
     /**

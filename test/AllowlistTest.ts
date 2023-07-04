@@ -27,9 +27,7 @@ describe("Allow List", () => {
       "DropCreator",
       "ExpandedNFT",
     ]);
-    const dynamicMintableAddress = (
-      await deployments.get("ExpandedNFT")
-    ).address;
+
     dynamicSketch = (await ethers.getContractAt(
       "DropCreator",
       DropCreator.address

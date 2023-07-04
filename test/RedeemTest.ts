@@ -10,7 +10,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DropCreator,
   ExpandedNFT,
-  TestCash,
 } from "../typechain";
 
 enum ExpandedNFTState {
@@ -38,8 +37,6 @@ describe("Redeem", () => {
 
   let minterContract: ExpandedNFT;
 
-  let paymentToken: TestCash;
-
   beforeEach(async () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
@@ -54,10 +51,6 @@ describe("Redeem", () => {
       "DropCreator",
       DropCreator.address
     )) as DropCreator;
-
-    const dynamicMintableAddressERC20 = (
-      await deployments.get("TestCash")
-    ).address;
 
     signer = (await ethers.getSigners())[0];
     signerAddress = await signer.getAddress();
@@ -81,15 +74,6 @@ describe("Redeem", () => {
       dropResult
     )) as ExpandedNFT;
 
-    const { TestCash } = await deployments.fixture([
-      "TestCash"
-    ]);
-
-    paymentToken = (await ethers.getContractAt(
-      "TestCash",
-      TestCash.address
-    )) as TestCash;
-
     await minterContract.setPricing(10, 500, 10, 10, 1, 1);
 
     expect(
@@ -103,14 +87,6 @@ describe("Redeem", () => {
     ).to.emit(minterContract, "EditionSold");
 
     expect(await minterContract.totalSupply()).to.be.equal(1);
-
-    expect(await paymentToken.balanceOf(user.address)).to.be.equal("0x0000000000000000000000000000000000000000");
-
-    await paymentToken.mint(user.address, editionCost);
-    expect(await paymentToken.balanceOf(user.address)).to.be.equal(editionCost);
-
-    await minterContract.setPaymentToken(paymentToken.address);
-    expect(await minterContract.getPaymentToken()).to.be.equal(paymentToken.address);
   });
 
   it("Redeem an edition", async () => {
