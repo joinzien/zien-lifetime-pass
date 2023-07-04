@@ -108,9 +108,6 @@ describe("Redeem", () => {
 
     await paymentToken.mint(user.address, editionCost);
     expect(await paymentToken.balanceOf(user.address)).to.be.equal(editionCost);
-
-    await minterContract.setPaymentToken(paymentToken.address);
-    expect(await minterContract.getPaymentToken()).to.be.equal(paymentToken.address);
   });
 
   it("Redeem an edition", async () => {
