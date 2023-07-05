@@ -2,7 +2,7 @@
 
 /**
 
-    ExpandedNFTs
+    OpenEditions DropCreator
     
  */
 
@@ -11,7 +11,7 @@ pragma solidity ^0.8.19;
 import {ClonesUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
 import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 
-import {ExpandedNFT} from "./ExpandedNFT.sol";
+import {OpenEditionsNFT} from "./OpenEditionsNFT.sol";
 
 contract DropCreator {
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -19,11 +19,11 @@ contract DropCreator {
     /// Counter for current contract id upgraded
     CountersUpgradeable.Counter private _atContract;
 
-    /// Address for implementation of ExpandedNFT to clone
+    /// Address for implementation of OpenEditionsNFT to clone
     address public implementation;
 
     /// Initializes factory with address of implementation logic
-    /// @param _implementation ExpandedNFT logic implementation contract to clone
+    /// @param _implementation OpenEditionsNFT logic implementation contract to clone
     constructor(address _implementation) {
         implementation = _implementation;
     }
@@ -52,7 +52,7 @@ contract DropCreator {
             bytes32(abi.encodePacked(_atContract.current()))
         );
 
-        ExpandedNFT(newContract).initialize(
+       OpenEditionsNFT(newContract).initialize(
             msg.sender,
             _artistWallet,
             _name,
@@ -72,14 +72,14 @@ contract DropCreator {
 
     /// Get drop given the created ID
     /// @param dropId id of drop to get contract for
-    /// @return ExpandedNFT Drop NFT contract
+    /// @return OpenEditionsNFT Drop NFT contract
     function getDropAtId(uint256 dropId)
         external
         view
-        returns (ExpandedNFT)
+        returns (OpenEditionsNFT)
     {
         return
-            ExpandedNFT(
+            OpenEditionsNFT(
                 ClonesUpgradeable.predictDeterministicAddress(
                     implementation,
                     bytes32(abi.encodePacked(dropId)),

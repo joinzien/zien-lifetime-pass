@@ -2,7 +2,7 @@
 
 /**
 
-    ExpandedNFTs
+    Open Editions NFTs
 
  */
 
@@ -15,7 +15,7 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {StringsUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 
-import {IExpandedNFT} from "./IExpandedNFT.sol";
+import {IOpenEditionsNFT} from "./IOpenEditionsNFT.sol";
 /**
     This is a smart contract for handling dynamic contract minting.
 
@@ -23,9 +23,9 @@ import {IExpandedNFT} from "./IExpandedNFT.sol";
     @author Zien
     Repository: https://github.com/joinzien/expanded-nft
 */
-contract ExpandedNFT is
+contract OpenEditionsNFT is
     ERC721Upgradeable,
-    IExpandedNFT,
+    IOpenEditionsNFT,
     IERC2981Upgradeable,
     OwnableUpgradeable
 {
@@ -634,7 +634,7 @@ contract ExpandedNFT is
     function owner()
         public
         view
-        override(OwnableUpgradeable, IExpandedNFT)
+        override(OwnableUpgradeable, IOpenEditionsNFT)
         returns (address)
     {
         return super.owner();
