@@ -9,7 +9,7 @@ import { ethers, deployments } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DropCreator,
-  ExpandedNFT,
+  OpenEditionsNFT,
 } from "../typechain";
 
 describe("Drops", () => {
@@ -20,12 +20,12 @@ describe("Drops", () => {
   let artistAddress: string;
 
   let dynamicSketch: DropCreator;
-  let editionImpl: ExpandedNFT;
+  let editionImpl: OpenEditionsNFT;
 
   beforeEach(async () => {
-    const { DropCreator, ExpandedNFT } = await deployments.fixture([
+    const { DropCreator, OpenEditionsNFT } = await deployments.fixture([
       "DropCreator",
-      "ExpandedNFT",
+      "OpenEditionsNFT",
     ]);
 
     dynamicSketch = (await ethers.getContractAt(
@@ -34,9 +34,9 @@ describe("Drops", () => {
     )) as DropCreator;
 
     editionImpl = (await ethers.getContractAt(
-      "ExpandedNFT",
-      ExpandedNFT.address
-    )) as ExpandedNFT;    
+      "OpenEditionsNFT",
+      OpenEditionsNFT.address
+    )) as OpenEditionsNFT;    
 
     signer = (await ethers.getSigners())[0];
     signerAddress = await signer.getAddress();
@@ -82,9 +82,9 @@ describe("Drops", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
-      "ExpandedNFT",
+      "OpenEditionsNFT",
       dropResult
-    )) as ExpandedNFT;
+    )) as OpenEditionsNFT;
 
     await minterContract.setPricing(10, 500, 0, 0, 10, 10);
 
@@ -109,9 +109,9 @@ describe("Drops", () => {
 
       const dropResult = await dynamicSketch.getDropAtId(0);
       minterContract = (await ethers.getContractAt(
-        "ExpandedNFT",
+        "OpenEditionsNFT",
         dropResult
-      )) as ExpandedNFT;
+      )) as OpenEditionsNFT;
 
       const mintCost = ethers.utils.parseEther("0.1");      
 
@@ -277,9 +277,9 @@ describe("Drops", () => {
 
       const dropResult = await dynamicSketch.getDropAtId(0);
       minterContract = (await ethers.getContractAt(
-        "ExpandedNFT",
+        "OpenEditionsNFT",
         dropResult
-      )) as ExpandedNFT;
+      )) as OpenEditionsNFT;
 
       const mintCost = ethers.utils.parseEther("0.1");      
 

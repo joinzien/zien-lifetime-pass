@@ -20,7 +20,7 @@ describe("Who Can Mint", () => {
   beforeEach(async () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
-      "ExpandedNFT",
+      "OpenEditionsNFT",
     ]);
 
     dynamicSketch = (await ethers.getContractAt(
@@ -45,7 +45,7 @@ describe("Who Can Mint", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
-      "ExpandedNFT",
+      "OpenEditionsNFT",
       dropResult
     )) as ExpandedNFT;
 
@@ -71,7 +71,7 @@ describe("Who Can Mint", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
-      "ExpandedNFT",
+      "OpenEditionsNFT",
       dropResult
     )) as ExpandedNFT;
 
@@ -95,7 +95,7 @@ describe("Who Can Mint", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
-      "ExpandedNFT",
+      "OpenEditionsNFT",
       dropResult
     )) as ExpandedNFT;
 
