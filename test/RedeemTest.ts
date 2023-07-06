@@ -9,7 +9,7 @@ import { ethers, deployments } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DropCreator,
-  ExpandedNFT,
+  OpenEditionsNFT,
 } from "../typechain";
 
 enum ExpandedNFTState {
@@ -40,11 +40,11 @@ describe("Redeem", () => {
   beforeEach(async () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
-      "ExpandedNFT",
+      "OpenEditionsNFT",
     ]);
 
     const dynamicMintableAddress = (
-      await deployments.get("ExpandedNFT")
+      await deployments.get("OpenEditionsNFT")
     ).address;
 
     dynamicSketch = (await ethers.getContractAt(
@@ -70,9 +70,9 @@ describe("Redeem", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "ExpandedNFT",
+      "OpenEditionsNFT",
       dropResult
-    )) as ExpandedNFT;
+    )) as OpenEditionsNFT;
 
     await minterContract.setPricing(10, 500, 10, 10, 1, 1);
 

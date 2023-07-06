@@ -9,7 +9,7 @@ import { ethers, deployments } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DropCreator,
-  ExpandedNFT,
+  OpenEditionsNFT,
 } from "../typechain";
 
 describe("Mint a large drop", () => {
@@ -23,7 +23,7 @@ describe("Mint a large drop", () => {
   let userAddress: string; 
 
   let dynamicSketch: DropCreator;
-  let minterContract: ExpandedNFT;
+  let minterContract: OpenEditionsNFT;
 
   beforeEach(async () => {
     signer = (await ethers.getSigners())[0];
@@ -37,7 +37,7 @@ describe("Mint a large drop", () => {
 
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
-      "ExpandedNFT",
+      "OpenEditionsNFT",
     ]);
 
     dynamicSketch = (await ethers.getContractAt(
@@ -56,9 +56,9 @@ describe("Mint a large drop", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);   
     minterContract = (await ethers.getContractAt(
-      "ExpandedNFT",
+      "OpenEditionsNFT",
       dropResult
-    )) as ExpandedNFT;
+    )) as OpenEditionsNFT;
 
     const mintCost = ethers.utils.parseEther("0.1");
     await minterContract.setPricing(10, 500, mintCost, mintCost, dropSize, dropSize);   

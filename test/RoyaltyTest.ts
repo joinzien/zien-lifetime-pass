@@ -25,9 +25,9 @@ describe("Royalty", () => {
   let minterContract: ExpandedNFT;
 
   beforeEach(async () => {
-    const { DropCreator, ExpandedNFT } = await deployments.fixture([
+    const { DropCreator, OpenEditionsNFT } = await deployments.fixture([
       "DropCreator",
-      "ExpandedNFT",
+      "OpenEditionsNFT",
     ]);
 
     dynamicSketch = (await ethers.getContractAt(
@@ -52,7 +52,7 @@ describe("Royalty", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "ExpandedNFT",
+      "OpenEditionsNFT",
       dropResult
     )) as ExpandedNFT;
 
