@@ -789,17 +789,6 @@ contract OpenEditionsNFT is
         require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.REDEEM_STARTED), "You currently can not redeem");
 
         _perTokenMetadata[tokenId].redeemedMetadataUrl = _redeemedMetadataUrl;
-        _perTokenMetadata[tokenId].state = ExpandedNFTStates.PRODUCTION_COMPLETE;
-
-        emit ProductionComplete(tokenId);
-    }
-
-    function acceptDelivery(uint256 tokenId) public {
-        require(_exists(tokenId), "No token");        
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
-
-        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.PRODUCTION_COMPLETE), "You currently can not redeem");
-
         _perTokenMetadata[tokenId].state = ExpandedNFTStates.REDEEMED;
 
         emit ProductionComplete(tokenId);
