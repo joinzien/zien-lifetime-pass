@@ -99,10 +99,6 @@ describe("Redeem", () => {
     const redeemedUrl = "http://example.com/redempted/token04/";
     await minterContract.productionComplete(1, redeemedUrl);
 
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.PRODUCTION_COMPLETE); 
-
-    await minterContract.connect(user).acceptDelivery(1);
-
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEMED); 
   });
 
@@ -142,18 +138,6 @@ describe("Redeem", () => {
     await expect(minterContract.productionComplete(1, "")).to.be.revertedWith("You currently can not redeem"); 
   });
 
-  it("Accept delivery with an invalid ID", async () => {
-    await expect(minterContract.connect(artist).acceptDelivery(2)).to.be.reverted; 
-  });  
-
-  it("Accept delivery not as the owner", async () => {
-    await expect(minterContract.connect(artist).acceptDelivery(1)).to.be.revertedWith("Not approved"); 
-  }); 
-
-  it("Accept delivery in the incorrect state", async () => {
-    await expect(minterContract.connect(user).acceptDelivery(1)).to.be.revertedWith("You currently can not redeem"); 
-  });    
-
   it("Redeem an edition more than once", async () => {
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.MINTED);  
 
@@ -163,10 +147,6 @@ describe("Redeem", () => {
 
     const redeemedUrl = "http://example.com/redempted/token04/";
     await minterContract.productionComplete(1, redeemedUrl);
-
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.PRODUCTION_COMPLETE); 
-
-    await minterContract.connect(user).acceptDelivery(1);
 
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEMED); 
 
@@ -184,10 +164,6 @@ describe("Redeem", () => {
 
     const redeemedUrl = "http://example.com/redempted/token04/";
     await minterContract.productionComplete(1, redeemedUrl);
-
-    expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.PRODUCTION_COMPLETE); 
-
-    await minterContract.connect(user).acceptDelivery(1);
 
     expect(await minterContract.connect(user).redeemedState(1)).to.equal(ExpandedNFTState.REDEEMED); 
 
