@@ -14,7 +14,6 @@ import {
 
 enum ExpandedNFTState {
   UNMINTED, 
-  RESERVED, 
   MINTED, 
   REDEEM_STARTED, 
   PRODUCTION_COMPLETE, 

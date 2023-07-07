@@ -33,7 +33,7 @@ contract OpenEditionsNFT is
 
     enum WhoCanMint{ NOT_FOR_SALE, ALLOWLIST, ANYONE }
 
-    enum ExpandedNFTStates{ UNMINTED, RESERVED, MINTED, REDEEM_STARTED, PRODUCTION_COMPLETE, REDEEMED }
+    enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, PRODUCTION_COMPLETE, REDEEMED }
     
     event PriceChanged(uint256 amount);
     event EditionSold(uint256 price, address owner);
@@ -58,9 +58,6 @@ contract OpenEditionsNFT is
 
     struct PerToken { 
         ExpandedNFTStates state;
-
-        // Who reserved this
-        address reservedBy;
 
         // Metadata
         string mintedMetadataUrl;
@@ -112,10 +109,6 @@ contract OpenEditionsNFT is
     uint256 public salePrice;
 
     string private _baseDir;
-
-    // Reservations
-    mapping(address => uint256)  private _resevationCount;
-    mapping(address => uint256[]) private _resevations;   
 
     bool private _randomMint;
     uint256 private _currentIndex;
@@ -322,26 +315,6 @@ contract OpenEditionsNFT is
     /**
       @dev This mints multiple editions to the given list of addresses.
      */
-    function _getNextReservation()
-        internal returns (uint256)
-    {
-        uint256 index = 0;
-        while (_resevations[msg.sender][index] == 0) {
-            index++;
-        }  
-
-        uint256 currentToken = _resevations[msg.sender][index];
-
-        _resevations[msg.sender][index] = 0;  
-        _resevationCount[msg.sender]--;
-        _perTokenMetadata[currentToken].reservedBy = address(0);        
-        
-        return  currentToken;
-    }
-
-    /**
-      @dev This mints multiple editions to the given list of addresses.
-     */
     function _selectAvailableId()
         internal returns (uint256)
     {
@@ -388,11 +361,7 @@ contract OpenEditionsNFT is
         uint256 currentToken;
 
         for (uint256 i = 0; i < recipients.length; i++) {
-            if (_resevationCount[msg.sender] > 0) {
-                currentToken = _getNextReservation();
-            } else {
-                currentToken = _selectAvailableId();
-            }
+            currentToken = _selectAvailableId();
 
             _mint(recipients[i], currentToken);
 
@@ -435,78 +404,6 @@ contract OpenEditionsNFT is
 
         emit PriceChanged(salePrice);
     }
-
-    /**
-      @param wallets A list of wallets
-      @param tokenIDs A list of tokenId to reserve                                                                           
-      @dev Reserve an edition for a wallet
-     */
-    function reserve (address[] calldata wallets, uint256[] calldata tokenIDs)  external onlyOwner {  
-        require(wallets.length == tokenIDs.length, "Lists length must match");
-
-        for (uint256 i = 0; i < wallets.length; i++) {
-            require(_perTokenMetadata[tokenIDs[i]].state == ExpandedNFTStates.UNMINTED, "Needs to be unminted");
-
-            _perTokenMetadata[tokenIDs[i]].reservedBy = wallets[i];
-            _perTokenMetadata[tokenIDs[i]].state = ExpandedNFTStates.RESERVED;
-            _resevationCount[wallets[i]]++;
-            _resevations[wallets[i]].push(tokenIDs[i]); 
-        }
-    }
-
-    /**
-      @param tokenIDs A list of tokenId to unreserve                                                                           
-      @dev Unreserve an edition for a wallet
-     */
-    function unreserve (uint256[] calldata tokenIDs) external onlyOwner {  
-        for (uint256 i = 0; i < tokenIDs.length; i++) {
-            require(_perTokenMetadata[tokenIDs[i]].state == ExpandedNFTStates.RESERVED, "Not reserved");
-
-            address wallet = _perTokenMetadata[tokenIDs[i]].reservedBy;
-            uint256 index = 0;
-            while (_resevations[wallet][index] != tokenIDs[i]) {
-                index++;
-            }
-
-            _resevations[wallet][index] = 0;  
-
-            _resevationCount[_perTokenMetadata[tokenIDs[i]].reservedBy]--;
-            _perTokenMetadata[tokenIDs[i]].reservedBy = address(0);
-            _perTokenMetadata[tokenIDs[i]].state = ExpandedNFTStates.UNMINTED;
-        }
-    }
-
-    /**
-      @param tokenID the tokenId to check                                                                           
-      @dev Unreserve an edition for a wallet
-     */
-    function isReserved (uint256 tokenID) external view returns (bool) {  
-        return _perTokenMetadata[tokenID].reservedBy != address(0);
-    }
-
-    /**
-      @param tokenID the tokenId to check                                                                           
-      @dev who reserved the provided ID
-     */
-    function whoReserved (uint256 tokenID) external view returns (address) {  
-        return _perTokenMetadata[tokenID].reservedBy;
-    }
- 
-    /**
-      @param wallet The wallet being checked                                                                          
-      @dev returns the number of reservations for this wallet
-    */
-    function getReservationsCount(address wallet) public view returns (uint256) {           
-        return _resevationCount[wallet];   
-    }
-
-    /**
-      @param wallet The wallet being checked                                                                          
-      @dev returns the IDs reserved by the wallet
-    */
-    function getReservationsList(address wallet) public view returns (uint256[] memory) {           
-        return _resevations[wallet];   
-    }   
 
     /**                                                                      
       @dev returns the wallets on the allow list
