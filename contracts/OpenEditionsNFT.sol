@@ -62,9 +62,6 @@ contract OpenEditionsNFT is
         // Who reserved this
         address reservedBy;
 
-        // Redemption price in _paymentTokenERC20
-        uint256 editionFee; 
-
         // Metadata
         string mintedMetadataUrl;
         string redeemedMetadataUrl;
@@ -244,12 +241,6 @@ contract OpenEditionsNFT is
             
         return 0;       
     }
-
-    function redemptionPrice(uint256 tokenId) public view returns (uint256) {
-        require(_exists(tokenId), "No token");        
-
-        return _perTokenMetadata[tokenId].editionFee;
-    }    
 
     /**
       @dev returns the current state of the provided token

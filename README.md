@@ -18,4 +18,3 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 - [How to mint?](./doc/minting.md)
 - [How to redeem an edition?](./doc/redemption.md)
 - [How to withdraw royalties?](./doc/withdraw.md)
-
