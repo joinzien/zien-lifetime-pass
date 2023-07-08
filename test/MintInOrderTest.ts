@@ -52,7 +52,7 @@ describe("Mint in order", () => {
         "Testing Token",
         "TEST",
         "http://example.com/token/",
-        10, false);
+        10);
   
       const dropResult = await dynamicSketch.getDropAtId(0);   
       minterContract = (await ethers.getContractAt(

@@ -110,7 +110,6 @@ contract OpenEditionsNFT is
 
     string private _baseDir;
 
-    bool private _randomMint;
     uint256 private _currentIndex;
 
     // Global constructor for factory
@@ -127,7 +126,6 @@ contract OpenEditionsNFT is
       @param _symbol Symbol of the new token contract
       @param baseDirectory The base directory fo the metadata
       @param _dropSize Number of editions that can be minted in total. 
-      @param randomMint Mint in an random order   
       @dev Function to create a new drop. Can only be called by the allowed creator
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
@@ -138,8 +136,7 @@ contract OpenEditionsNFT is
         string memory _name,
         string memory _symbol,
         string memory baseDirectory,
-        uint256 _dropSize,
-        bool randomMint
+        uint256 _dropSize
     ) public initializer {
         require(_dropSize > 0, "Drop size must be > 0");
 
@@ -156,7 +153,6 @@ contract OpenEditionsNFT is
         // Set edition id start to be 1 not 0
         _claimCount = 0; 
         _currentIndex = 1;
-        _randomMint = randomMint;
     }
 
     /// @dev returns the base directory string
@@ -318,21 +314,6 @@ contract OpenEditionsNFT is
     function _selectAvailableId()
         internal returns (uint256)
     {
-        if (_randomMint) {
-            uint256 random = uint(keccak256(abi.encodePacked(msg.sender,block.prevrandao,gasleft()))) % dropSize;
-            uint256 randomIndex = 1 + random;
-
-            while (_perTokenMetadata[randomIndex].state != ExpandedNFTStates.UNMINTED) {
-                randomIndex++;
-
-                if (randomIndex > dropSize)  {
-                    randomIndex = 1;
-                }
-            } 
-
-            return randomIndex;
-        }
-
         uint256 index = _currentIndex;
 
         while (_perTokenMetadata[index].state != ExpandedNFTStates.UNMINTED) {
