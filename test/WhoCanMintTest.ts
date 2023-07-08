@@ -41,7 +41,7 @@ describe("Who Can Mint", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, true);
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
@@ -67,7 +67,7 @@ describe("Who Can Mint", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, true);
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
@@ -91,7 +91,7 @@ describe("Who Can Mint", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, true);
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(

@@ -35,15 +35,12 @@ contract DropCreator {
     /// @param _symbol Symbol of the drop contract
     /// @param _baseDir The base directory fo the metadata
     /// @param _dropSize The number of editions in the drop
-    /// @param randomMint Should editions be minted at random
-
     function createDrop(
         address _artistWallet,
         string memory _name,
         string memory _symbol,
         string memory _baseDir,
-        uint256 _dropSize,
-        bool randomMint
+        uint256 _dropSize
     ) external returns (uint256) {
         require(_dropSize > 0, "Drop size must be > 0");
 
@@ -58,8 +55,7 @@ contract DropCreator {
             _name,
             _symbol,
             _baseDir,
-            _dropSize,
-            randomMint
+            _dropSize
         );
 
         uint256 newId = _atContract.current();        
