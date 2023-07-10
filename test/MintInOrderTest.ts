@@ -25,8 +25,6 @@ describe("Mint in order", () => {
     let dynamicSketch: DropCreator;
     let minterContract: OpenEditionsNFT;
   
-    const nullAddress = "0x0000000000000000000000000000000000000000";
-  
     beforeEach(async () => {
       signer = (await ethers.getSigners())[0];
       signerAddress = await signer.getAddress();

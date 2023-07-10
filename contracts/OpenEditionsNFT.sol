@@ -125,7 +125,7 @@ contract OpenEditionsNFT is
       @param _name Name of drop, used in the title as "$NAME NUMBER/TOTAL"
       @param _symbol Symbol of the new token contract
       @param baseDirectory The base directory fo the metadata
-      @param _dropSize Number of editions that can be minted in total. 
+      @param _dropSize Number of editions that can be minted in total. Zero means unlimited
       @dev Function to create a new drop. Can only be called by the allowed creator
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
@@ -138,8 +138,6 @@ contract OpenEditionsNFT is
         string memory baseDirectory,
         uint256 _dropSize
     ) public initializer {
-        require(_dropSize > 0, "Drop size must be > 0");
-
         __ERC721_init(_name, _symbol);
         __Ownable_init();
 
@@ -148,7 +146,12 @@ contract OpenEditionsNFT is
 
         _artistWallet = artistWallet;
         _baseDir = baseDirectory;
-        dropSize = _dropSize;
+
+        if (_dropSize == 0) {
+            dropSize = type(uint256).max;
+        } else {
+            dropSize = _dropSize;
+        }
 
         // Set edition id start to be 1 not 0
         _claimCount = 0; 
@@ -594,7 +597,7 @@ contract OpenEditionsNFT is
         string[] memory _mintedMetadataUrl
     ) public onlyOwner {
         require(startIndex > 0, "StartIndex > 0");
-        require(startIndex + count <= dropSize + 1, "Data large than drop size");
+        require(startIndex + count - 1 <= dropSize, "Data large than drop size");
 
         require(_mintedMetadataUrl.length == count, "Data size mismatch");
 
