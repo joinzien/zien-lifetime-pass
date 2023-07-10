@@ -35,12 +35,14 @@ contract DropCreator {
     /// @param _symbol Symbol of the drop contract
     /// @param _baseDir The base directory fo the metadata
     /// @param _dropSize The number of editions in the drop. Zero means unlimited
+    /// @param differentEdtions Number of different editions that can be generated   
     function createDrop(
         address _artistWallet,
         string memory _name,
         string memory _symbol,
         string memory _baseDir,
-        uint256 _dropSize
+        uint256 _dropSize,
+        uint256 differentEdtions        
     ) external returns (uint256) {
         address newContract = ClonesUpgradeable.cloneDeterministic(
             implementation,
@@ -53,7 +55,8 @@ contract DropCreator {
             _name,
             _symbol,
             _baseDir,
-            _dropSize
+            _dropSize,
+            differentEdtions
         );
 
         uint256 newId = _atContract.current();        

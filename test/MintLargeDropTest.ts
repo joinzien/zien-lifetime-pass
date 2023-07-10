@@ -52,7 +52,7 @@ describe("Mint a large drop", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      dropSize);
+      dropSize, 1);
 
     const dropResult = await dynamicSketch.getDropAtId(0);   
     minterContract = (await ethers.getContractAt(

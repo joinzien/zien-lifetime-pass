@@ -102,6 +102,8 @@ contract OpenEditionsNFT is
 
     // Total size of the drop that can be minted
     uint256 public dropSize;
+
+    uint256 private _differentEdtions;
     uint256 private _claimCount; 
 
     // Pricing
@@ -126,6 +128,7 @@ contract OpenEditionsNFT is
       @param _symbol Symbol of the new token contract
       @param baseDirectory The base directory fo the metadata
       @param _dropSize Number of editions that can be minted in total. Zero means unlimited
+      @param differentEdtions Number of different editions that can be generated      
       @dev Function to create a new drop. Can only be called by the allowed creator
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
@@ -136,7 +139,8 @@ contract OpenEditionsNFT is
         string memory _name,
         string memory _symbol,
         string memory baseDirectory,
-        uint256 _dropSize
+        uint256 _dropSize,
+        uint256 differentEdtions
     ) public initializer {
         __ERC721_init(_name, _symbol);
         __Ownable_init();
@@ -152,6 +156,8 @@ contract OpenEditionsNFT is
         } else {
             dropSize = _dropSize;
         }
+
+        _differentEdtions = differentEdtions;
 
         // Set edition id start to be 1 not 0
         _claimCount = 0; 
@@ -312,23 +318,6 @@ contract OpenEditionsNFT is
     }
 
     /**
-      @dev This mints multiple editions to the given list of addresses.
-     */
-    function _selectAvailableId()
-        internal returns (uint256)
-    {
-        uint256 index = _currentIndex;
-
-        while (_perTokenMetadata[index].state != ExpandedNFTStates.UNMINTED) {
-            index++;
-        } 
-
-        _currentIndex = index;
-
-        return  index;
-    }
-
-    /**
       @param recipients list of addresses to send the newly minted editions to
       @dev This mints multiple editions to the given list of addresses.
      */
@@ -342,22 +331,23 @@ contract OpenEditionsNFT is
 
         require(_paymentAmountCorrect(recipients.length), "Wrong price");
 
-        uint256 currentToken;
-
         for (uint256 i = 0; i < recipients.length; i++) {
-            currentToken = _selectAvailableId();
+            _mint(recipients[i], _currentIndex);
 
-            _mint(recipients[i], currentToken);
+            _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
+            
+            uint256 tokenId =  1 + ((_currentIndex - 1) % _differentEdtions);
+            _perTokenMetadata[_currentIndex].mintedMetadataUrl = string(abi.encodePacked(_baseDir, tokenId.toString(), ".json"));
 
-            _perTokenMetadata[currentToken].state = ExpandedNFTStates.MINTED;
             _pricing.mintCounts[msg.sender]++;
             _claimCount++;
+            _currentIndex++;
 
             emit EditionSold(price(), msg.sender);
-            emit MetadataUpdate(currentToken);            
+            emit MetadataUpdate(_currentIndex);            
         }
 
-        return currentToken;        
+        return _currentIndex;        
     }  
 
     /**
@@ -415,7 +405,7 @@ contract OpenEditionsNFT is
       @dev Update the base directory
      */
     function updateBaseDir(string memory baseDirectory) external onlyOwner {
-        _baseDir= baseDirectory;
+        _baseDir = baseDirectory;
     }
 
     /**

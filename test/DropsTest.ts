@@ -56,7 +56,7 @@ describe("Drops", () => {
         "test name",
         "SYM",
         "http://example.com/token/",
-        12
+        12, 12
       )
     ).to.be.revertedWith("Initializable: contract is already initialized");
   });
@@ -67,7 +67,7 @@ describe("Drops", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      0 
+      0, 1 
     );
 
     const dropResult = await dynamicSketch.getDropAtId(0);
@@ -91,7 +91,7 @@ describe("Drops", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10 // 1% royalty since BPS  
+      10, 1
     );
 
     const dropResult = await dynamicSketch.getDropAtId(0);
@@ -118,7 +118,7 @@ describe("Drops", () => {
         "Testing Token",
         "TEST",
         "http://example.com/token/",
-        10);
+        10, 10);
 
       const dropResult = await dynamicSketch.getDropAtId(0);
       minterContract = (await ethers.getContractAt(
@@ -170,7 +170,7 @@ describe("Drops", () => {
           "test name",
           "SYM",
           "http://example.com/token/",
-          12)
+          12, 1)
       ).to.be.revertedWith("Initializable: contract is already initialized");
       await minterContract.mintEdition(await signer1.getAddress(), {
         value: ethers.utils.parseEther("0.1")
