@@ -348,22 +348,20 @@ contract OpenEditionsNFT is
 
         require(_paymentAmountCorrect(recipients.length), "Wrong price");
 
-        uint256 currentToken;
-
         for (uint256 i = 0; i < recipients.length; i++) {
-            currentToken = _selectAvailableId();
+            _selectAvailableId();
 
-            _mint(recipients[i], currentToken);
+            _mint(recipients[i], _currentIndex);
 
-            _perTokenMetadata[currentToken].state = ExpandedNFTStates.MINTED;
+            _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
             _pricing.mintCounts[msg.sender]++;
             _claimCount++;
 
             emit EditionSold(price(), msg.sender);
-            emit MetadataUpdate(currentToken);            
+            emit MetadataUpdate(_currentIndex);            
         }
 
-        return currentToken;        
+        return _currentIndex;        
     }  
 
     /**
