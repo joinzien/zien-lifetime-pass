@@ -318,23 +318,6 @@ contract OpenEditionsNFT is
     }
 
     /**
-      @dev This mints multiple editions to the given list of addresses.
-     */
-    function _selectAvailableId()
-        internal returns (uint256)
-    {
-        uint256 index = _currentIndex;
-
-        while (_perTokenMetadata[index].state != ExpandedNFTStates.UNMINTED) {
-            index++;
-        } 
-
-        _currentIndex = index;
-
-        return  index;
-    }
-
-    /**
       @param recipients list of addresses to send the newly minted editions to
       @dev This mints multiple editions to the given list of addresses.
      */
@@ -349,13 +332,12 @@ contract OpenEditionsNFT is
         require(_paymentAmountCorrect(recipients.length), "Wrong price");
 
         for (uint256 i = 0; i < recipients.length; i++) {
-            _selectAvailableId();
-
             _mint(recipients[i], _currentIndex);
 
             _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
             _pricing.mintCounts[msg.sender]++;
             _claimCount++;
+            _currentIndex++;
 
             emit EditionSold(price(), msg.sender);
             emit MetadataUpdate(_currentIndex);            
