@@ -335,6 +335,10 @@ contract OpenEditionsNFT is
             _mint(recipients[i], _currentIndex);
 
             _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
+            
+            uint256 tokenId = _currentIndex % _differentEdtions;
+            _perTokenMetadata[tokenId].mintedMetadataUrl = string(abi.encodePacked(_baseDir, tokenId.toString(), ".json"));
+
             _pricing.mintCounts[msg.sender]++;
             _claimCount++;
             _currentIndex++;
@@ -401,7 +405,7 @@ contract OpenEditionsNFT is
       @dev Update the base directory
      */
     function updateBaseDir(string memory baseDirectory) external onlyOwner {
-        _baseDir= baseDirectory;
+        _baseDir = baseDirectory;
     }
 
     /**
