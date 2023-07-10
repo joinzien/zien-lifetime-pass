@@ -411,4 +411,47 @@ describe("Metadata", () => {
 
     await expect(minterContract.tokenURI(0)).to.be.revertedWith("No token");
   });
+
+  it("Check metadata values", async () => {
+    await dynamicSketch.createDrop(
+      artistAddress,
+      "Testing Token",
+      "TEST",
+      "http://example.com/edition/",
+      10, 3);
+
+    const dropResult = await dynamicSketch.getDropAtId(0);
+    minterContract = (await ethers.getContractAt(
+      "OpenEditionsNFT",
+      dropResult
+    )) as OpenEditionsNFT;
+
+    // Mint as the general public
+    const mintCost = ethers.utils.parseEther("0.1");
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 10, 10);   
+    await minterContract.setAllowedMinter(2);
+
+    await expect(minterContract.mintMultipleEditions(signerAddress, 10, {
+      value: ethers.utils.parseEther("1.0")
+    }))
+      .to.emit(minterContract, "Transfer")
+      .withArgs(
+        "0x0000000000000000000000000000000000000000",
+        signerAddress,
+        10
+      );
+      
+    expect(await minterContract.totalSupply()).to.be.equal(10);
+    expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/edition/1.json");   
+    expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/edition/2.json");    
+    expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/edition/3.json");    
+    expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/edition/1.json");    
+    expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/edition/2.json");  
+    expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/edition/3.json");   
+    expect(await minterContract.tokenURI(7)).to.be.equal("http://example.com/edition/1.json");    
+    expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/edition/2.json");    
+    expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/edition/3.json");    
+    expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/edition/1.json");          
+  });
+
 });

@@ -336,8 +336,8 @@ contract OpenEditionsNFT is
 
             _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
             
-            uint256 tokenId = _currentIndex % _differentEdtions;
-            _perTokenMetadata[tokenId].mintedMetadataUrl = string(abi.encodePacked(_baseDir, tokenId.toString(), ".json"));
+            uint256 tokenId =  1 + ((_currentIndex - 1) % _differentEdtions);
+            _perTokenMetadata[_currentIndex].mintedMetadataUrl = string(abi.encodePacked(_baseDir, tokenId.toString(), ".json"));
 
             _pricing.mintCounts[msg.sender]++;
             _claimCount++;

@@ -56,7 +56,7 @@ describe("Drops", () => {
         "test name",
         "SYM",
         "http://example.com/token/",
-        12, 1
+        12, 12
       )
     ).to.be.revertedWith("Initializable: contract is already initialized");
   });
@@ -118,7 +118,7 @@ describe("Drops", () => {
         "Testing Token",
         "TEST",
         "http://example.com/token/",
-        10, 1);
+        10, 10);
 
       const dropResult = await dynamicSketch.getDropAtId(0);
       minterContract = (await ethers.getContractAt(
