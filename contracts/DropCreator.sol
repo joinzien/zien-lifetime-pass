@@ -34,7 +34,7 @@ contract DropCreator {
     /// @param _name Name of the drop contract
     /// @param _symbol Symbol of the drop contract
     /// @param _baseDir The base directory fo the metadata
-    /// @param _dropSize The number of editions in the drop
+    /// @param _dropSize The number of editions in the drop. Zero means unlimited
     function createDrop(
         address _artistWallet,
         string memory _name,
@@ -42,8 +42,6 @@ contract DropCreator {
         string memory _baseDir,
         uint256 _dropSize
     ) external returns (uint256) {
-        require(_dropSize > 0, "Drop size must be > 0");
-
         address newContract = ClonesUpgradeable.cloneDeterministic(
             implementation,
             bytes32(abi.encodePacked(_atContract.current()))
