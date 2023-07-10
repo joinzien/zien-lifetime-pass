@@ -21,8 +21,6 @@ enum ExpandedNFTState {
 }
 
 describe("Redeem", () => {
-  const editionCost = 1000000000;
-
   let signer: SignerWithAddress;
   let signerAddress: string;
 
@@ -41,10 +39,6 @@ describe("Redeem", () => {
       "DropCreator",
       "OpenEditionsNFT",
     ]);
-
-    const dynamicMintableAddress = (
-      await deployments.get("OpenEditionsNFT")
-    ).address;
 
     dynamicSketch = (await ethers.getContractAt(
       "DropCreator",
@@ -65,7 +59,7 @@ describe("Redeem", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10);
+      10,1);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
