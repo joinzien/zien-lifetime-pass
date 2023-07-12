@@ -215,6 +215,11 @@ contract OpenEditionsNFT is
         return (currentMintLimit - _pricing.mintCounts[wallet]);   
     }
 
+    /// @dev return the number of different editions
+    function numberOfDifferentEdtions() public view returns (uint256) {
+        return _differentEdtions;
+    }
+
     /// @dev returns  if the address can mint
     function canMint(address wallet) public view returns (bool) {
         uint256 currentMintLimit = getMintLimit(wallet);   
@@ -453,6 +458,14 @@ contract OpenEditionsNFT is
 
         emit PriceChanged(generalSalePrice);
     }  
+
+     /**
+      @param differentEdtions set the number of different editions                                 
+      @dev This sets number of different editions
+     */
+    function setNumberOfDifferentEdtions(uint256 differentEdtions) external onlyOwner {
+        _differentEdtions = differentEdtions;
+    }
 
     /**
       @dev This withdraws ETH from the contract to the contract owner.

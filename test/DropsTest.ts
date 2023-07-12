@@ -225,6 +225,7 @@ describe("Drops", () => {
       const [_, signer1] = await ethers.getSigners();
 
       expect(await minterContract.numberCanMint()).to.be.equal(10);
+      expect(await minterContract.numberOfDifferentEdtions()).to.be.equal(10);
 
       // Mint first edition
       for (let i = 1; i <= 10; i++) {
