@@ -225,7 +225,7 @@ contract OpenEditionsNFT is
     }
 
     /// @dev return if this is a random mint
-    function randomMint() public view returns (bool) {
+    function isRandomMint() public view returns (bool) {
         return _randomMint;
     }
 
@@ -350,7 +350,8 @@ contract OpenEditionsNFT is
 
             _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
             
-            uint256 tokenId =  1 + ((_currentIndex - 1) % _differentEdtions);
+            uint256 seed = _currentIndex - 1;
+            uint256 tokenId =  1 + (seed % _differentEdtions);
             _perTokenMetadata[_currentIndex].mintedMetadataUrl = string(abi.encodePacked(_baseDir, tokenId.toString(), ".json"));
 
             _pricing.mintCounts[msg.sender]++;
