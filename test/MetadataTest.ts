@@ -49,7 +49,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -73,7 +73,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -97,7 +97,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -121,7 +121,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -145,7 +145,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -166,7 +166,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -187,7 +187,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      20, 1);
+      20, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -220,7 +220,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -259,7 +259,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      20, 1);
+      20, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -301,7 +301,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -325,7 +325,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -344,7 +344,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -363,7 +363,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -382,7 +382,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -401,7 +401,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -418,7 +418,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/edition/",
-      10, 3);
+      10, 3, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(

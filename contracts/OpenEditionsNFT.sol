@@ -103,6 +103,7 @@ contract OpenEditionsNFT is
     // Total size of the drop that can be minted
     uint256 public dropSize;
 
+    bool private _randomMint;
     uint256 private _differentEdtions;
     uint256 private _claimCount; 
 
@@ -128,7 +129,8 @@ contract OpenEditionsNFT is
       @param _symbol Symbol of the new token contract
       @param baseDirectory The base directory fo the metadata
       @param _dropSize Number of editions that can be minted in total. Zero means unlimited
-      @param differentEdtions Number of different editions that can be generated      
+      @param differentEdtions Number of different editions that can be generated 
+      @param randomMint should the minting be random or sequential     
       @dev Function to create a new drop. Can only be called by the allowed creator
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
@@ -140,7 +142,8 @@ contract OpenEditionsNFT is
         string memory _symbol,
         string memory baseDirectory,
         uint256 _dropSize,
-        uint256 differentEdtions
+        uint256 differentEdtions,
+        bool randomMint 
     ) public initializer {
         __ERC721_init(_name, _symbol);
         __Ownable_init();
@@ -157,6 +160,7 @@ contract OpenEditionsNFT is
             dropSize = _dropSize;
         }
 
+        _randomMint = randomMint;
         _differentEdtions = differentEdtions;
 
         // Set edition id start to be 1 not 0
