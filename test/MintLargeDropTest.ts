@@ -76,5 +76,6 @@ describe("Mint a large drop", () => {
     }
  
     expect(await minterContract.totalSupply()).to.be.equal(dropSize);
+    expect(await minterContract.isRandomMint()).to.be.equal(false);
   });
 });

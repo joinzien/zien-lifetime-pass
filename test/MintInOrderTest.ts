@@ -87,5 +87,6 @@ describe("Mint in order", () => {
         );
         
       expect(await minterContract.totalSupply()).to.be.equal(1);
+      expect(await minterContract.isRandomMint()).to.be.equal(false);
     });  
 });
