@@ -88,5 +88,22 @@ describe("Mint randomly", () => {
         
       expect(await minterContract.totalSupply()).to.be.equal(1);
       expect(await minterContract.isRandomMint()).to.be.equal(true);
+    }); 
+    
+    it("Change random mint status", async () => {
+      expect(await minterContract.isRandomMint()).to.be.equal(true);
+
+      await minterContract.setRandomMint(false);
+
+      expect(await minterContract.isRandomMint()).to.be.equal(false);
     });  
+    
+    it("Change random mint status, not as the owner", async () => {
+      expect(await minterContract.isRandomMint()).to.be.equal(true);
+
+      await expect(minterContract.connect(user).setRandomMint(false)).to.be.revertedWith("Ownable: caller is not the owner"); 
+
+      expect(await minterContract.isRandomMint()).to.be.equal(true);
+    });    
+
 });
