@@ -104,6 +104,74 @@ describe("Mint randomly", () => {
       await expect(minterContract.connect(user).setRandomMint(false)).to.be.revertedWith("Ownable: caller is not the owner"); 
 
       expect(await minterContract.isRandomMint()).to.be.equal(true);
-    });    
+    }); 
+    
+    it("General public can not mint while the drop is not for sale", async () => {
+      await minterContract.setAllowedMinter(0);
+  
+      await expect(minterContract.connect(user).mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.be.revertedWith("Needs to be an allowed minter");
+    });
+  
+    it("General public can not mint when not on the allow list", async () => {
+      await minterContract.setAllowedMinter(1);
+  
+      await expect(minterContract.connect(user).mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.be.revertedWith("Needs to be an allowed minter");
+    });
+  
+    it("General public can mint when mint is open to everyone", async () => {
+      await minterContract.setAllowedMinter(2);
+  
+      await expect(minterContract.connect(user).mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.emit(minterContract, "EditionSold");
+    });
+  
+    it("An allow list member can not mint while the drop is not for sale", async () => {
+      await minterContract.setAllowListMinters(1, [userAddress], [true])
+      await minterContract.setAllowedMinter(0);
+  
+      await expect(minterContract.connect(user).mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.be.revertedWith("Needs to be an allowed minter");
+    });
+  
+    it("An allow list member can mint when on the allow list", async () => {
+      await minterContract.setAllowListMinters(1, [userAddress], [true])
+      await minterContract.setAllowedMinter(1);
+  
+      await expect(minterContract.connect(user).mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.emit(minterContract, "EditionSold");
+    });
+  
+    it("An allow list member can mint when mint is open to everyone", async () => {
+      await minterContract.setAllowListMinters(1, [userAddress], [true])
+      await minterContract.setAllowedMinter(2);
+  
+      await expect(minterContract.connect(user).mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.emit(minterContract, "EditionSold");
+    });
+  
+     it("The owner can mint while the drop is not for sale", async () => {
+      await minterContract.setAllowedMinter(0);
+  
+      await minterContract.mintEditions([signerAddress], { value: ethers.utils.parseEther("0") });
+  
+      expect(await minterContract.totalSupply()).to.be.equal(1);
+      expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
+      expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
+      expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(9);   
+    });
+  
+    it("The owner can mint when not on the allow list", async () => {
+      await minterContract.setAllowedMinter(1);
+  
+      await minterContract.mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") });
+  
+      expect(await minterContract.totalSupply()).to.be.equal(1);
+      expect(await minterContract.getAllowListMintLimit()).to.be.equal(2);
+      expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
+      expect(await minterContract.getMintLimit(signerAddress)).to.be.equal(9);      
+    });
+  
+    it("The owner list member can mint when on the allow list", async () => {
+      await minterContract.setAllowListMinters(1, [signerAddress], [true])
+      await minterContract.setAllowedMinter(1);
+  
+      await expect(minterContract.mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.emit(minterContract, "EditionSold");
+    });     
 
 });

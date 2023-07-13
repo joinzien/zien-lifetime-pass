@@ -62,30 +62,27 @@ describe("Mint in order", () => {
       await minterContract.setPricing(10, 500, mintCost, mintCost, 2, 1);   
     });
   
-    it("General user access control", async () => {
+    it("Mint as not the owner with drop not on sale", async () => {
       await minterContract.setAllowedMinter(0);
   
-      // Mint as a contract owner
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");      
          
       expect(await minterContract.totalSupply()).to.be.equal(0);
       expect(await minterContract.isRandomMint()).to.be.equal(false);
     });  
 
-    it("General user access control", async () => { 
+    it("Mint as not the owner with drop limited to the allow list", async () => { 
       await minterContract.setAllowedMinter(1);
   
-      // Mint as a member of the allow list
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");   
         
       expect(await minterContract.totalSupply()).to.be.equal(0);
       expect(await minterContract.isRandomMint()).to.be.equal(false);
     });  
 
-    it("General user access control", async () => {
+    it("Mint as not the owner with drop omn general release", async () => {
       await minterContract.setAllowedMinter(2);
-  
-      // Mint as the general public
+
       await expect(minterContract.connect(user).mintEdition(userAddress, {
         value: ethers.utils.parseEther("0.1")
       }))
@@ -95,6 +92,57 @@ describe("Mint in order", () => {
           userAddress,
           1
         );
+        
+      expect(await minterContract.totalSupply()).to.be.equal(1);
+      expect(await minterContract.isRandomMint()).to.be.equal(false);
+    });  
+
+    it("Mint as owner with drop not on sale", async () => {
+      await minterContract.setAllowedMinter(0);
+  
+      await expect(minterContract.mintEdition(userAddress, {
+        value: ethers.utils.parseEther("0.0")
+      }))
+        .to.emit(minterContract, "Transfer")
+        .withArgs(
+          "0x0000000000000000000000000000000000000000",
+          userAddress,
+          1
+        );    
+         
+        expect(await minterContract.totalSupply()).to.be.equal(1);
+        expect(await minterContract.isRandomMint()).to.be.equal(false);
+    });  
+
+    it("Mint as the owner with drop limited to the allow list", async () => { 
+      await minterContract.setAllowedMinter(1);
+  
+      await expect(minterContract.mintEdition(userAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
+        .to.emit(minterContract, "Transfer")
+        .withArgs(
+          "0x0000000000000000000000000000000000000000",
+          userAddress,
+          1
+        );   
+        
+      expect(await minterContract.totalSupply()).to.be.equal(1);
+      expect(await minterContract.isRandomMint()).to.be.equal(false);
+    });  
+
+    it("Mint as the owner with drop omn general release", async () => {
+      await minterContract.setAllowedMinter(2);
+  
+      await expect(minterContract.mintEdition(userAddress, {
+        value: ethers.utils.parseEther("0.1")
+      }))
+        .to.emit(minterContract, "Transfer")
+        .withArgs(
+          "0x0000000000000000000000000000000000000000",
+          userAddress,
+          1
+        );   
         
       expect(await minterContract.totalSupply()).to.be.equal(1);
       expect(await minterContract.isRandomMint()).to.be.equal(false);
