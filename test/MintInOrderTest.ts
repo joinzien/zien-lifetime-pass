@@ -67,12 +67,22 @@ describe("Mint in order", () => {
   
       // Mint as a contract owner
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");      
-  
+         
+      expect(await minterContract.totalSupply()).to.be.equal(0);
+      expect(await minterContract.isRandomMint()).to.be.equal(false);
+    });  
+
+    it("General user access control", async () => { 
       await minterContract.setAllowedMinter(1);
   
       // Mint as a member of the allow list
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");   
-  
+        
+      expect(await minterContract.totalSupply()).to.be.equal(0);
+      expect(await minterContract.isRandomMint()).to.be.equal(false);
+    });  
+
+    it("General user access control", async () => {
       await minterContract.setAllowedMinter(2);
   
       // Mint as the general public
