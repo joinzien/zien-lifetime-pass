@@ -224,6 +224,11 @@ contract OpenEditionsNFT is
         return _differentEdtions;
     }
 
+    /// @dev return if this is a random mint
+    function randomMint() public view returns (bool) {
+        return _randomMint;
+    }
+
     /// @dev returns  if the address can mint
     function canMint(address wallet) public view returns (bool) {
         uint256 currentMintLimit = getMintLimit(wallet);   
@@ -555,6 +560,14 @@ contract OpenEditionsNFT is
         _pricing.whoCanMint = minters;
         emit WhoCanMintChanged(minters);
     }
+
+    /**
+      @param randomMint is this a random mint
+      @dev return if this is a random mint
+     */
+    function setRandomMint(bool randomMint) public onlyOwner {
+        _randomMint = randomMint;
+    }    
 
     /**
       @param minter address to set approved minting status for
