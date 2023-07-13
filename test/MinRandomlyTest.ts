@@ -12,7 +12,7 @@ import {
   OpenEditionsNFT,
 } from "../typechain";
 
-describe("Mint in order", () => {
+describe("Mint randomly", () => {
     let signer: SignerWithAddress;
     let signerAddress: string;
   
@@ -50,7 +50,7 @@ describe("Mint in order", () => {
         "Testing Token",
         "TEST",
         "http://example.com/token/",
-        10, 1, false);
+        10, 1, true);
   
       const dropResult = await dynamicSketch.getDropAtId(0);   
       minterContract = (await ethers.getContractAt(
@@ -87,6 +87,23 @@ describe("Mint in order", () => {
         );
         
       expect(await minterContract.totalSupply()).to.be.equal(1);
+      expect(await minterContract.isRandomMint()).to.be.equal(true);
+    }); 
+    
+    it("Change random mint status", async () => {
+      expect(await minterContract.isRandomMint()).to.be.equal(true);
+
+      await minterContract.setRandomMint(false);
+
       expect(await minterContract.isRandomMint()).to.be.equal(false);
     });  
+    
+    it("Change random mint status, not as the owner", async () => {
+      expect(await minterContract.isRandomMint()).to.be.equal(true);
+
+      await expect(minterContract.connect(user).setRandomMint(false)).to.be.revertedWith("Ownable: caller is not the owner"); 
+
+      expect(await minterContract.isRandomMint()).to.be.equal(true);
+    });    
+
 });

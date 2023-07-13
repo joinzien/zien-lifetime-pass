@@ -45,7 +45,7 @@ describe("Withdraw", () => {
 
     await dynamicSketch.createDrop(
       artistAddress, "Testing Token",
-      "TEST", "http://example.com/token/", 10, 1);
+      "TEST", "http://example.com/token/", 10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(

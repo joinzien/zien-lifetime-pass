@@ -103,6 +103,7 @@ contract OpenEditionsNFT is
     // Total size of the drop that can be minted
     uint256 public dropSize;
 
+    bool private _randomMint;
     uint256 private _differentEdtions;
     uint256 private _claimCount; 
 
@@ -128,7 +129,8 @@ contract OpenEditionsNFT is
       @param _symbol Symbol of the new token contract
       @param baseDirectory The base directory fo the metadata
       @param _dropSize Number of editions that can be minted in total. Zero means unlimited
-      @param differentEdtions Number of different editions that can be generated      
+      @param differentEdtions Number of different editions that can be generated 
+      @param randomMint should the minting be random or sequential     
       @dev Function to create a new drop. Can only be called by the allowed creator
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
@@ -140,7 +142,8 @@ contract OpenEditionsNFT is
         string memory _symbol,
         string memory baseDirectory,
         uint256 _dropSize,
-        uint256 differentEdtions
+        uint256 differentEdtions,
+        bool randomMint 
     ) public initializer {
         __ERC721_init(_name, _symbol);
         __Ownable_init();
@@ -157,6 +160,7 @@ contract OpenEditionsNFT is
             dropSize = _dropSize;
         }
 
+        _randomMint = randomMint;
         _differentEdtions = differentEdtions;
 
         // Set edition id start to be 1 not 0
@@ -218,6 +222,11 @@ contract OpenEditionsNFT is
     /// @dev return the number of different editions
     function numberOfDifferentEdtions() public view returns (uint256) {
         return _differentEdtions;
+    }
+
+    /// @dev return if this is a random mint
+    function isRandomMint() public view returns (bool) {
+        return _randomMint;
     }
 
     /// @dev returns  if the address can mint
@@ -341,7 +350,10 @@ contract OpenEditionsNFT is
 
             _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
             
-            uint256 tokenId =  1 + ((_currentIndex - 1) % _differentEdtions);
+            uint256 value = uint(keccak256(abi.encodePacked(block.prevrandao, gasleft())));
+            uint256 rnd = _randomMint ? value : 0;
+            uint256 seed = _currentIndex - 1 + rnd;
+            uint256 tokenId =  1 + (seed % _differentEdtions);
             _perTokenMetadata[_currentIndex].mintedMetadataUrl = string(abi.encodePacked(_baseDir, tokenId.toString(), ".json"));
 
             _pricing.mintCounts[msg.sender]++;
@@ -551,6 +563,14 @@ contract OpenEditionsNFT is
         _pricing.whoCanMint = minters;
         emit WhoCanMintChanged(minters);
     }
+
+    /**
+      @param randomMint is this a random mint
+      @dev return if this is a random mint
+     */
+    function setRandomMint(bool randomMint) public onlyOwner {
+        _randomMint = randomMint;
+    }    
 
     /**
       @param minter address to set approved minting status for

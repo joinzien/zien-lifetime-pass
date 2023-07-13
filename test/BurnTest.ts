@@ -50,7 +50,7 @@ describe("Burn", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1);
+      10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);   
     minterContract = (await ethers.getContractAt(
