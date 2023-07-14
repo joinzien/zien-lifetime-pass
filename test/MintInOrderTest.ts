@@ -64,6 +64,8 @@ describe("Mint in order", () => {
   
     it("Mint as not the owner with drop not on sale", async () => {
       await minterContract.setAllowedMinter(0);
+
+      expect(await minterContract.canMint(userAddress)).to.be.equal(false);      
   
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");      
          
@@ -73,6 +75,8 @@ describe("Mint in order", () => {
 
     it("Mint as not the owner with drop limited to the allow list", async () => { 
       await minterContract.setAllowedMinter(1);
+
+      expect(await minterContract.canMint(userAddress)).to.be.equal(false);
   
       await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");   
         
@@ -82,6 +86,8 @@ describe("Mint in order", () => {
 
     it("Mint as not the owner with drop omn general release", async () => {
       await minterContract.setAllowedMinter(2);
+
+      expect(await minterContract.canMint(userAddress)).to.be.equal(true);
 
       await expect(minterContract.connect(user).mintEdition(userAddress, {
         value: ethers.utils.parseEther("0.1")
@@ -97,9 +103,22 @@ describe("Mint in order", () => {
       expect(await minterContract.isRandomMint()).to.be.equal(false);
     });  
 
+    it("Mint with the wrong payment amount", async () => {
+      await minterContract.setAllowedMinter(2);
+
+      expect(await minterContract.canMint(userAddress)).to.be.equal(true);
+
+      await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Wrong price");  
+        
+      expect(await minterContract.totalSupply()).to.be.equal(0);
+      expect(await minterContract.isRandomMint()).to.be.equal(false);
+    });  
+
     it("Mint as owner with drop not on sale", async () => {
       await minterContract.setAllowedMinter(0);
   
+      expect(await minterContract.canMint(signerAddress)).to.be.equal(true);
+
       await expect(minterContract.mintEdition(userAddress, {
         value: ethers.utils.parseEther("0.0")
       }))
@@ -117,6 +136,8 @@ describe("Mint in order", () => {
     it("Mint as the owner with drop limited to the allow list", async () => { 
       await minterContract.setAllowedMinter(1);
   
+      expect(await minterContract.canMint(signerAddress)).to.be.equal(true);
+
       await expect(minterContract.mintEdition(userAddress, {
         value: ethers.utils.parseEther("0.1")
       }))
@@ -133,6 +154,8 @@ describe("Mint in order", () => {
 
     it("Mint as the owner with drop omn general release", async () => {
       await minterContract.setAllowedMinter(2);
+
+      expect(await minterContract.canMint(signerAddress)).to.be.equal(true);
   
       await expect(minterContract.mintEdition(userAddress, {
         value: ethers.utils.parseEther("0.1")
@@ -146,5 +169,5 @@ describe("Mint in order", () => {
         
       expect(await minterContract.totalSupply()).to.be.equal(1);
       expect(await minterContract.isRandomMint()).to.be.equal(false);
-    });  
+    }); 
 });
