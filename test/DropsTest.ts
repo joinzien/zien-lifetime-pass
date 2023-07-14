@@ -329,5 +329,10 @@ describe("Drops", () => {
       expect(await minterContract.totalSupply()).to.be.equal(10);
     });
 
+    it("Try to change the number of edition not as the owner", async () => {
+      expect(await minterContract.numberOfDifferentEdtions()).to.be.equal(10);
+
+      await expect(minterContract.connect(artist).setNumberOfDifferentEdtions(3)).to.be.revertedWith("Ownable: caller is not the owner");
+    });    
   });
 });

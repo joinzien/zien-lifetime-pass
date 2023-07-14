@@ -737,11 +737,6 @@ contract OpenEditionsNFT is
             return (_perTokenMetadata[tokenId].redeemedMetadataUrl);
         }
 
-        bytes memory tempEmptyStringTest = bytes(_perTokenMetadata[tokenId].mintedMetadataUrl);
-        if (tempEmptyStringTest.length == 0) {
-            return string(abi.encodePacked(_baseDir, tokenId.toString(), ".json"));
-        }
-
         return (_perTokenMetadata[tokenId].mintedMetadataUrl);
     }
 
