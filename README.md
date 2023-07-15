@@ -10,7 +10,7 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 2. `DropCreator`
    Gas-optimized factory contract allowing you to easily + for a low gas transaction create your drop mintable contract.
 
-## How do I create and use Expanded NFTs?
+## How do I create and use Open Edition NFTs?
 
 - [How do I create a new drop?](./doc/create-a-drop.md)
 - [How to develop locally?](./doc/develop.md)
@@ -18,3 +18,7 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 - [How to mint?](./doc/minting.md)
 - [How to redeem an edition?](./doc/redemption.md)
 - [How to withdraw royalties?](./doc/withdraw.md)
+
+## ABIs
+
+- [V1](releases/tag/v1.0.0) [ABI](./abi/openedition_v1.json)
