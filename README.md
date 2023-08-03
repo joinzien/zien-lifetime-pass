@@ -22,3 +22,8 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 ## ABIs
 
 - [V1](https://github.com/joinzien/open-editions/releases/tag/v1.0.0) [ABI](./abi/openedition_v1.json)
+
+## Drops
+
+- [Anamorphic Generations](https://opensea.io/collection/anamorphic-generations)
+  
