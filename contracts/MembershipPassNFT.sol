@@ -2,7 +2,7 @@
 
 /**
 
-    Open Editions NFTs
+    Membership Passes NFTs
 
  */
 
@@ -15,7 +15,7 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {StringsUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 
-import {IOpenEditionsNFT} from "./IOpenEditionsNFT.sol";
+import {IMembershipPassNFT} from "./IMembershipPassNFT.sol";
 /**
     This is a smart contract for handling dynamic contract minting.
 
@@ -23,9 +23,9 @@ import {IOpenEditionsNFT} from "./IOpenEditionsNFT.sol";
     @author Zien
     Repository: https://github.com/joinzien/expanded-nft
 */
-contract OpenEditionsNFT is
+contract MembershipPassNFT is
     ERC721Upgradeable,
-    IOpenEditionsNFT,
+    IMembershipPassNFT,
     IERC2981Upgradeable,
     OwnableUpgradeable
 {
@@ -535,7 +535,7 @@ contract OpenEditionsNFT is
     function owner()
         public
         view
-        override(OwnableUpgradeable, IOpenEditionsNFT)
+        override(OwnableUpgradeable, IMembershipPassNFT)
         returns (address)
     {
         return super.owner();
