@@ -1,7 +1,7 @@
 {
-  "name": "@zien/open-editions",
+  "name": "@zien/pass",
   "version": "1.0.1",
-  "description": "Open Edition Expanded NFTs Contracts",
+  "description": "Membership Passes NFTs Contracts",
   "main": "index.js",
   "author": "Zien",
   "license": "GPL-3.0",
@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/joinzien/open-editions.git"
+    "url": "https://github.com/joinzien/pass.git"
   },
   "scripts": {
     "typechain": "hardhat typechain",

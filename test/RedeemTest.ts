@@ -9,7 +9,7 @@ import { ethers, deployments } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DropCreator,
-  OpenEditionsNFT,
+  MembershipPassNFT,
 } from "../typechain";
 
 enum ExpandedNFTState {
@@ -32,12 +32,12 @@ describe("Redeem", () => {
 
   let dynamicSketch: DropCreator;
 
-  let minterContract: ExpandedNFT;
+  let minterContract: MembershipPassNFT;
 
   beforeEach(async () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
     ]);
 
     dynamicSketch = (await ethers.getContractAt(
@@ -63,9 +63,9 @@ describe("Redeem", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await minterContract.setPricing(10, 500, 10, 10, 1, 1);
 

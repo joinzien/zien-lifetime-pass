@@ -9,7 +9,7 @@ import { ethers, deployments } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DropCreator,
-  OpenEditionsNFT
+  MembershipPassNFT
 } from "../typechain";
 
 describe("Metadata", () => {
@@ -21,7 +21,7 @@ describe("Metadata", () => {
 
   let dynamicSketch: DropCreator;
 
-  let minterContract: OpenEditionsNFT;
+  let minterContract: MembershipPassNFT;
 
   beforeEach(async () => {
     signer = (await ethers.getSigners())[0];
@@ -32,7 +32,7 @@ describe("Metadata", () => {
 
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
     ]);
 
     dynamicSketch = (await ethers.getContractAt(
@@ -53,9 +53,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await expect(minterContract.connect(artist).updateMetadata(
       1, 10,
@@ -77,9 +77,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await expect(minterContract.updateMetadata(
       0, 10,
@@ -101,9 +101,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await expect(minterContract.updateMetadata(
       2, 10,
@@ -125,9 +125,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await minterContract.updateMetadata(
       1, 10,
@@ -149,9 +149,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     expect(await minterContract.baseDir()).to.be.equal("http://example.com/token/");
 
@@ -170,9 +170,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     expect(await minterContract.baseDir()).to.be.equal("http://example.com/token/");
 
@@ -191,9 +191,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await minterContract.updateMetadata(
       1, 10,
@@ -224,9 +224,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     const mintCost = ethers.utils.parseEther("0.1");
     await minterContract.setPricing(10, 500, mintCost, mintCost, 2, 1);   
@@ -263,9 +263,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await minterContract.updateMetadata(
       1, 10,
@@ -305,9 +305,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await expect(minterContract.updateMetadata(
       1, 5,
@@ -329,9 +329,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await expect(minterContract.connect(artist).updateRedeemedMetadata(
       1, "https://example.com/redeemed/0001"
@@ -348,9 +348,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await expect(minterContract.updateRedeemedMetadata(
       0, "https://example.com/redeemed/0001"
@@ -367,9 +367,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await expect(minterContract.updateRedeemedMetadata(
       11, "https://example.com/redeemed/0001"
@@ -386,9 +386,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await minterContract.updateRedeemedMetadata(
       1, "https://example.com/redeemed/0001"
@@ -405,9 +405,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await expect(minterContract.tokenURI(0)).to.be.revertedWith("No token");
   });
@@ -422,9 +422,9 @@ describe("Metadata", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     // Mint as the general public
     const mintCost = ethers.utils.parseEther("0.1");

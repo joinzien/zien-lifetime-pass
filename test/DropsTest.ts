@@ -9,7 +9,7 @@ import { ethers, deployments } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DropCreator,
-  OpenEditionsNFT,
+  MembershipPassNFT,
 } from "../typechain";
 
 const max_uint256 = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
@@ -22,12 +22,12 @@ describe("Drops", () => {
   let artistAddress: string;
 
   let dynamicSketch: DropCreator;
-  let editionImpl: OpenEditionsNFT;
+  let editionImpl: MembershipPassNFT;
 
   beforeEach(async () => {
-    const { DropCreator, OpenEditionsNFT } = await deployments.fixture([
+    const { DropCreator, MembershipPassNFT } = await deployments.fixture([
       "DropCreator",
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
     ]);
 
     dynamicSketch = (await ethers.getContractAt(
@@ -36,9 +36,9 @@ describe("Drops", () => {
     )) as DropCreator;
 
     editionImpl = (await ethers.getContractAt(
-      "OpenEditionsNFT",
-      OpenEditionsNFT.address
-    )) as OpenEditionsNFT;    
+      "MembershipPassNFT",
+      MembershipPassNFT.address
+    )) as MembershipPassNFT;    
 
     signer = (await ethers.getSigners())[0];
     signerAddress = await signer.getAddress();
@@ -72,9 +72,9 @@ describe("Drops", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await minterContract.setPricing(10, 500, 0, 0, 10, 10);
 
@@ -96,9 +96,9 @@ describe("Drops", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     await minterContract.setPricing(10, 500, 0, 0, 10, 10);
 
@@ -110,7 +110,7 @@ describe("Drops", () => {
 
   describe("with an in order drop", () => {
     let signer1: SignerWithAddress;
-    let minterContract: ExpandedNFT;
+    let minterContract: MembershipPassNFT;
     beforeEach(async () => {
       signer1 = (await ethers.getSigners())[1];
       await dynamicSketch.createDrop(
@@ -122,9 +122,9 @@ describe("Drops", () => {
 
       const dropResult = await dynamicSketch.getDropAtId(0);
       minterContract = (await ethers.getContractAt(
-        "OpenEditionsNFT",
+        "MembershipPassNFT",
         dropResult
-      )) as OpenEditionsNFT;
+      )) as MembershipPassNFT;
 
       const mintCost = ethers.utils.parseEther("0.1");      
 
