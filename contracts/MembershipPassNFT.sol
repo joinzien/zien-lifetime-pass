@@ -19,7 +19,7 @@ import {IMembershipPassNFT} from "./IMembershipPassNFT.sol";
 /**
     This is a smart contract for handling dynamic contract minting.
 
-    @dev This allows creators to mint a unique serial drop of an expanded NFT within a custom contract
+    @dev This allows creators to mint a unique serial drop within a custom contract
     @author Zien
     Repository: https://github.com/joinzien/expanded-nft
 */
@@ -32,8 +32,6 @@ contract MembershipPassNFT is
     using StringsUpgradeable for uint256;
 
     enum WhoCanMint{ NOT_FOR_SALE, ALLOWLIST, ANYONE }
-
-    enum ExpandedNFTStates{ UNMINTED, MINTED, REDEEM_STARTED, PRODUCTION_COMPLETE, REDEEMED }
     
     event PriceChanged(uint256 amount);
     event EditionSold(uint256 price, address owner);
@@ -57,11 +55,8 @@ contract MembershipPassNFT is
     event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId); 
 
     struct PerToken { 
-        ExpandedNFTStates state;
-
         // Metadata
         string mintedMetadataUrl;
-        string redeemedMetadataUrl;
     }
 
     struct Pricing { 
@@ -263,16 +258,6 @@ contract MembershipPassNFT is
     }
 
     /**
-      @dev returns the current state of the provided token
-     */
-    function redeemedState(uint256 tokenId) public view returns (uint256) {
-        require(tokenId > 0, "tokenID > 0");
-        require(tokenId <= dropSize, "tokenID <= drop size");
-
-        return uint256(_perTokenMetadata[tokenId].state);
-    }
-
-    /**
         Simple eth-based sales function
         More complex sales functions can be implemented through IExpandedNFT interface
      */
@@ -355,8 +340,6 @@ contract MembershipPassNFT is
 
         for (uint256 i = 0; i < recipients.length; i++) {
             _mint(recipients[i], _currentIndex);
-
-            _perTokenMetadata[_currentIndex].state = ExpandedNFTStates.MINTED;
             
             uint256 value = uint(keccak256(abi.encodePacked(block.prevrandao, gasleft())));
             uint256 rnd = _randomMint ? value : 0;
@@ -647,26 +630,6 @@ contract MembershipPassNFT is
         }
     }
 
-    /**
-      @param tokenID The index to write the data
-      @param _redeemedMetadataUrl The URL to the metadata for this Edtion
-      @dev Function to create a new drop. Can only be called by the allowed creator
-           Sets the only allowed minter to the address that creates/owns the drop.
-           This can be re-assigned or updated later
-     */
-    function updateRedeemedMetadata(
-        uint256 tokenID,
-        string memory _redeemedMetadataUrl
-
-    ) public onlyOwner {
-        require(tokenID > 0, "tokenID > 0");
-        require(tokenID <= dropSize, "tokenID <= drop size");
-
-        _perTokenMetadata[tokenID].redeemedMetadataUrl = _redeemedMetadataUrl;
-
-        emit MetadataUpdate(tokenID);
-    }
-
     /// Returns the number of editions allowed to mint
     function numberCanMint() public view override returns (uint256) {
         return dropSize - _claimCount;
@@ -679,29 +642,6 @@ contract MembershipPassNFT is
     function burn(uint256 tokenId) public {
         require(_isApprovedOrOwner(_msgSender(), tokenId), "Not approved");
         _burn(tokenId);
-    }
-
-    function productionStart(uint256 tokenId) public onlyOwner {
-        require(_exists(tokenId), "No token");        
-        require((_perTokenMetadata[tokenId].state== ExpandedNFTStates.MINTED), "Wrong state");
-
-        _perTokenMetadata[tokenId].state = ExpandedNFTStates.REDEEM_STARTED;
-
-        emit RedeemStarted(tokenId);
-    }
-
-    function productionComplete(
-        uint256 tokenId,
-        string memory _redeemedMetadataUrl              
-    ) public onlyOwner {
-        require(_exists(tokenId), "No token");        
-        require((_perTokenMetadata[tokenId].state == ExpandedNFTStates.REDEEM_STARTED), "You currently can not redeem");
-
-        _perTokenMetadata[tokenId].redeemedMetadataUrl = _redeemedMetadataUrl;
-        _perTokenMetadata[tokenId].state = ExpandedNFTStates.REDEEMED;
-
-        emit ProductionComplete(tokenId);
-        emit MetadataUpdate(tokenId);
     }
 
     /**
@@ -732,10 +672,6 @@ contract MembershipPassNFT is
         returns (string memory)
     {
         require(_exists(tokenId), "No token");
-
-        if (_perTokenMetadata[tokenId].state == ExpandedNFTStates.REDEEMED) {
-            return (_perTokenMetadata[tokenId].redeemedMetadataUrl);
-        }
 
         return (_perTokenMetadata[tokenId].mintedMetadataUrl);
     }
