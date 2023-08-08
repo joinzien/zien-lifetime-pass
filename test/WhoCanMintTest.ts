@@ -9,7 +9,7 @@ import { ethers, deployments } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DropCreator,
-  ExpandedNFT,
+  MembershipPassNFT,
 } from "../typechain";
 
 describe("Who Can Mint", () => {
@@ -20,7 +20,7 @@ describe("Who Can Mint", () => {
   beforeEach(async () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
     ]);
 
     dynamicSketch = (await ethers.getContractAt(
@@ -45,9 +45,9 @@ describe("Who Can Mint", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as ExpandedNFT;
+    )) as MembershipPassNFT;
 
     await minterContract.setPricing(10, 500, 10, 10, 1, 1);
 
@@ -71,9 +71,9 @@ describe("Who Can Mint", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as ExpandedNFT;
+    )) as MembershipPassNFT;
 
     await minterContract.setPricing(10, 500, 10, 10, 1, 1);
 
@@ -95,9 +95,9 @@ describe("Who Can Mint", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as ExpandedNFT;
+    )) as MembershipPassNFT;
 
     await minterContract.setPricing(10, 500, 10, 10, 1, 1);
 

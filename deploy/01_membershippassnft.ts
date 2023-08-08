@@ -2,11 +2,10 @@ module.exports = async ({ getNamedAccounts, deployments }: any ) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  await deploy("OpenEditionsNFT", {
+  await deploy("MembershipPassNFT", {
     from: deployer,
     log: true,
   });
 };
 
-module.exports.tags = ["OpenEditionsNFT"];
-module.exports.dependencies = ["TestCash"];
+module.exports.tags = ["MembershipPassNFT"];

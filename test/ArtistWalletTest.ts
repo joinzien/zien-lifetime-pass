@@ -9,7 +9,7 @@ import { ethers, deployments } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DropCreator,
-  OpenEditionsNFT,
+  MembershipPassNFT,
 } from "../typechain";
 
 describe("ArtistWallet", () => {
@@ -23,12 +23,12 @@ describe("ArtistWallet", () => {
   let newArtistAddress: string;
 
   let dynamicSketch: DropCreator;
-  let minterContract: OpenEditionsNFT;
+  let minterContract: MembershipPassNFT;
 
   beforeEach(async () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
     ]);
 
     dynamicSketch = (await ethers.getContractAt(
@@ -54,9 +54,9 @@ describe("ArtistWallet", () => {
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
-      "OpenEditionsNFT",
+      "MembershipPassNFT",
       dropResult
-    )) as OpenEditionsNFT;
+    )) as MembershipPassNFT;
 
     minterContract.setPricing(10, 500, 10, 10, 1, 1);    
   });
