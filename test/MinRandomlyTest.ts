@@ -46,7 +46,6 @@ describe("Mint randomly", () => {
       )) as DropCreator;
   
       await dynamicSketch.createDrop(
-        artistAddress,
         "Testing Token",
         "TEST",
         "http://example.com/token/",

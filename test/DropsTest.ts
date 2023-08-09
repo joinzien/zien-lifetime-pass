@@ -52,7 +52,6 @@ describe("Drops", () => {
     await expect(
       editionImpl.initialize(
         signerAddress,
-        artistAddress,
         "test name",
         "SYM",
         "http://example.com/token/",
@@ -63,7 +62,6 @@ describe("Drops", () => {
 
   it("Creates a zero sized drop is unlimited", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -87,7 +85,6 @@ describe("Drops", () => {
 
   it("Makes a new drop", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -114,7 +111,6 @@ describe("Drops", () => {
     beforeEach(async () => {
       signer1 = (await ethers.getSigners())[1];
       await dynamicSketch.createDrop(
-        artistAddress,
         "Testing Token",
         "TEST",
         "http://example.com/token/",
@@ -166,7 +162,6 @@ describe("Drops", () => {
       await expect(
         minterContract.initialize(
           signerAddress,
-          artistAddress,
           "test name",
           "SYM",
           "http://example.com/token/",

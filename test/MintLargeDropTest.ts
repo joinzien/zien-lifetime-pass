@@ -48,7 +48,6 @@ describe("Mint a large drop", () => {
     const dropSize = 2000;
 
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
