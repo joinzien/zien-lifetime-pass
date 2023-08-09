@@ -186,4 +186,18 @@ describe("Mint in order", () => {
 
     expect(await minterContract.totalSupply()).to.be.equal(1);
   });
+
+  it("An allow list member can not mint while the drop is not for sale", async () => {
+    await minterContract.setAllowListMinters(1, [userAddress], [true])
+    await minterContract.setAllowedMinter(0);
+
+    await expect(minterContract.connect(user).mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.be.revertedWith("Needs to be an allowed minter");
+  });
+
+  it("An allow list member can mint when on the allow list", async () => {
+    await minterContract.setAllowListMinters(1, [userAddress], [true])
+    await minterContract.setAllowedMinter(1);
+
+    await expect(minterContract.connect(user).mintEditions([signerAddress], { value: ethers.utils.parseEther("0.1") })).to.emit(minterContract, "EditionSold");
+  });
 });
