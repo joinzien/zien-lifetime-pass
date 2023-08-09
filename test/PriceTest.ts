@@ -63,6 +63,14 @@ describe("Pricing", () => {
     expect(await minterContract.getAllowListPrice()).to.be.equal(20);
   });
 
+  it("Allow list mint limit", async () => {
+    expect(await minterContract.getAllowListMintLimit()).to.be.equal(10);
+  });
+
+  it("General  mint limit", async () => {
+    expect(await minterContract.getGeneralMintLimit()).to.be.equal(1);
+  });
+
   it("Try to change allow list price not as the owner", async () => {
     await expect(minterContract.connect(artist).setAllowListSalePrice(20)).to.be.revertedWith("Ownable: caller is not the owner"); 
   });
