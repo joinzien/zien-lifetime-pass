@@ -47,7 +47,7 @@ describe("Royalty", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1, false);
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -57,7 +57,7 @@ describe("Royalty", () => {
 
     const mintCost = ethers.utils.parseEther("0.1");
 
-    await minterContract.setPricing(10, 500, mintCost, mintCost, 15, 15);
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 15);
     await minterContract.setAllowedMinter(2);
   });
 
@@ -99,8 +99,4 @@ describe("Royalty", () => {
   it("Get royalty BPS", async () => {
     expect((await minterContract.getRoyaltyBPS())).to.be.equal(10);
   });  
-
-  it("Get split BPS", async () => {
-    expect((await minterContract.getSplitBPS())).to.be.equal(500);
-  });    
 });

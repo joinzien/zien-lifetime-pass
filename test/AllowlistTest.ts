@@ -41,7 +41,7 @@ describe("Allow List", () => {
 
     await dynamicSketch.createDrop(
       "Testing Token",
-      "TEST", "http://example.com/token/", 10, 1, false);
+      "TEST", "http://example.com/token/", 10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -49,7 +49,7 @@ describe("Allow List", () => {
       dropResult
     )) as MembershipPassNFT;
 
-    await minterContract.setPricing(10, 500, 10, 10, 1, 1);
+    await minterContract.setPricing(10, 500, 10, 10, 1);
 
   });
 

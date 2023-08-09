@@ -39,7 +39,7 @@ describe("Pricing", () => {
 
     await dynamicSketch.createDrop(
       "Testing Token",
-      "TEST", "http://example.com/token/", 10, 1, false);
+      "TEST", "http://example.com/token/", 10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -47,7 +47,7 @@ describe("Pricing", () => {
       dropResult
     )) as MembershipPassNFT;
 
-    await minterContract.setPricing(10, 500, 10, 10, 1, 1);
+    await minterContract.setPricing(500, 10, 10, 10, 1);
 
   });
 
@@ -82,7 +82,7 @@ describe("Pricing", () => {
   });  
 
   it("Try to change pricing not as the owner", async () => {
-    await expect(minterContract.connect(artist).setPricing(10, 500, 10, 10, 1, 1)).to.be.revertedWith("Ownable: caller is not the owner");  
+    await expect(minterContract.connect(artist).setPricing(10, 500, 10, 10, 1)).to.be.revertedWith("Ownable: caller is not the owner");  
   });  
 
   it("Try to change sale price not as the owner", async () => {

@@ -54,8 +54,8 @@ describe("Drops", () => {
         signerAddress,
         "test name",
         "SYM",
-        "http://example.com/token/",
-        12, 12, false
+        "http://example.com/token/1.json",
+        12
       )
     ).to.be.revertedWith("Initializable: contract is already initialized");
   });
@@ -64,8 +64,8 @@ describe("Drops", () => {
     await dynamicSketch.createDrop(
       "Testing Token",
       "TEST",
-      "http://example.com/token/",
-      0, 1, false 
+      "http://example.com/token/1.json",
+      0
     );
 
     const dropResult = await dynamicSketch.getDropAtId(0);
@@ -74,7 +74,7 @@ describe("Drops", () => {
       dropResult
     )) as MembershipPassNFT;
 
-    await minterContract.setPricing(10, 500, 0, 0, 10, 10);
+    await minterContract.setPricing(10, 500, 0, 0, 10);
 
     expect(await minterContract.name()).to.be.equal("Testing Token");
     expect(await minterContract.symbol()).to.be.equal("TEST");
@@ -87,8 +87,8 @@ describe("Drops", () => {
     await dynamicSketch.createDrop(
       "Testing Token",
       "TEST",
-      "http://example.com/token/",
-      10, 1, false
+      "http://example.com/token/1.json",
+      10
     );
 
     const dropResult = await dynamicSketch.getDropAtId(0);
@@ -97,7 +97,7 @@ describe("Drops", () => {
       dropResult
     )) as MembershipPassNFT;
 
-    await minterContract.setPricing(10, 500, 0, 0, 10, 10);
+    await minterContract.setPricing(10, 500, 0, 0, 10);
 
     expect(await minterContract.name()).to.be.equal("Testing Token");
     expect(await minterContract.symbol()).to.be.equal("TEST");
@@ -113,8 +113,8 @@ describe("Drops", () => {
       await dynamicSketch.createDrop(
         "Testing Token",
         "TEST",
-        "http://example.com/token/",
-        10, 10, false);
+        "http://example.com/token/1.json",
+        10);
 
       const dropResult = await dynamicSketch.getDropAtId(0);
       minterContract = (await ethers.getContractAt(
@@ -124,7 +124,7 @@ describe("Drops", () => {
 
       const mintCost = ethers.utils.parseEther("0.1");      
 
-      await minterContract.setPricing(10, 500, mintCost, mintCost, 15, 15);
+      await minterContract.setPricing(10, 500, mintCost, mintCost, 15);
       await minterContract.setAllowedMinter(2);
     });
 
@@ -164,8 +164,8 @@ describe("Drops", () => {
           signerAddress,
           "test name",
           "SYM",
-          "http://example.com/token/",
-          12, 1, false)
+          "http://example.com/token/1.json",
+          12)
       ).to.be.revertedWith("Initializable: contract is already initialized");
       await minterContract.mintEdition(await signer1.getAddress(), {
         value: ethers.utils.parseEther("0.1")
@@ -177,7 +177,7 @@ describe("Drops", () => {
     });
 
     it("creates a set of editions", async () => {
-      await minterContract.setPricing(10, 500, 0, 0, 10, 10);      
+      await minterContract.setPricing(10, 500, 0, 0, 10);      
       await minterContract.setSalePrice(ethers.utils.parseEther("0.1"));
       await minterContract.setAllowedMinter(2);
       const [s1, s2, s3] = await ethers.getSigners();
@@ -220,7 +220,6 @@ describe("Drops", () => {
       const [_, signer1] = await ethers.getSigners();
 
       expect(await minterContract.numberCanMint()).to.be.equal(10);
-      expect(await minterContract.numberOfDifferentEdtions()).to.be.equal(10);
 
       // Mint first edition
       for (let i = 1; i <= 10; i++) {
@@ -244,15 +243,15 @@ describe("Drops", () => {
       ).to.be.revertedWith("Exceeded supply");
 
       expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/1.json");      
-      expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/token/2.json");      
-      expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/token/3.json");      
-      expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/token/4.json");    
-      expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/token/5.json");      
-      expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/token/6.json");      
-      expect(await minterContract.tokenURI(7)).to.be.equal("http://example.com/token/7.json");      
-      expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/token/8.json");
-      expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/token/9.json");      
-      expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/token/10.json");  
+      expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/token/1.json");    
+      expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(7)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/token/1.json");
+      expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/token/1.json");  
       expect(await minterContract.totalSupply()).to.be.equal(10);
     });
 
@@ -260,7 +259,6 @@ describe("Drops", () => {
       const [_, signer1] = await ethers.getSigners();
 
       expect(await minterContract.numberCanMint()).to.be.equal(10);
-      expect(await minterContract.numberOfDifferentEdtions()).to.be.equal(10);
 
       // Mint first batch of editions
       for (let i = 0; i < 5; i++) {
@@ -276,17 +274,13 @@ describe("Drops", () => {
       }
 
       expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/1.json");      
-      expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/token/2.json");      
-      expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/token/3.json");      
-      expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/token/4.json");    
-      expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/token/5.json");   
+      expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/token/1.json");    
+      expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/token/1.json");   
 
       expect(await minterContract.numberCanMint()).to.be.equal(5);
       expect(await minterContract.totalSupply()).to.be.equal(5);
-
-      await minterContract.setNumberOfDifferentEdtions(3);
-
-      expect(await minterContract.numberOfDifferentEdtions()).to.be.equal(3);
 
       // Mint second batch of editions
       for (let i = 0; i < 5; i++) {
@@ -310,24 +304,18 @@ describe("Drops", () => {
       ).to.be.revertedWith("Exceeded supply");
 
       expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/1.json");      
-      expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/token/2.json");      
-      expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/token/3.json");      
-      expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/token/4.json");    
-      expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/token/5.json");      
-      expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/token/3.json");      
+      expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/token/1.json");    
+      expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/token/1.json");      
+      expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/token/1.json");      
       expect(await minterContract.tokenURI(7)).to.be.equal("http://example.com/token/1.json");      
-      expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/token/2.json");
-      expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/token/3.json");      
+      expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/token/1.json");
+      expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/token/1.json");      
       expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/token/1.json");  
 
       expect(await minterContract.numberCanMint()).to.be.equal(0);
       expect(await minterContract.totalSupply()).to.be.equal(10);
-    });
-
-    it("Try to change the number of edition not as the owner", async () => {
-      expect(await minterContract.numberOfDifferentEdtions()).to.be.equal(10);
-
-      await expect(minterContract.connect(artist).setNumberOfDifferentEdtions(3)).to.be.revertedWith("Ownable: caller is not the owner");
-    });    
+    });   
   });
 });

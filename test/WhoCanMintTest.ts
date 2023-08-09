@@ -40,7 +40,7 @@ describe("Who Can Mint", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1, false);
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
@@ -48,7 +48,7 @@ describe("Who Can Mint", () => {
       dropResult
     )) as MembershipPassNFT;
 
-    await minterContract.setPricing(10, 500, 10, 10, 1, 1);
+    await minterContract.setPricing(10, 500, 10, 10, 1);
 
     expect(await minterContract.getAllowedMinter()).to.be.equal(0);
 
@@ -65,7 +65,7 @@ describe("Who Can Mint", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10,1, false);
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
@@ -73,7 +73,7 @@ describe("Who Can Mint", () => {
       dropResult
     )) as MembershipPassNFT;
 
-    await minterContract.setPricing(10, 500, 10, 10, 1, 1);
+    await minterContract.setPricing(10, 500, 10, 10, 1);
 
     expect(await minterContract.getAllowedMinter()).to.be.equal(0);
 
@@ -88,7 +88,7 @@ describe("Who Can Mint", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1, false);
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     const minterContract = (await ethers.getContractAt(
@@ -96,7 +96,7 @@ describe("Who Can Mint", () => {
       dropResult
     )) as MembershipPassNFT;
 
-    await minterContract.setPricing(10, 500, 10, 10, 1, 1);
+    await minterContract.setPricing(10, 500, 10, 10, 1);
 
     expect(await minterContract.getAllowedMinter()).to.be.equal(0);
 

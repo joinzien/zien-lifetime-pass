@@ -49,7 +49,7 @@ describe("Burn", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1, false);
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);   
     minterContract = (await ethers.getContractAt(
@@ -58,7 +58,7 @@ describe("Burn", () => {
     )) as MembershipPassNFT;
 
     const mintCost = ethers.utils.parseEther("0.1");
-    await minterContract.setPricing(10, 500, mintCost, mintCost, 2, 1);
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 2);
     await minterContract.setAllowedMinter(2);   
   });
 

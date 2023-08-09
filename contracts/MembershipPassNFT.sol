@@ -54,17 +54,9 @@ contract MembershipPassNFT is
     /// timely update the images and related attributes of the NFTs.    
     event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId); 
 
-    struct PerToken { 
-        // Metadata
-        string mintedMetadataUrl;
-    }
-
     struct Pricing { 
         // Royalty amount in bps
         uint256 royaltyBPS;
-
-        // Split amount to the platforms. the artist in bps
-        uint256 splitBPS;
 
         // Price for allow list sales
         uint256 allowListSalePrice;
@@ -89,14 +81,9 @@ contract MembershipPassNFT is
         mapping(address => uint256) mintCounts;                               
     }
 
-    // Per Token data
-    mapping(uint256 => PerToken) private _perTokenMetadata;
-
     // Total size of the drop that can be minted
     uint256 public dropSize;
 
-    bool private _randomMint;
-    uint256 private _differentEdtions;
     uint256 private _claimCount; 
 
     // Pricing
@@ -120,8 +107,6 @@ contract MembershipPassNFT is
       @param _symbol Symbol of the new token contract
       @param baseDirectory The base directory fo the metadata
       @param _dropSize Number of editions that can be minted in total. Zero means unlimited
-      @param differentEdtions Number of different editions that can be generated 
-      @param randomMint should the minting be random or sequential     
       @dev Function to create a new drop. Can only be called by the allowed creator
            Sets the only allowed minter to the address that creates/owns the drop.
            This can be re-assigned or updated later
@@ -131,9 +116,7 @@ contract MembershipPassNFT is
         string memory _name,
         string memory _symbol,
         string memory baseDirectory,
-        uint256 _dropSize,
-        uint256 differentEdtions,
-        bool randomMint 
+        uint256 _dropSize
     ) public initializer {
         __ERC721_init(_name, _symbol);
         __Ownable_init();
@@ -148,9 +131,6 @@ contract MembershipPassNFT is
         } else {
             dropSize = _dropSize;
         }
-
-        _randomMint = randomMint;
-        _differentEdtions = differentEdtions;
 
         // Set edition id start to be 1 not 0
         _claimCount = 0; 
@@ -170,11 +150,6 @@ contract MembershipPassNFT is
     /// @dev returns the royalty BPS
     function getRoyaltyBPS() public view returns (uint256) {
         return _pricing.royaltyBPS;
-    }
-
-    /// @dev returns the split BPS
-    function getSplitBPS() public view returns (uint256) {
-        return _pricing.splitBPS;
     }
 
     /// @dev returns the allow list sale price
@@ -216,15 +191,6 @@ contract MembershipPassNFT is
         return (currentMintLimit - _pricing.mintCounts[wallet]);    
     }
 
-    /// @dev return the number of different editions
-    function numberOfDifferentEdtions() public view returns (uint256) {
-        return _differentEdtions;
-    }
-
-    /// @dev return if this is a random mint
-    function isRandomMint() public view returns (bool) {
-        return _randomMint;
-    }
 
     /// @dev returns  if the address can mint
     function canMint(address wallet) public view returns (bool) {
@@ -335,12 +301,6 @@ contract MembershipPassNFT is
         for (uint256 i = 0; i < recipients.length; i++) {
             _mint(recipients[i], _currentIndex);
             
-            uint256 value = uint(keccak256(abi.encodePacked(block.prevrandao, gasleft())));
-            uint256 rnd = _randomMint ? value : 0;
-            uint256 seed = _currentIndex - 1 + rnd;
-            uint256 tokenId =  1 + (seed % _differentEdtions);
-            _perTokenMetadata[_currentIndex].mintedMetadataUrl = string(abi.encodePacked(_baseDir, tokenId.toString(), ".json"));
-
             _pricing.mintCounts[msg.sender]++;
             _claimCount++;
             _currentIndex++;
@@ -354,7 +314,6 @@ contract MembershipPassNFT is
 
     /**
       @param _royaltyBPS BPS of the royalty set on the contract. Can be 0 for no royalty.
-      @param _splitBPS BPS of the royalty set on the contract. Can be 0 for no royalty. 
       @param _allowListSalePrice Sale price for allow listed wallets
       @param _generalSalePrice SalePrice for the general public     
       @param _allowListMintLimit Mint limit for allow listed wallets
@@ -363,14 +322,12 @@ contract MembershipPassNFT is
      */
     function setPricing (
         uint256 _royaltyBPS,
-        uint256 _splitBPS,
         uint256 _allowListSalePrice,  
         uint256 _generalSalePrice,
         uint256 _allowListMintLimit,
         uint256 _generalMintLimit             
     ) external onlyOwner {  
         _pricing.royaltyBPS = _royaltyBPS;
-        _pricing.splitBPS = _splitBPS;
 
         _pricing.allowListSalePrice = _allowListSalePrice;
         salePrice = _generalSalePrice;
@@ -458,14 +415,6 @@ contract MembershipPassNFT is
         emit PriceChanged(generalSalePrice);
     }  
 
-     /**
-      @param differentEdtions set the number of different editions                                 
-      @dev This sets number of different editions
-     */
-    function setNumberOfDifferentEdtions(uint256 differentEdtions) external onlyOwner {
-        _differentEdtions = differentEdtions;
-    }
-
     /**
       @dev This withdraws ETH from the contract to the contract owner.
      */
@@ -527,14 +476,6 @@ contract MembershipPassNFT is
     }
 
     /**
-      @param randomMint is this a random mint
-      @dev return if this is a random mint
-     */
-    function setRandomMint(bool randomMint) public onlyOwner {
-        _randomMint = randomMint;
-    }    
-
-    /**
       @param minter address to set approved minting status for
       @param allowed boolean if that address is allowed to mint
       @dev Sets the approved minting status of the given address.
@@ -565,33 +506,6 @@ contract MembershipPassNFT is
             }
 
             _pricing.allowListMinters[minter[i]] = allowed[i];
-        }
-    }
-
-    /**
-      @param startIndex The first ID index to write the data
-      @param count How many rows of data to load 
-      @param _mintedMetadataUrl The URL to the metadata for this Edtion
-      @dev Function to create a new drop. Can only be called by the allowed creator
-           Sets the only allowed minter to the address that creates/owns the drop.
-           This can be re-assigned or updated later
-     */
-    function updateMetadata(
-        uint256 startIndex,
-        uint256 count,
-        string[] memory _mintedMetadataUrl
-    ) public onlyOwner {
-        require(startIndex > 0, "StartIndex > 0");
-        require(startIndex + count - 1 <= dropSize, "Data large than drop size");
-
-        require(_mintedMetadataUrl.length == count, "Data size mismatch");
-
-        for (uint i = 0; i < count; i++) {
-            uint index =  startIndex + i;
-            
-            _perTokenMetadata[index].mintedMetadataUrl =_mintedMetadataUrl[i];
-
-            emit MetadataUpdate(index);
         }
     }
 
@@ -638,7 +552,7 @@ contract MembershipPassNFT is
     {
         require(_exists(tokenId), "No token");
 
-        return (_perTokenMetadata[tokenId].mintedMetadataUrl);
+        return (_baseDir);
     }
 
     function supportsInterface(bytes4 interfaceId)

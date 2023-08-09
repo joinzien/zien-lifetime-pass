@@ -51,7 +51,7 @@ describe("Mint a large drop", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      dropSize, 1, false);
+      dropSize);
 
     const dropResult = await dynamicSketch.getDropAtId(0);   
     minterContract = (await ethers.getContractAt(
@@ -60,7 +60,7 @@ describe("Mint a large drop", () => {
     )) as MembershipPassNFT;
 
     const mintCost = ethers.utils.parseEther("0.1");
-    await minterContract.setPricing(10, 500, mintCost, mintCost, dropSize, dropSize);   
+    await minterContract.setPricing(10, 500, mintCost, mintCost, dropSize);   
   });
 
 
@@ -75,6 +75,5 @@ describe("Mint a large drop", () => {
     }
  
     expect(await minterContract.totalSupply()).to.be.equal(dropSize);
-    expect(await minterContract.isRandomMint()).to.be.equal(false);
   });
 });
