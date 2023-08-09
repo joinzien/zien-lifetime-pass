@@ -44,7 +44,6 @@ describe("Royalty", () => {
     signer1 = (await ethers.getSigners())[1];
 
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",

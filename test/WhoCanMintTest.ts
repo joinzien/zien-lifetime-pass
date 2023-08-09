@@ -37,7 +37,6 @@ describe("Who Can Mint", () => {
     const artistAddress = await artist.getAddress();
 
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -63,7 +62,6 @@ describe("Who Can Mint", () => {
     const artistAddress = await artist.getAddress();
 
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -87,7 +85,6 @@ describe("Who Can Mint", () => {
     const artistAddress = await artist.getAddress();
 
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",

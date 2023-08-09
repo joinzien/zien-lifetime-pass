@@ -17,7 +17,6 @@ describe("Metadata", () => {
   let signerAddress: string;
 
   let artist: SignerWithAddress;
-  let artistAddress: string;
 
   let dynamicSketch: DropCreator;
 
@@ -28,7 +27,6 @@ describe("Metadata", () => {
     signerAddress = await signer.getAddress();
 
     artist = (await ethers.getSigners())[1];
-    artistAddress = await artist.getAddress();
 
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
@@ -45,7 +43,6 @@ describe("Metadata", () => {
 
   it("Update metadata, not as the owner", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -69,7 +66,6 @@ describe("Metadata", () => {
 
   it("Update metadata below the starting index", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -93,7 +89,6 @@ describe("Metadata", () => {
 
   it("Update metadata over the ending index", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -117,7 +112,6 @@ describe("Metadata", () => {
 
   it("Update metadata", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -141,7 +135,6 @@ describe("Metadata", () => {
 
   it("Update the base directory", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -162,7 +155,6 @@ describe("Metadata", () => {
 
   it("Try updating the base directory not as the owner", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -183,7 +175,6 @@ describe("Metadata", () => {
 
   it("Update multiple metadata chunks", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -216,7 +207,6 @@ describe("Metadata", () => {
 
   it("Override the metadata ", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -255,7 +245,6 @@ describe("Metadata", () => {
 
   it("Overlapping metadata chunks", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -297,7 +286,6 @@ describe("Metadata", () => {
 
   it("Try to update mismatched metadata", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -321,7 +309,6 @@ describe("Metadata", () => {
 
   it("Get the metadata for a unknown tokenID", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/token/",
@@ -338,7 +325,6 @@ describe("Metadata", () => {
 
   it("Check metadata values", async () => {
     await dynamicSketch.createDrop(
-      artistAddress,
       "Testing Token",
       "TEST",
       "http://example.com/edition/",

@@ -24,8 +24,6 @@ describe("Withdraw", () => {
   let minterContract: MembershipPassNFT;
   let minterContractAddress: string;
 
-  const nullAddress = "0x0000000000000000000000000000000000000000";
-
   beforeEach(async () => {
     const { DropCreator } = await deployments.fixture([
       "DropCreator",
@@ -44,7 +42,7 @@ describe("Withdraw", () => {
     artistAddress = await artist.getAddress();
 
     await dynamicSketch.createDrop(
-      artistAddress, "Testing Token",
+      "Testing Token",
       "TEST", "http://example.com/token/", 10, 1, false);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
@@ -75,7 +73,7 @@ describe("Withdraw", () => {
     expect(ownerStartBalance).to.be.gt(ownerEndBalance);    
   });
 
-  it("Try to withdraw with ETH balance and artist", async () => {
+  it("Try to withdraw with ETH balance", async () => {
     await minterContract.setAllowedMinter(2);
 
     const mintCost = ethers.utils.parseEther("0.1");
@@ -83,38 +81,13 @@ describe("Withdraw", () => {
 
     const contractStartBalance = await ethers.provider.getBalance(minterContractAddress);
     const ownerStartBalance = await ethers.provider.getBalance(signerAddress);
-    const artistStartBalance = await ethers.provider.getBalance(artistAddress);
 
     await expect(minterContract.withdraw());
 
     const contractEndBalance = await ethers.provider.getBalance(minterContractAddress);
     const ownerEndBalance = await ethers.provider.getBalance(signerAddress);
-    const artistEndBalance = await ethers.provider.getBalance(artistAddress);
 
     expect(contractStartBalance).to.be.equal(contractEndBalance);
-    expect(ownerStartBalance).to.be.lt(ownerEndBalance);  
-    expect(artistStartBalance).to.be.lt(artistEndBalance);        
-  });  
-
-  it("Try to withdraw with ETH balance with no artist", async () => {
-    await minterContract.setAllowedMinter(2);
-    await minterContract.setArtistWallet(nullAddress);
-
-    const mintCost = ethers.utils.parseEther("0.1");
-    expect(await minterContract.purchase({ value: mintCost })).to.emit(minterContract, "EditionSold");
-
-    const contractStartBalance = await ethers.provider.getBalance(minterContractAddress);
-    const ownerStartBalance = await ethers.provider.getBalance(signerAddress);
-    const artistStartBalance = await ethers.provider.getBalance(artistAddress);
-
-    await expect(minterContract.withdraw());
-
-    const contractEndBalance = await ethers.provider.getBalance(minterContractAddress);
-    const ownerEndBalance = await ethers.provider.getBalance(signerAddress);
-    const artistEndBalance = await ethers.provider.getBalance(artistAddress);
-
-    expect(contractStartBalance).to.be.equal(contractEndBalance);
-    expect(ownerStartBalance).to.be.lt(ownerEndBalance);  
-    expect(artistStartBalance).to.be.equal(artistEndBalance);        
+    expect(ownerStartBalance).to.be.lt(ownerEndBalance);      
   });  
 });

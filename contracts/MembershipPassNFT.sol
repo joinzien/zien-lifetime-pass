@@ -89,9 +89,6 @@ contract MembershipPassNFT is
         mapping(address => uint256) mintCounts;                               
     }
 
-    // Artists wallet address
-    address private _artistWallet;
-
     // Per Token data
     mapping(uint256 => PerToken) private _perTokenMetadata;
 
@@ -119,7 +116,6 @@ contract MembershipPassNFT is
 
     /**
       @param _owner wallet addres for the user that owns and can mint the drop, gets royalty and sales payouts and can update the base url if needed.
-      @param artistWallet wallet address for thr User that created the drop
       @param _name Name of drop, used in the title as "$NAME NUMBER/TOTAL"
       @param _symbol Symbol of the new token contract
       @param baseDirectory The base directory fo the metadata
@@ -132,7 +128,6 @@ contract MembershipPassNFT is
      */
     function initialize(
         address _owner,
-        address artistWallet,
         string memory _name,
         string memory _symbol,
         string memory baseDirectory,
@@ -146,7 +141,6 @@ contract MembershipPassNFT is
         // Set ownership to original sender of contract call
         transferOwnership(_owner);
 
-        _artistWallet = artistWallet;
         _baseDir = baseDirectory;
 
         if (_dropSize == 0) {
@@ -478,15 +472,7 @@ contract MembershipPassNFT is
     function withdraw() external onlyOwner {
         uint256 currentBalance = address(this).balance;
         if (currentBalance > 0) {
-            if (_artistWallet != address(0x0)) {
-                uint256 platformFee = (currentBalance * _pricing.splitBPS) / 10000;
-                uint256 artistFee = currentBalance - platformFee;
-
-                AddressUpgradeable.sendValue(payable(owner()), platformFee);
-                AddressUpgradeable.sendValue(payable(_artistWallet), artistFee);            
-            } else {
-                AddressUpgradeable.sendValue(payable(owner()), currentBalance);
-            } 
+            AddressUpgradeable.sendValue(payable(owner()), currentBalance);
         }
     }
 
@@ -523,27 +509,6 @@ contract MembershipPassNFT is
     {
         return super.owner();
     }
-
-    /**
-        return the artists wallet address
-     */
-    function getArtistWallet()
-        public
-        view
-        returns (address)
-    {
-        return _artistWallet;
-    }
-
-     /**
-        set the artists wallet address
-     */
-    function setArtistWallet(address wallet)
-        public
-        onlyOwner
-    {
-        _artistWallet = wallet;
-    }   
 
     /**
       @dev Sets the types of users who is allowed to mint.
