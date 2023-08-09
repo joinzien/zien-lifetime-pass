@@ -43,7 +43,7 @@ describe("Withdraw", () => {
 
     await dynamicSketch.createDrop(
       "Testing Token",
-      "TEST", "http://example.com/token/", 10, 1, false);
+      "TEST", "http://example.com/token/", 10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -53,7 +53,7 @@ describe("Withdraw", () => {
     minterContractAddress = await minterContract.address;
 
     const mintCost = ethers.utils.parseEther("0.1");
-    await minterContract.setPricing(10, 500, mintCost, mintCost, 10, 10);
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 10);
   });
 
   it("Only the owner can withdraw from the contract", async () => {

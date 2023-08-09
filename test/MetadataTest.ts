@@ -41,104 +41,12 @@ describe("Metadata", () => {
 
   });
 
-  it("Update metadata, not as the owner", async () => {
-    await dynamicSketch.createDrop(
-      "Testing Token",
-      "TEST",
-      "http://example.com/token/",
-      10, 1, false);
-
-    const dropResult = await dynamicSketch.getDropAtId(0);
-    minterContract = (await ethers.getContractAt(
-      "MembershipPassNFT",
-      dropResult
-    )) as MembershipPassNFT;
-
-    await expect(minterContract.connect(artist).updateMetadata(
-      1, 10,
-      ["http://example.com/token/01", "http://example.com/token/02",
-        "http://example.com/token/03", "http://example.com/token/04",
-        "http://example.com/token/05", "http://example.com/token/06",
-        "http://example.com/token/07", "http://example.com/token/08",
-        "http://example.com/token/09", "http://example.com/token/10"]
-    )).to.be.revertedWith("Ownable: caller is not the owner");
-  });
-
-  it("Update metadata below the starting index", async () => {
-    await dynamicSketch.createDrop(
-      "Testing Token",
-      "TEST",
-      "http://example.com/token/",
-      10, 1, false);
-
-    const dropResult = await dynamicSketch.getDropAtId(0);
-    minterContract = (await ethers.getContractAt(
-      "MembershipPassNFT",
-      dropResult
-    )) as MembershipPassNFT;
-
-    await expect(minterContract.updateMetadata(
-      0, 10,
-      ["http://example.com/token/01", "http://example.com/token/02",
-        "http://example.com/token/03", "http://example.com/token/04",
-        "http://example.com/token/05", "http://example.com/token/06",
-        "http://example.com/token/07", "http://example.com/token/08",
-        "http://example.com/token/09", "http://example.com/token/10"]
-    )).to.be.revertedWith("StartIndex > 0");
-  });
-
-  it("Update metadata over the ending index", async () => {
-    await dynamicSketch.createDrop(
-      "Testing Token",
-      "TEST",
-      "http://example.com/token/",
-      10, 1, false);
-
-    const dropResult = await dynamicSketch.getDropAtId(0);
-    minterContract = (await ethers.getContractAt(
-      "MembershipPassNFT",
-      dropResult
-    )) as MembershipPassNFT;
-
-    await expect(minterContract.updateMetadata(
-      2, 10,
-      ["http://example.com/token/01", "http://example.com/token/02",
-        "http://example.com/token/03", "http://example.com/token/04",
-        "http://example.com/token/05", "http://example.com/token/06",
-        "http://example.com/token/07", "http://example.com/token/08",
-        "http://example.com/token/09", "http://example.com/token/10"]
-    )).to.be.revertedWith("Data large than drop size");
-  });
-
-  it("Update metadata", async () => {
-    await dynamicSketch.createDrop(
-      "Testing Token",
-      "TEST",
-      "http://example.com/token/",
-      10, 1, false);
-
-    const dropResult = await dynamicSketch.getDropAtId(0);
-    minterContract = (await ethers.getContractAt(
-      "MembershipPassNFT",
-      dropResult
-    )) as MembershipPassNFT;
-
-    await minterContract.updateMetadata(
-      1, 10,
-      ["http://example.com/token/01", "http://example.com/token/02",
-        "http://example.com/token/03", "http://example.com/token/04",
-        "http://example.com/token/05", "http://example.com/token/06",
-        "http://example.com/token/07", "http://example.com/token/08",
-        "http://example.com/token/09", "http://example.com/token/10"]
-    );
-  });
-
   it("Update the base directory", async () => {
     await dynamicSketch.createDrop(
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1, false);
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -158,7 +66,7 @@ describe("Metadata", () => {
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1, false);
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -173,146 +81,12 @@ describe("Metadata", () => {
     expect(await minterContract.baseDir()).to.be.equal("http://example.com/token/");
   });
 
-  it("Update multiple metadata chunks", async () => {
-    await dynamicSketch.createDrop(
-      "Testing Token",
-      "TEST",
-      "http://example.com/token/",
-      20, 1, false);
-
-    const dropResult = await dynamicSketch.getDropAtId(0);
-    minterContract = (await ethers.getContractAt(
-      "MembershipPassNFT",
-      dropResult
-    )) as MembershipPassNFT;
-
-    await minterContract.updateMetadata(
-      1, 10,
-      ["http://example.com/token/01", "http://example.com/token/02",
-        "http://example.com/token/03", "http://example.com/token/04",
-        "http://example.com/token/05", "http://example.com/token/06",
-        "http://example.com/token/07", "http://example.com/token/08",
-        "http://example.com/token/09", "http://example.com/token/10"]
-    );
-
-    await minterContract.updateMetadata(
-      11, 10,
-      ["http://example.com/token/11", "http://example.com/token/12",
-        "http://example.com/token/13", "http://example.com/token/14",
-        "http://example.com/token/15", "http://example.com/token/16",
-        "http://example.com/token/17", "http://example.com/token/18",
-        "http://example.com/token/19", "http://example.com/token/20"]
-    );
-  });
-
-  it("Override the metadata ", async () => {
-    await dynamicSketch.createDrop(
-      "Testing Token",
-      "TEST",
-      "http://example.com/token/",
-      10, 1, false);
-
-    const dropResult = await dynamicSketch.getDropAtId(0);
-    minterContract = (await ethers.getContractAt(
-      "MembershipPassNFT",
-      dropResult
-    )) as MembershipPassNFT;
-
-    const mintCost = ethers.utils.parseEther("0.1");
-    await minterContract.setPricing(10, 500, mintCost, mintCost, 2, 1);   
-    await minterContract.setAllowedMinter(2);
-
-    // Mint as the general public
-    await expect(minterContract.mintEdition(signerAddress, {
-      value: ethers.utils.parseEther("0.1")
-    }))
-      .to.emit(minterContract, "Transfer")
-      .withArgs(
-        "0x0000000000000000000000000000000000000000",
-        signerAddress,
-        1
-      );
-
-    expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/token/1.json");   
-
-    await minterContract.updateMetadata(
-      1, 1,
-      ["http://example.com/edition/1.json"]
-    );
-
-    expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/edition/1.json");       
-  });
-
-  it("Overlapping metadata chunks", async () => {
-    await dynamicSketch.createDrop(
-      "Testing Token",
-      "TEST",
-      "http://example.com/token/",
-      20, 1, false);
-
-    const dropResult = await dynamicSketch.getDropAtId(0);
-    minterContract = (await ethers.getContractAt(
-      "MembershipPassNFT",
-      dropResult
-    )) as MembershipPassNFT;
-
-    await minterContract.updateMetadata(
-      1, 10,
-      ["http://example.com/token/01", "http://example.com/token/02",
-        "http://example.com/token/03", "http://example.com/token/04",
-        "http://example.com/token/05", "http://example.com/token/06",
-        "http://example.com/token/07", "http://example.com/token/08",
-        "http://example.com/token/09", "http://example.com/token/10"]
-    );
-
-    await minterContract.updateMetadata(
-      5, 10,
-      ["http://example.com/token/05", "http://example.com/token/06",
-        "http://example.com/token/07", "http://example.com/token/08",
-        "http://example.com/token/09", "http://example.com/token/10",
-        "http://example.com/token/11", "http://example.com/token/12",
-        "http://example.com/token/13", "http://example.com/token/14"]
-    );
-
-    await minterContract.updateMetadata(
-      11, 10,
-      ["http://example.com/token/11", "http://example.com/token/12",
-        "http://example.com/token/13", "http://example.com/token/14",
-        "http://example.com/token/15", "http://example.com/token/16",
-        "http://example.com/token/17", "http://example.com/token/18",
-        "http://example.com/token/19", "http://example.com/token/20"]
-    );
-  });
-
-  it("Try to update mismatched metadata", async () => {
-    await dynamicSketch.createDrop(
-      "Testing Token",
-      "TEST",
-      "http://example.com/token/",
-      10, 1, false);
-
-    const dropResult = await dynamicSketch.getDropAtId(0);
-    minterContract = (await ethers.getContractAt(
-      "MembershipPassNFT",
-      dropResult
-    )) as MembershipPassNFT;
-
-    await expect(minterContract.updateMetadata(
-      1, 5,
-      ["http://example.com/token/01", "http://example.com/token/02",
-        "http://example.com/token/03", "http://example.com/token/04",
-        "http://example.com/token/05", "http://example.com/token/06",
-        "http://example.com/token/07", "http://example.com/token/08",
-        "http://example.com/token/09", "http://example.com/token/10"]
-    )).to.be.revertedWith("Data size mismatch");
-  });
-
   it("Get the metadata for a unknown tokenID", async () => {
     await dynamicSketch.createDrop(
       "Testing Token",
       "TEST",
       "http://example.com/token/",
-      10, 1, false);
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -327,8 +101,8 @@ describe("Metadata", () => {
     await dynamicSketch.createDrop(
       "Testing Token",
       "TEST",
-      "http://example.com/edition/",
-      10, 3, false);
+      "http://example.com/edition/1.json",
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -338,7 +112,7 @@ describe("Metadata", () => {
 
     // Mint as the general public
     const mintCost = ethers.utils.parseEther("0.1");
-    await minterContract.setPricing(10, 500, mintCost, mintCost, 10, 10);   
+    await minterContract.setPricing(10, 500, mintCost, mintCost, 10);   
     await minterContract.setAllowedMinter(2);
 
     await expect(minterContract.mintMultipleEditions(signerAddress, 10, {
@@ -353,14 +127,14 @@ describe("Metadata", () => {
       
     expect(await minterContract.totalSupply()).to.be.equal(10);
     expect(await minterContract.tokenURI(1)).to.be.equal("http://example.com/edition/1.json");   
-    expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/edition/2.json");    
-    expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/edition/3.json");    
+    expect(await minterContract.tokenURI(2)).to.be.equal("http://example.com/edition/1.json");    
+    expect(await minterContract.tokenURI(3)).to.be.equal("http://example.com/edition/1.json");    
     expect(await minterContract.tokenURI(4)).to.be.equal("http://example.com/edition/1.json");    
-    expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/edition/2.json");  
-    expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/edition/3.json");   
+    expect(await minterContract.tokenURI(5)).to.be.equal("http://example.com/edition/1.json");  
+    expect(await minterContract.tokenURI(6)).to.be.equal("http://example.com/edition/1.json");   
     expect(await minterContract.tokenURI(7)).to.be.equal("http://example.com/edition/1.json");    
-    expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/edition/2.json");    
-    expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/edition/3.json");    
+    expect(await minterContract.tokenURI(8)).to.be.equal("http://example.com/edition/1.json");    
+    expect(await minterContract.tokenURI(9)).to.be.equal("http://example.com/edition/1.json");    
     expect(await minterContract.tokenURI(10)).to.be.equal("http://example.com/edition/1.json");          
   });
 

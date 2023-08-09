@@ -48,8 +48,8 @@ describe("Mint in order", () => {
     await dynamicSketch.createDrop(
       "Testing Token",
       "TEST",
-      "http://example.com/token/",
-      10, 1, false);
+      "http://example.com/token/1.json",
+      10);
 
     const dropResult = await dynamicSketch.getDropAtId(0);
     minterContract = (await ethers.getContractAt(
@@ -58,7 +58,7 @@ describe("Mint in order", () => {
     )) as MembershipPassNFT;
 
     const mintCost = ethers.utils.parseEther("0.1");
-    await minterContract.setPricing(10, 500, mintCost, mintCost, 2, 1);
+    await minterContract.setPricing(500, mintCost, mintCost, 2, 1);
   });
 
   it("Mint as not the owner with drop not on sale", async () => {
@@ -69,7 +69,6 @@ describe("Mint in order", () => {
     await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");
 
     expect(await minterContract.totalSupply()).to.be.equal(0);
-    expect(await minterContract.isRandomMint()).to.be.equal(false);
   });
 
   it("Mint as not the owner with drop limited to the allow list", async () => {
@@ -80,7 +79,6 @@ describe("Mint in order", () => {
     await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Needs to be an allowed minter");
 
     expect(await minterContract.totalSupply()).to.be.equal(0);
-    expect(await minterContract.isRandomMint()).to.be.equal(false);
   });
 
   it("Mint as not the owner with drop omn general release", async () => {
@@ -99,7 +97,6 @@ describe("Mint in order", () => {
       );
 
     expect(await minterContract.totalSupply()).to.be.equal(1);
-    expect(await minterContract.isRandomMint()).to.be.equal(false);
   });
 
   it("Try to mint too many", async () => {
@@ -134,7 +131,6 @@ describe("Mint in order", () => {
     await expect(minterContract.connect(user).mintEdition(userAddress)).to.be.revertedWith("Wrong price");
 
     expect(await minterContract.totalSupply()).to.be.equal(0);
-    expect(await minterContract.isRandomMint()).to.be.equal(false);
   });
 
   it("Mint as owner with drop not on sale", async () => {
@@ -153,7 +149,6 @@ describe("Mint in order", () => {
       );
 
     expect(await minterContract.totalSupply()).to.be.equal(1);
-    expect(await minterContract.isRandomMint()).to.be.equal(false);
   });
 
   it("Mint as the owner with drop limited to the allow list", async () => {
@@ -172,7 +167,6 @@ describe("Mint in order", () => {
       );
 
     expect(await minterContract.totalSupply()).to.be.equal(1);
-    expect(await minterContract.isRandomMint()).to.be.equal(false);
   });
 
   it("Mint as the owner with drop omn general release", async () => {
@@ -191,6 +185,5 @@ describe("Mint in order", () => {
       );
 
     expect(await minterContract.totalSupply()).to.be.equal(1);
-    expect(await minterContract.isRandomMint()).to.be.equal(false);
   });
 });
