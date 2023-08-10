@@ -563,9 +563,15 @@ contract MembershipPassNFT is
         return (_baseDir);
     }
 
+    /**
+        @dev Get if the given token id is renewable
+        @param tokenId token id
+        @return if the token id is renewable
+    */
+    // solhint-disable-next-line no-unused-vars
     function _isRenewable(uint256 tokenId) private pure returns(bool) {
         return true;
-    }  
+    }
 
     function renewSubscription(uint256 tokenId, uint64 duration) external payable {
         require(_isApprovedOrOwner(msg.sender, tokenId), "Caller is not owner nor approved");
@@ -573,6 +579,7 @@ contract MembershipPassNFT is
         uint64 currentExpiration = _expirations[tokenId];
         uint64 newExpiration;
         if (currentExpiration == 0) {
+            // solhint-disable-next-line not-rely-on-time
             newExpiration = uint64(block.timestamp) + duration;
         } else {
             if (!_isRenewable(tokenId)) {
