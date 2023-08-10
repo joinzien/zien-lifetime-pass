@@ -16,6 +16,7 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {StringsUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 
 import {IMembershipPassNFT} from "./IMembershipPassNFT.sol";
+import {IERC5643} from "./IERC5643.sol";
 /**
     This is a smart contract for handling dynamic contract minting.
 
@@ -26,6 +27,7 @@ import {IMembershipPassNFT} from "./IMembershipPassNFT.sol";
 contract MembershipPassNFT is
     ERC721Upgradeable,
     IMembershipPassNFT,
+    IERC5643,
     IERC2981Upgradeable,
     OwnableUpgradeable
 {
@@ -53,6 +55,10 @@ contract MembershipPassNFT is
     /// So that the third-party platforms such as NFT market could
     /// timely update the images and related attributes of the NFTs.    
     event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId); 
+
+    /// @dev This error emits when the a non renewable subscription is 
+    /// attempted to be renewed
+    error SubscriptionNotRenewable();
 
     struct Pricing { 
         // Royalty amount in bps
@@ -93,6 +99,8 @@ contract MembershipPassNFT is
     string private _baseDir;
 
     uint256 private _currentIndex;
+
+    mapping(uint256 => uint64) private _expirations;
 
     // Global constructor for factory
     constructor() {
@@ -555,6 +563,43 @@ contract MembershipPassNFT is
         return (_baseDir);
     }
 
+    function _isRenewable(uint256 tokenId) private pure returns(bool) {
+        return true;
+    }  
+
+    function renewSubscription(uint256 tokenId, uint64 duration) external payable {
+        require(_isApprovedOrOwner(msg.sender, tokenId), "Caller is not owner nor approved");
+
+        uint64 currentExpiration = _expirations[tokenId];
+        uint64 newExpiration;
+        if (currentExpiration == 0) {
+            newExpiration = uint64(block.timestamp) + duration;
+        } else {
+            if (!_isRenewable(tokenId)) {
+                revert SubscriptionNotRenewable();
+            }
+            newExpiration = currentExpiration + duration;
+        }
+
+        _expirations[tokenId] = newExpiration;
+
+        emit SubscriptionUpdate(tokenId, newExpiration);
+    }
+
+    function cancelSubscription(uint256 tokenId) external payable {
+        require(_isApprovedOrOwner(msg.sender, tokenId), "Caller is not owner nor approved");
+        delete _expirations[tokenId];
+        emit SubscriptionUpdate(tokenId, 0);
+    }
+
+    function expiresAt(uint256 tokenId) external view returns(uint64) {
+        return _expirations[tokenId];
+    }
+
+    function isRenewable(uint256 tokenId) external pure returns(bool) {
+        return _isRenewable(tokenId);
+    }   
+
     function supportsInterface(bytes4 interfaceId)
         public
         view
@@ -563,6 +608,7 @@ contract MembershipPassNFT is
     {
         return
             type(IERC2981Upgradeable).interfaceId == interfaceId ||
-            ERC721Upgradeable.supportsInterface(interfaceId);
-    }
+            ERC721Upgradeable.supportsInterface(interfaceId) || 
+            type(IERC5643).interfaceId == interfaceId; 
+    }     
 }
