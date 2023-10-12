@@ -137,6 +137,14 @@ contract MembershipPassNFT is
         _currentIndex = 1;
     }
 
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
+        internal
+        override(ERC721Upgradeable)
+    {
+        require(from == address(0) || to == address(0), "This a Soulbound token. It cannot be transferred. It can only be burned by the token owner.");
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
+    }
+
     /// @dev returns the base directory string
     function baseDir() public view returns (string memory) {
         return _baseDir;
