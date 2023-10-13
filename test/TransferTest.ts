@@ -103,4 +103,26 @@ describe("Transfer", () => {
 
     await expect(minterContract.connect(signer)["safeTransferFrom(address,address,uint256)"](signerAddress, userAddress, 1)).to.be.revertedWith("This a Soulbound token. It cannot be transferred. It can only be burned by the token owner.");
   });
+
+  it("Try to safe transfer with data not as the owner", async () => {
+    await minterContract.mintEdition(await signer.getAddress(), {
+      value: ethers.utils.parseEther("0.1")
+    });
+    expect(await minterContract.ownerOf(1)).to.equal(
+      await signer.getAddress()
+    );
+    await expect(minterContract.connect(artist)["safeTransferFrom(address,address,uint256,bytes)"](signerAddress, userAddress, 1,"")).to.be.revertedWith("");
+  });
+
+  it("Can not safe transfer with data the token", async () => {
+    await minterContract.mintEdition(await signer.getAddress(), {
+      value: ethers.utils.parseEther("0.1")
+    });
+    expect(await minterContract.ownerOf(1)).to.equal(
+      await signer.getAddress()
+    );
+
+    await expect(minterContract.connect(signer)["safeTransferFrom(address,address,uint256,bytes)"](signerAddress, userAddress, 1,"")).to.be.revertedWith("");
+  });
+
 });
