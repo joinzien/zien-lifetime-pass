@@ -12,7 +12,6 @@ import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC72
 import {IERC2981Upgradeable, IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {StringsUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 
 import {IMembershipPassNFT} from "./IMembershipPassNFT.sol";
@@ -141,7 +140,7 @@ contract MembershipPassNFT is
         internal
         override(ERC721Upgradeable)
     {
-        require(from == address(0) || to == address(0), "This a Soulbound token. It cannot be transferred. It can only be burned by the token owner.");
+        require(from == address(0) || to == address(0), "This SBT cannot be transferred.");
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 

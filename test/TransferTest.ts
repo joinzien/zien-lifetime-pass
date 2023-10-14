@@ -80,7 +80,7 @@ describe("Transfer", () => {
       await signer.getAddress()
     );
 
-    await expect(minterContract.connect(signer).transferFrom(signerAddress, userAddress, 1)).to.be.revertedWith("This a Soulbound token. It cannot be transferred. It can only be burned by the token owner.");
+    await expect(minterContract.connect(signer).transferFrom(signerAddress, userAddress, 1)).to.be.revertedWith("This SBT cannot be transferred.");
   });
 
   it("Try to safe transfer not as the owner", async () => {
@@ -101,7 +101,7 @@ describe("Transfer", () => {
       await signer.getAddress()
     );
 
-    await expect(minterContract.connect(signer)["safeTransferFrom(address,address,uint256)"](signerAddress, userAddress, 1)).to.be.revertedWith("This a Soulbound token. It cannot be transferred. It can only be burned by the token owner.");
+    await expect(minterContract.connect(signer)["safeTransferFrom(address,address,uint256)"](signerAddress, userAddress, 1)).to.be.revertedWith("This SBT cannot be transferred.");
   });
 
   it("Try to safe transfer with data not as the owner", async () => {
