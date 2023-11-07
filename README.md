@@ -21,4 +21,8 @@ Based on the [Zora NFT Editions](https://github.com/ourzora/nft-editions) contra
 
 ## ABIs
 
-## Drops
+ - [V1](https://github.com/joinzien/zien-lifetime-pass/blob/main/abi/lifetimepass_v1.json)
+
+## Passes
+
+- [2024 Annual](https://opensea.io/collection/zien-annual-2024-membership)
